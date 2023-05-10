@@ -18,6 +18,11 @@ class RecipeItem(BaseModel):
 class Recipe(BaseModel):
     id: int
     items: List[RecipeItem] = []
+
+class FurnaceRecipe(BaseModel):
+    id: int
+    input: Item
+    output: Item
     
 class Block(BaseModel):
     id: int

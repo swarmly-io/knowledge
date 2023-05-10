@@ -1,0 +1,6 @@
+pydantic
+elasticsearch
+elasticsearch-dsl
+minecraft_data
+more_itertools
+networkx

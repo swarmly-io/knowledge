@@ -1,7 +1,8 @@
 from time import perf_counter
-from elastic_client import ElasticClient
-from knowledge.minecraft.models.normalised_models import Recipe, Item, RecipeItem, Block
-from util import rec_flatten
+from knowledge.elastic_client import ElasticClient
+from knowledge.minecraft.models.normalised_models import Recipe, Item, RecipeItem, Block, FurnaceRecipe
+from knowledge.util import rec_flatten
+from mcd_utils import get_item_model_by_name
 
 def normalise_and_load_recipes(es, mcd):
     recipe_ids = [r for r in mcd.recipes]
@@ -60,7 +61,30 @@ def normalise_and_load_blocks(es, mcd):
         block = Block(id=bid, display_name=block["displayName"], name=block['name'], hardness=block.get('hardness'), resistance=block.get('resistance'), requires=items, drops=drops)
         norm_blocks.append(block)
     es.bulk_load(norm_blocks)
-    
+
+def normalise_and_load_furnace_recipes(es, be_mcd, j_mcd):
+    recipe_ids = [r for r in be_mcd.recipes]
+    recipes = [(id, be_mcd.recipes[id]) for id in recipe_ids]
+
+    recipes = filter(
+        lambda recipe: recipe[1]['type'] == "furnace",
+        recipes)
+
+    norm_recipes = []
+    for rid, recipe in recipes:
+        input = recipe['ingredients'][0] # always has one input and one output
+        input_item = get_item_model_by_name(j_mcd, input['name'], bedrock=True)
+        input_item.quantity = input['count']
+
+        output = recipe['output'][0]
+        output_item = get_item_model_by_name(j_mcd, output['name'], bedrock=True)
+        output_item.quantity = output['count']
+
+        model = FurnaceRecipe(id=rid, input=input_item, output=output_item)
+
+        norm_recipes.append(model)
+    es.bulk_load(norm_recipes)
+
 def create_minecraft_indexes():
     import minecraft_data
     # Java edition minecraft-data
@@ -70,6 +94,11 @@ def create_minecraft_indexes():
     normalise_and_load_recipes(es, mcd)
     esb = ElasticClient.get_elastic_client("blocks")
     normalise_and_load_blocks(esb, mcd)
+
+    # furnace recipes are supported only in bedrock edition of minecraft
+    esf = ElasticClient.get_elastic_client("furnace_recipes")
+    mcd_be = minecraft_data("1.17.10", edition='bedrock')
+    normalise_and_load_furnace_recipes(esf, mcd_be, mcd)
 
 if __name__ == '__main__':
     import minecraft_data

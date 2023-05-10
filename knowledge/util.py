@@ -3,6 +3,9 @@ from collections.abc import Mapping
 from copy import deepcopy
 from typing import List
 from more_itertools import flatten
+from networkx import Graph
+import networkx as nx
+
 
 def first(l):
     return next((n for n in l), None)   
