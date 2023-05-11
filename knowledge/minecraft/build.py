@@ -111,9 +111,6 @@ def create_minecraft_indexes():
 if __name__ == '__main__':
     import minecraft_data
 
-    create_minecraft_indexes()
-    exit()
-
     # Java edition minecraft-data
     mcd = minecraft_data("1.17.1")
     es = ElasticClient.get_elastic_client("recipe")
