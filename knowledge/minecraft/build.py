@@ -1,7 +1,7 @@
 from time import perf_counter
 from knowledge.elastic_client import ElasticClient
 from knowledge.minecraft.mcd_utils import get_recipe_item_model_by_name
-from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList
+from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList, Food
 from knowledge.util import rec_flatten
 
 def normalise_and_load_recipes(es, mcd):
