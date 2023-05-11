@@ -83,6 +83,21 @@ def normalise_and_load_furnace_recipes(es, be_mcd, j_mcd):
         norm_recipes.append(model)
     es.bulk_load(norm_recipes)
 
+def normalise_and_load_foods(es, mcd):
+    foods = []
+    for food in mcd.foods.values():
+        foods.append(Food(
+            id=food['id'],
+            display_name=food['displayName'],
+            name=food['name'],
+            stack_size=food['stackSize'],
+            food_points=food['foodPoints'],
+            saturation=food['saturation'],
+            effective_quality=food['effectiveQuality'],
+            saturation_ratio=food['saturationRatio']
+        ))
+    es.bulk_load(foods)
+
 def create_minecraft_indexes():
     import minecraft_data
     # Java edition minecraft-data
@@ -97,6 +112,9 @@ def create_minecraft_indexes():
     esf = ElasticClient.get_elastic_client("furnace_recipes")
     mcd_be = minecraft_data("1.17.10", edition='bedrock')
     normalise_and_load_furnace_recipes(esf, mcd_be, mcd)
+
+    es_foods = ElasticClient.get_elastic_client("foods")
+    normalise_and_load_foods(es_foods, mcd)
 
 if __name__ == '__main__':
     import minecraft_data

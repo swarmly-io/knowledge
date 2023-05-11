@@ -33,3 +33,9 @@ class Block(BaseModel):
     resistance: Optional[int]
     requires: List[BaseItem]
     drops: List[BaseItem]
+
+class Food(BaseItem):
+    food_points: float
+    saturation: float
+    effective_quality: float
+    saturation_ratio: float
