@@ -1,4 +1,4 @@
-from knowledge.minecraft.models.normalised_models import RecipeItem
+from knowledge.minecraft.models.normalised_models import RecipeItem, BaseItem
 
 # very annoyingly, some bedrock items are named differently in
 # java edition, for example the wood types.
@@ -22,16 +22,23 @@ def bedrock_to_java_item_name(name):
     return bedrock_to_java_item_names[name]
 
 
-def get_recipe_item_model_by_name(mcd, name, quantity, bedrock=False):
+def get_item_model_by_name(mcd, name, bedrock=False):
     if bedrock:
         name = bedrock_to_java_item_name(name)
 
     entry = mcd.items_name[name]
     durability = entry['maxDurability'] if 'maxDurability' in entry else None
 
-    return RecipeItem(id=entry['id'],
-                      display_name=entry['displayName'],
-                      name=entry['name'],
-                      stack_size=entry['stackSize'],
-                      max_durability=durability,
-                      quantity=quantity)
+    return BaseItem(id=entry['id'],
+                    display_name=entry['displayName'],
+                    name=entry['name'],
+                    stack_size=entry['stackSize'],
+                    max_durability=durability)
+
+
+def get_recipe_item_model_by_name(mcd, name, quantity, bedrock=False):
+    base = get_item_model_by_name(mcd, name, bedrock)
+    d = base.dict()
+    d['quantity'] = quantity
+
+    return RecipeItem(**d)
