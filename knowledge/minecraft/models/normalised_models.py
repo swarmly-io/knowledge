@@ -3,31 +3,33 @@
 from typing import List, Optional
 from pydantic import BaseModel
 
-class Item(BaseModel):
+class BaseItem(BaseModel):
     id: int
     display_name: str
     name: str
     stack_size: int
-    quantity: int
     max_durability: Optional[int]
 
-class RecipeItem(BaseModel):
-    needs: List[Item]
-    provides: Item
+class RecipeItem(BaseItem):
+    quantity: int
     
 class Recipe(BaseModel):
+    needs: List[RecipeItem]
+    provides: RecipeItem
+    
+class RecipeList(BaseModel):
     id: int
-    items: List[RecipeItem] = []
+    items: List[Recipe] = []
 
 class FurnaceRecipe(BaseModel):
     id: int
-    input: Item
-    output: Item
+    input: RecipeItem
+    output: RecipeItem
     
 class Block(BaseModel):
     id: int
     display_name: str
     hardness: Optional[int]
     resistance: Optional[int]
-    requires: List[Item]
-    drops: List[Item]
+    requires: List[BaseItem]
+    drops: List[BaseItem]
