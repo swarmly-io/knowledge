@@ -1,7 +1,7 @@
 from time import perf_counter
 from knowledge.elastic_client import ElasticClient
 from knowledge.minecraft.mcd_utils import get_recipe_item_model_by_name, get_item_model_by_name
-from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList
+from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList, Food
 from knowledge.util import rec_flatten
 
 def normalise_and_load_recipes(es, mcd):
@@ -88,6 +88,21 @@ def normalise_and_load_items(es, mcd):
     for item_name in mcd.items_name.keys():
         items.append(get_item_model_by_name(mcd, item_name))
     es.bulk_load(items)
+    
+def normalise_and_load_foods(es, mcd):
+    foods = []
+    for food in mcd.foods.values():
+        foods.append(Food(
+            id=food['id'],
+            display_name=food['displayName'],
+            name=food['name'],
+            stack_size=food['stackSize'],
+            food_points=food['foodPoints'],
+            saturation=food['saturation'],
+            effective_quality=food['effectiveQuality'],
+            saturation_ratio=food['saturationRatio']
+        ))
+    es.bulk_load(foods)
 
 def create_minecraft_indexes():
     import minecraft_data
@@ -107,6 +122,8 @@ def create_minecraft_indexes():
     esi = ElasticClient.get_elastic_client("items")
     normalise_and_load_items(esi, mcd)
 
+    es_foods = ElasticClient.get_elastic_client("foods")
+    normalise_and_load_foods(es_foods, mcd)
 
 if __name__ == '__main__':
     import minecraft_data
