@@ -2,7 +2,7 @@ import json
 from time import perf_counter
 from knowledge.elastic_client import ElasticClient
 from knowledge.minecraft.mcd_utils import get_item_model_by_name
-from knowledge.minecraft.models.entity_models import Drop, EntityDrops
+from knowledge.minecraft.models.entity_models import BlockDrops, Drop, EntityDrops
 from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, RecipeList, Food, SmeltingRecipe
 from knowledge.util import rec_flatten
 
@@ -103,11 +103,22 @@ def load_entity_loot(es, mcd):
         entries.append(el)
     es.bulk_load(entries)
     
+def load_block_loot(es, mcd):
+    loot = mcd.blockLoot
+    entries = []
+    for l in loot:
+        drops = loot[l]
+        el = BlockDrops(id = l, block=l, drops = [Drop(**d) for d in drops])
+        entries.append(el)
+    es.bulk_load(entries)
 
 def create_minecraft_indexes():
     import minecraft_data
     # Java edition minecraft-data
     mcd = minecraft_data("1.17.1")
+    
+    esbl = ElasticClient.get_elastic_client("blockloot")
+    load_block_loot(esbl, mcd)
     
     esl = ElasticClient.get_elastic_client("entityloot")
     load_entity_loot(esl, mcd)

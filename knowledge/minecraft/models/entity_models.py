@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel
 
 class DmgStat(BaseModel):
@@ -30,11 +30,16 @@ class EntityMc(BaseModel):
 class Drop(BaseModel):
     item: str
     dropChance: float
-    stackSizeRange: List[int]
+    stackSizeRange: List[Union[int, None]]
     playerKill: Optional[bool] = None
 
 class EntityDrops(BaseModel):
     id: str
     entity: str
+    drops: List[Drop]
+    
+class BlockDrops(BaseModel):
+    id: str
+    block: str
     drops: List[Drop]
 
