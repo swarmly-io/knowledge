@@ -3,7 +3,7 @@
 from typing import List, Optional, Union
 from pydantic import BaseModel
 
-from knowledge.minecraft.models.id_model import IdModel
+from knowledge.id_model import IdModel
 
 class BaseItem(BaseModel):
     id: int
