@@ -24,11 +24,6 @@ class Recipe(BaseModel):
 class RecipeList(BaseModel):
     id: int
     items: List[Recipe] = []
-
-class FurnaceRecipe(BaseModel):
-    id: int
-    input: RecipeItem
-    output: RecipeItem
     
 class Block(BaseModel):
     id: int
