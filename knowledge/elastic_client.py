@@ -4,7 +4,6 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from elasticsearch.helpers import bulk
 
-# todo add config file
 class ElasticClient:
     def __init__(self, url, index: str):
         self.index = index
@@ -35,8 +34,16 @@ class ElasticClient:
 
         response = s.execute()
         return [hit.to_dict() for hit in response]
+
+class ElasticConfig:
     
-    @staticmethod
-    def get_elastic_client(index_name):
-        return ElasticClient("http://elastic:changeme@localhost:9200", index_name)
+    def __init__(self, https = False, username = "elastic", password = "changeme", url = "localhost", port = "9200") -> None:
+        self.connection_string = self.get_connection_string(https, username, password, url, port)
+    
+    def get_connection_string(self, https, username, password, url, port):
+        prefix = "http://" if not https else "https://"
+        return prefix + username + ":" + password + "@" + url + ":" + port
+    
+    def get_elastic_client(self, index_name):
+        return ElasticClient(self.connection_string, index_name)
         

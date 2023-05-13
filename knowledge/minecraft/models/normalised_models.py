@@ -18,8 +18,8 @@ class RecipeItem(BaseItem):
 class Recipe(BaseModel):
     needs: List[RecipeItem]
     provides: RecipeItem
-    type: str # todo make enum
-    name: str
+    #type: str # todo make enum
+    #name: str
     
 class RecipeList(BaseModel):
     id: int

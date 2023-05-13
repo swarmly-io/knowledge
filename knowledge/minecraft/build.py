@@ -39,7 +39,7 @@ def normalise_and_load_recipes(es, mcd):
             oit = mcd.find_item_or_block(ir['result']['id'])
             count = ir['result']['count']
             output_item = RecipeItem(id=oit['id'], display_name=oit['displayName'], name=oit['name'], stack_size=oit['stackSize'], quantity=count)
-            recipe_item = Recipe(needs = item_list, provides=output_item, type= ir['type'], name= ir['name'])
+            recipe_item = Recipe(needs = item_list, provides=output_item)
             recipe_list.items.append(recipe_item)
         norm_recipes.append(recipe_list)
         
@@ -112,31 +112,38 @@ def load_block_loot(es, mcd):
         entries.append(el)
     es.bulk_load(entries)
 
-def create_minecraft_indexes():
+def create_minecraft_indexes(elastic_config):
     import minecraft_data
     # Java edition minecraft-data
     mcd = minecraft_data("1.17.1")
     
-    esbl = ElasticClient.get_elastic_client("blockloot")
+    esbl = elastic_config.get_elastic_client("blockloot")
     load_block_loot(esbl, mcd)
+    print("Completed blockloot")
     
-    esl = ElasticClient.get_elastic_client("entityloot")
+    esl = elastic_config.get_elastic_client("entityloot")
     load_entity_loot(esl, mcd)
+    print("Completed entityloot")
     
-    ess = ElasticClient.get_elastic_client("smelting")
+    ess = elastic_config.get_elastic_client("smelting")
     load_smelting_recipes(ess)
+    print("Completed smelting")
     
-    es = ElasticClient.get_elastic_client("recipe")
+    es = elastic_config.get_elastic_client("recipe")
     normalise_and_load_recipes(es, mcd)
-    esb = ElasticClient.get_elastic_client("blocks")
+    print("Completed recipe")
+
+    esb = elastic_config.get_elastic_client("blocks")
     normalise_and_load_blocks(esb, mcd)
+    print("Completed blocks")
 
-    esi = ElasticClient.get_elastic_client("items")
+    esi = elastic_config.get_elastic_client("items")
     normalise_and_load_items(esi, mcd)
+    print("Completed items")
 
-    es_foods = ElasticClient.get_elastic_client("foods")
+    es_foods = elastic_config.get_elastic_client("foods")
     normalise_and_load_foods(es_foods, mcd)
-    
+    print("Completed foods")
     
 
 if __name__ == '__main__':
