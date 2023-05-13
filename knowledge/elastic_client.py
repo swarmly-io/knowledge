@@ -4,6 +4,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from elasticsearch.helpers import bulk
 
+
 class ElasticClient:
     def __init__(self, url, index: str):
         self.index = index
@@ -15,9 +16,10 @@ class ElasticClient:
     def put(self, model: BaseModel):
         doc_id = model.id
         self.es.index(index=self.index, id=doc_id, body=model.dict())
-        
+
     def bulk_load(self, models: List[BaseModel]):
-        actions = [{"_index": self.index, "_id": model.id, "_source": model.dict()} for model in models]
+        actions = [{"_index": self.index, "_id": model.id,
+                    "_source": model.dict()} for model in models]
         success, _ = bulk(client=self.es, actions=actions)
         return success
 
@@ -35,15 +37,22 @@ class ElasticClient:
         response = s.execute()
         return [hit.to_dict() for hit in response]
 
+
 class ElasticConfig:
-    
-    def __init__(self, https = False, username = "elastic", password = "changeme", url = "localhost", port = "9200") -> None:
-        self.connection_string = self.get_connection_string(https, username, password, url, port)
-    
+
+    def __init__(
+            self,
+            https=False,
+            username="elastic",
+            password="changeme",
+            url="localhost",
+            port="9200") -> None:
+        self.connection_string = self.get_connection_string(
+            https, username, password, url, port)
+
     def get_connection_string(self, https, username, password, url, port):
         prefix = "http://" if not https else "https://"
         return prefix + username + ":" + password + "@" + url + ":" + port
-    
+
     def get_elastic_client(self, index_name):
         return ElasticClient(self.connection_string, index_name)
-        
