@@ -12,6 +12,11 @@ else:
 
 load_dotenv(dotenv_path)
 
-elastic_config = ElasticConfig(https=current_env == 'local', username=os.getenv('ELASTIC_USERNAME'), password=os.getenv('ELASTIC_PASSWORD'), url=os.getenv('ELASTIC_URL'), port=os.getenv('ELASTIC_PORT'))
+elastic_config = ElasticConfig(
+    https=current_env == 'local',
+    username=os.getenv('ELASTIC_USERNAME'),
+    password=os.getenv('ELASTIC_PASSWORD'),
+    url=os.getenv('ELASTIC_URL'),
+    port=os.getenv('ELASTIC_PORT'))
 
 create_minecraft_indexes(elastic_config)

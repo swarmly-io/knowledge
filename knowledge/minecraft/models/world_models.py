@@ -2,10 +2,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, Field
 
+
 class Position(BaseModel):
     x: float
     y: float
     z: float
+
 
 class Status(BaseModel):
     health: int
@@ -13,14 +15,17 @@ class Status(BaseModel):
     saturation: int
     oxygen: int
 
+
 class Weather(BaseModel):
     isRaining: bool
     thunderLevel: int
+
 
 class Velocity(BaseModel):
     x: float
     y: float
     z: float
+
 
 class Metadatum(BaseModel):
     present: Optional[bool] = None
@@ -30,19 +35,23 @@ class Metadatum(BaseModel):
     name: Optional[str] = None
     value: Optional[Dict[str, Any]] = None
 
+
 class Modifier(BaseModel):
     uuid: str
     amount: float
     operation: int
 
+
 class MinecraftGenericMovementSpeed(BaseModel):
     value: float
     modifiers: List[Modifier]
+
 
 class Attributes(BaseModel):
     minecraft_generic_movement_speed: MinecraftGenericMovementSpeed = Field(
         ..., alias='minecraft:generic.movement_speed'
     )
+
 
 class CloseEntity(BaseModel):
     _events: Dict[str, Any]
@@ -58,7 +67,7 @@ class CloseEntity(BaseModel):
     effects: Dict[str, Any]
     equipment: List[Any]
     isValid: bool
-    #metadata: List[Union[Optional[Union[bool, float]], Metadatum]]
+    # metadata: List[Union[Optional[Union[bool, float]], Metadatum]]
     type: str
     uuid: Optional[str] = None
     mobType: Optional[str] = None
@@ -78,9 +87,11 @@ class CloseEntity(BaseModel):
     isCollidedHorizontally: Optional[bool] = None
     isCollidedVertically: Optional[bool] = None
 
+
 class Inventory(BaseModel):
     items: Dict[str, Any]
     emptySlots: int
+
 
 class AgentMCState(BaseModel):
     position: Position
