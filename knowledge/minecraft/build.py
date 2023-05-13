@@ -86,8 +86,10 @@ def normalise_and_load_blocks(es, mcd):
 
         block = Block(
             id=bid,
-            display_name=block["displayName"],
             name=block['name'],
+            material=block['material'],
+            diggable=block['diggable'],
+            display_name=block["displayName"],
             hardness=block.get('hardness'),
             resistance=block.get('resistance'),
             requires=items,

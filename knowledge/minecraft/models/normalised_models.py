@@ -32,8 +32,11 @@ class RecipeList(BaseModel):
 
 class Block(BaseModel):
     id: int
+    name: str
     display_name: str
     hardness: Optional[int]
+    material: str
+    diggable: Optional[bool]
     resistance: Optional[int]
     requires: List[BaseItem]
     drops: List[BaseItem]
