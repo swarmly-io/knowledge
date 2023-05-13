@@ -1,7 +1,8 @@
+import json
 from time import perf_counter
 from knowledge.elastic_client import ElasticClient
 from knowledge.minecraft.mcd_utils import get_recipe_item_model_by_name, get_item_model_by_name
-from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList, Food
+from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, FurnaceRecipe, RecipeList, Food, SmeltingRecipe
 from knowledge.util import rec_flatten
 
 def normalise_and_load_recipes(es, mcd):
@@ -37,7 +38,7 @@ def normalise_and_load_recipes(es, mcd):
             oit = mcd.find_item_or_block(ir['result']['id'])
             count = ir['result']['count']
             output_item = RecipeItem(id=oit['id'], display_name=oit['displayName'], name=oit['name'], stack_size=oit['stackSize'], quantity=count)
-            recipe_item = Recipe(needs = item_list, provides=output_item)
+            recipe_item = Recipe(needs = item_list, provides=output_item, type= ir['type'], name= ir['name'])
             recipe_list.items.append(recipe_item)
         norm_recipes.append(recipe_list)
         
@@ -103,8 +104,20 @@ def normalise_and_load_foods(es, mcd):
             saturation_ratio=food['saturationRatio']
         ))
     es.bulk_load(foods)
+    
+def load_smelting_recipes(es):
+    with open("./knowledge/extraction/data/smelting_recipes.json") as file:
+        smelting = json.load(file)
+    entries = []
+    for s in smelting:
+        e = SmeltingRecipe(**s)
+        entries.append(e)
+    es.bulk_load(entries)
 
 def create_minecraft_indexes():
+    ess = ElasticClient.get_elastic_client("smelting")
+    load_smelting_recipes(ess)
+
     import minecraft_data
     # Java edition minecraft-data
     mcd = minecraft_data("1.17.1")
@@ -115,9 +128,9 @@ def create_minecraft_indexes():
     normalise_and_load_blocks(esb, mcd)
 
     # furnace recipes are supported only in bedrock edition of minecraft
-    esf = ElasticClient.get_elastic_client("furnace_recipes")
-    mcd_be = minecraft_data("1.17.10", edition='bedrock')
-    normalise_and_load_furnace_recipes(esf, mcd_be, mcd)
+    ##esf = ElasticClient.get_elastic_client("furnace_recipes")
+    #mcd_be = minecraft_data("1.17.10", edition='bedrock')
+#    normalise_and_load_furnace_recipes(esf, mcd_be, mcd)
 
     esi = ElasticClient.get_elastic_client("items")
     normalise_and_load_items(esi, mcd)
