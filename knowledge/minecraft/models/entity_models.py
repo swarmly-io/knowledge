@@ -28,7 +28,7 @@ class EntityMc(BaseModel):
     displayName: str
     name: str
     type: str
-    networkId: int
+    networkId: Optional[int]
     damage: Optional[Damage]
     health: Optional[HealthStat]
 
@@ -50,3 +50,4 @@ class BlockDrops(BaseModel):
     id: str
     block: str
     drops: List[Drop]
+    

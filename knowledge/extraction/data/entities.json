@@ -1,0 +1,583 @@
+[
+    {
+      "id": 1,
+      "displayName": "Dropped item",
+      "name": "item",
+      "type": "Drops",
+      "networkId": 2
+    },
+    {
+      "id": 2,
+      "displayName": "Experience orb",
+      "name": "xp_orb",
+      "type": "Drops",
+      "networkId": null
+    },
+    {
+      "id": 3,
+      "displayName": "Area effect cloud",
+      "name": "area_effect_cloud",
+      "type": "Immobile",
+      "networkId": 3
+    },
+    {
+      "id": 4,
+      "displayName": "Elder guardian",
+      "name": "elder_guardian",
+      "type": "Hostile mobs",
+      "networkId": 4
+    },
+    {
+      "id": 5,
+      "displayName": "Wither skeleton",
+      "name": "wither_skeleton",
+      "type": "Hostile mobs",
+      "networkId": 5
+    },
+    {
+      "id": 6,
+      "displayName": "Stray",
+      "name": "stray",
+      "type": "Hostile mobs",
+      "networkId": 6
+    },
+    {
+      "id": 7,
+      "displayName": "Thrown egg",
+      "name": "egg",
+      "type": "Projectiles",
+      "networkId": 62
+    },
+    {
+      "id": 8,
+      "displayName": "Lead knot",
+      "name": "leash_knot",
+      "type": "Immobile",
+      "networkId": 77
+    },
+    {
+      "id": 9,
+      "displayName": "Painting",
+      "name": "painting",
+      "type": "Immobile",
+      "networkId": null
+    },
+    {
+      "id": 10,
+      "displayName": "Shot arrow",
+      "name": "arrow",
+      "type": "Projectiles",
+      "networkId": 60
+    },
+    {
+      "id": 11,
+      "displayName": "Thrown snowball",
+      "name": "snowball",
+      "type": "Projectiles",
+      "networkId": 61
+    },
+    {
+      "id": 12,
+      "displayName": "Ghast fireball",
+      "name": "fireball",
+      "type": "Projectiles",
+      "networkId": 63
+    },
+    {
+      "id": 13,
+      "displayName": "Blaze fireball",
+      "name": "small_fireball",
+      "type": "Projectiles",
+      "networkId": 64
+    },
+    {
+      "id": 14,
+      "displayName": "Thrown ender pearl",
+      "name": "ender_pearl",
+      "type": "Projectiles",
+      "networkId": 65
+    },
+    {
+      "id": 15,
+      "displayName": "Thrown eye of ender",
+      "name": "eye_of_ender_signal",
+      "type": "Projectiles",
+      "networkId": 72
+    },
+    {
+      "id": 16,
+      "displayName": "Thrown splash potion",
+      "name": "potion",
+      "type": "Projectiles",
+      "networkId": 73
+    },
+    {
+      "id": 17,
+      "displayName": "Thrown bottle o' enchanting",
+      "name": "xp_bottle",
+      "type": "Projectiles",
+      "networkId": 75
+    },
+    {
+      "id": 18,
+      "displayName": "Item frame",
+      "name": "item_frame",
+      "type": "Immobile",
+      "networkId": 71
+    },
+    {
+      "id": 19,
+      "displayName": "Wither skull",
+      "name": "wither_skull",
+      "type": "Projectiles",
+      "networkId": 66
+    },
+    {
+      "id": 20,
+      "displayName": "Primed TNT",
+      "name": "tnt",
+      "type": "Blocks",
+      "networkId": 50
+    },
+    {
+      "id": 21,
+      "displayName": "Falling block",
+      "name": "falling_block",
+      "type": "Blocks",
+      "networkId": 70
+    },
+    {
+      "id": 22,
+      "displayName": "Firework rocket",
+      "name": "fireworks_rocket",
+      "type": "Projectiles",
+      "networkId": 76
+    },
+    {
+      "id": 23,
+      "displayName": "Husk",
+      "name": "husk",
+      "type": "Hostile mobs",
+      "networkId": 23
+    },
+    {
+      "id": 24,
+      "displayName": "Shot spectral arrow",
+      "name": "spectral_arrow",
+      "type": "Projectiles",
+      "networkId": 91
+    },
+    {
+      "id": 25,
+      "displayName": "Shulker bullet",
+      "name": "shulker_bullet",
+      "type": "Projectiles",
+      "networkId": 67
+    },
+    {
+      "id": 26,
+      "displayName": "Dragon fireball",
+      "name": "dragon_fireball",
+      "type": "Projectiles",
+      "networkId": 93
+    },
+    {
+      "id": 27,
+      "displayName": "Zombie Villager",
+      "name": "zombie_villager",
+      "type": "Hostile mobs",
+      "networkId": 27
+    },
+    {
+      "id": 28,
+      "displayName": "Skeleton horse",
+      "name": "skeleton_horse",
+      "type": "Passive mobs",
+      "networkId": 28
+    },
+    {
+      "id": 29,
+      "displayName": "Zombie horse",
+      "name": "zombie_horse",
+      "type": "Passive mobs",
+      "networkId": 29
+    },
+    {
+      "id": 30,
+      "displayName": "Armor stand",
+      "name": "armor_stand",
+      "type": "Immobile",
+      "networkId": 78
+    },
+    {
+      "id": 31,
+      "displayName": "Donkey",
+      "name": "donkey",
+      "type": "Passive mobs",
+      "networkId": 31
+    },
+    {
+      "id": 32,
+      "displayName": "Mule",
+      "name": "mule",
+      "type": "Passive mobs",
+      "networkId": 32
+    },
+    {
+      "id": 33,
+      "displayName": "Evoker Fangs",
+      "name": "evocation_fangs",
+      "type": "Immobile",
+      "networkId": 79
+    },
+    {
+      "id": 34,
+      "displayName": "Evoker",
+      "name": "evocation_illager",
+      "type": "Hostile mobs",
+      "networkId": 34
+    },
+    {
+      "id": 35,
+      "displayName": "Vex",
+      "name": "vex",
+      "type": "Hostile mobs",
+      "networkId": 35
+    },
+    {
+      "id": 36,
+      "displayName": "Vindicator",
+      "name": "vindication_illager",
+      "type": "Hostile mobs",
+      "networkId": 36
+    },
+    {
+      "id": 37,
+      "displayName": "Illusioner",
+      "name": "illusion_illager",
+      "type": "Hostile mobs",
+      "networkId": 37
+    },
+    {
+      "id": 40,
+      "displayName": "Minecart with command block",
+      "name": "commandblock_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 41,
+      "displayName": "Boat",
+      "name": "boat",
+      "type": "Vehicles",
+      "networkId": 1
+    },
+    {
+      "id": 42,
+      "displayName": "Minecart",
+      "name": "minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 43,
+      "displayName": "Minecart with chest",
+      "name": "chest_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 44,
+      "displayName": "Minecart with furnace",
+      "name": "furnace_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 45,
+      "displayName": "Minecart with TNT",
+      "name": "tnt_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 46,
+      "displayName": "Minecart with hopper",
+      "name": "hopper_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 47,
+      "displayName": "Minecart with spawner",
+      "name": "spawner_minecart",
+      "type": "Vehicles",
+      "networkId": 10
+    },
+    {
+      "id": 50,
+      "displayName": "Creeper",
+      "name": "creeper",
+      "type": "Hostile mobs",
+      "networkId": 50
+    },
+    {
+      "id": 51,
+      "displayName": "Skeleton",
+      "name": "skeleton",
+      "type": "Hostile mobs",
+      "networkId": 51
+    },
+    {
+      "id": 52,
+      "displayName": "Spider",
+      "name": "spider",
+      "type": "Hostile mobs",
+      "networkId": 52
+    },
+    {
+      "id": 53,
+      "displayName": "Giant",
+      "name": "giant",
+      "type": "Hostile mobs",
+      "networkId": 53
+    },
+    {
+      "id": 54,
+      "displayName": "Zombie",
+      "name": "zombie",
+      "type": "Hostile mobs",
+      "networkId": 54
+    },
+    {
+      "id": 55,
+      "displayName": "Slime",
+      "name": "slime",
+      "type": "Hostile mobs",
+      "networkId": 55
+    },
+    {
+      "id": 56,
+      "displayName": "Ghast",
+      "name": "ghast",
+      "type": "Hostile mobs",
+      "networkId": 56
+    },
+    {
+      "id": 57,
+      "displayName": "Zombie pigman",
+      "name": "zombie_pigman",
+      "type": "Hostile mobs",
+      "networkId": 57
+    },
+    {
+      "id": 58,
+      "displayName": "Enderman",
+      "name": "enderman",
+      "type": "Hostile mobs",
+      "networkId": 58
+    },
+    {
+      "id": 59,
+      "displayName": "Cave spider",
+      "name": "cave_spider",
+      "type": "Hostile mobs",
+      "networkId": 59
+    },
+    {
+      "id": 60,
+      "displayName": "Silverfish",
+      "name": "silverfish",
+      "type": "Hostile mobs",
+      "networkId": 60
+    },
+    {
+      "id": 61,
+      "displayName": "Blaze",
+      "name": "blaze",
+      "type": "Hostile mobs",
+      "networkId": 61
+    },
+    {
+      "id": 62,
+      "displayName": "Magma cube",
+      "name": "magma_cube",
+      "type": "Hostile mobs",
+      "networkId": 62
+    },
+    {
+      "id": 63,
+      "displayName": "Ender dragon",
+      "name": "ender_dragon",
+      "type": "Hostile mobs",
+      "networkId": 63
+    },
+    {
+      "id": 64,
+      "displayName": "Wither",
+      "name": "wither",
+      "type": "Hostile mobs",
+      "networkId": 64
+    },
+    {
+      "id": 65,
+      "displayName": "Bat",
+      "name": "bat",
+      "type": "Passive mobs",
+      "networkId": 65
+    },
+    {
+      "id": 66,
+      "displayName": "Witch",
+      "name": "witch",
+      "type": "Hostile mobs",
+      "networkId": 66
+    },
+    {
+      "id": 67,
+      "displayName": "Endermite",
+      "name": "endermite",
+      "type": "Hostile mobs",
+      "networkId": 67
+    },
+    {
+      "id": 68,
+      "displayName": "Guardian",
+      "name": "guardian",
+      "type": "Hostile mobs",
+      "networkId": 68
+    },
+    {
+      "id": 69,
+      "displayName": "Shulker",
+      "name": "shulker",
+      "type": "Hostile mobs",
+      "networkId": 69
+    },
+    {
+      "id": 90,
+      "displayName": "Pig",
+      "name": "pig",
+      "type": "Passive mobs",
+      "networkId": 90
+    },
+    {
+      "id": 91,
+      "displayName": "Sheep",
+      "name": "sheep",
+      "type": "Passive mobs",
+      "networkId": 91
+    },
+    {
+      "id": 92,
+      "displayName": "Cow",
+      "name": "cow",
+      "type": "Passive mobs",
+      "networkId": 92
+    },
+    {
+      "id": 93,
+      "displayName": "Chicken",
+      "name": "chicken",
+      "type": "Passive mobs",
+      "networkId": 93
+    },
+    {
+      "id": 94,
+      "displayName": "Squid",
+      "name": "squid",
+      "type": "Passive mobs",
+      "networkId": 94
+    },
+    {
+      "id": 95,
+      "displayName": "Wolf",
+      "name": "wolf",
+      "type": "Passive mobs",
+      "networkId": 95
+    },
+    {
+      "id": 96,
+      "displayName": "Mooshroom",
+      "name": "mooshroom",
+      "type": "Passive mobs",
+      "networkId": 96
+    },
+    {
+      "id": 97,
+      "displayName": "Snow golem",
+      "name": "snowman",
+      "type": "Passive mobs",
+      "networkId": 97
+    },
+    {
+      "id": 98,
+      "displayName": "Ocelot",
+      "name": "ocelot",
+      "type": "Passive mobs",
+      "networkId": 98
+    },
+    {
+      "id": 99,
+      "displayName": "Iron golem",
+      "name": "villager_golem",
+      "type": "Passive mobs",
+      "networkId": 99
+    },
+    {
+      "id": 100,
+      "displayName": "Horse",
+      "name": "horse",
+      "type": "Passive mobs",
+      "networkId": 100
+    },
+    {
+      "id": 101,
+      "displayName": "Rabbit",
+      "name": "rabbit",
+      "type": "Passive mobs",
+      "networkId": 101
+    },
+    {
+      "id": 102,
+      "displayName": "Polar bear",
+      "name": "polar_bear",
+      "type": "Passive mobs",
+      "networkId": 102
+    },
+    {
+      "id": 103,
+      "displayName": "Llama",
+      "name": "llama",
+      "type": "Passive mobs",
+      "networkId": 103
+    },
+    {
+      "id": 104,
+      "displayName": "Llama spit",
+      "name": "llama_spit",
+      "type": "Projectiles",
+      "networkId": 68
+    },
+    {
+      "id": 105,
+      "displayName": "Parrot",
+      "name": "parrot",
+      "type": "Passive mobs",
+      "networkId": 105
+    },
+    {
+      "id": 120,
+      "displayName": "Villager",
+      "name": "villager",
+      "type": "Passive mobs",
+      "networkId": 120
+    },
+    {
+      "id": 200,
+      "displayName": "End crystal",
+      "name": "ender_crystal",
+      "type": "Immobile",
+      "networkId": 51
+    }
+  ]
