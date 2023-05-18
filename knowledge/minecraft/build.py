@@ -2,7 +2,7 @@ import json
 from time import perf_counter
 from knowledge.elastic_client import ElasticClient
 from knowledge.minecraft.mcd_utils import get_item_model_by_name
-from knowledge.minecraft.models.entity_models import BlockDrops, Drop, EntityDrops, EntityMc
+from knowledge.minecraft.models.entity_models import BlockDrops, Drop, EntitiesDmg, EntityDrops, EntityMc
 from knowledge.minecraft.models.normalised_models import Recipe, BaseItem, RecipeItem, Block, RecipeList, Food, SmeltingRecipe
 from knowledge.util import rec_flatten
 
@@ -138,6 +138,15 @@ def load_entities(es):
         e = EntityMc(**en)
         entries.append(e)
     es.bulk_load(entries)
+    
+def load_hostile_entities_dmg(es):
+    with open("./knowledge/extraction/data/entities_dmg.json") as file:
+        entities = json.load(file)
+    entries = []
+    for en in entities:
+        e = EntitiesDmg(**en)
+        entries.append(e)
+    es.bulk_load(entries)
 
 
 def load_entity_loot(es, mcd):
@@ -168,6 +177,10 @@ def create_minecraft_indexes(elastic_config):
     esen = elastic_config.get_elastic_client("entities")
     load_entities(esen)
     print("Completed loading entities")
+    
+    esdmg = elastic_config.get_elastic_client("entitiesdmg")
+    load_hostile_entities_dmg(esdmg)
+    print("Completed loading hostile entities dmg")
 
     esbl = elastic_config.get_elastic_client("blockloot")
     load_block_loot(esbl, mcd)

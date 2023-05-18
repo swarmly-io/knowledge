@@ -31,7 +31,11 @@ class EntityMc(BaseModel):
     networkId: Optional[int]
     damage: Optional[Damage]
     health: Optional[HealthStat]
-
+    
+class EntitiesDmg(BaseModel):
+    id: str
+    description: List[str]
+    figures: List[Union[List[int], int, None]]
 
 class Drop(BaseModel):
     item: str
