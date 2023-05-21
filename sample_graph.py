@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 
+
 class GraphComposer:
     def __init__(self, graph_dict, linking_instructions):
         self.graph_dict = graph_dict
@@ -18,20 +19,24 @@ class GraphComposer:
         link = linking_instruction['link']
         target_graph = self.graph_dict[target]
         source_graph = self.graph_dict[source]
-        
+
         for source_node in source_graph.nodes(data=True):
-            target_node = next(filter(lambda x: x if link(source_node[1], x[1]) else None, target_graph.nodes(data=True)), None)
+            target_node = next(
+                filter(
+                    lambda x: x if link(
+                        source_node[1], x[1]) else None, target_graph.nodes(
+                        data=True)), None)
             if target_node:
                 new_source = source + ":" + source_node[0]
                 new_target = target + ":" + target_node[0]
                 self.composed_graph.add_node(new_source, **source_node[1])
                 self.composed_graph.add_node(new_target, **target_node[1])
-                
+
                 self.composed_graph.add_edge(new_source, new_target)
-                
 
     def get_composed_graph(self):
         return self.composed_graph
+
 
 blocks_graph = nx.Graph()
 blocks_graph.add_node('cobblestone', props={'drops': ['stone']})
@@ -64,7 +69,10 @@ linking_instructions = [
 ]
 
 # Create an instance of the GraphComposer class
-composer = GraphComposer({'blocks': blocks_graph, 'items': items_graph, 'food': food_graph}, linking_instructions)
+composer = GraphComposer({'blocks': blocks_graph,
+                          'items': items_graph,
+                          'food': food_graph},
+                         linking_instructions)
 
 # Compose the graphs
 composer.compose_graphs()
@@ -77,10 +85,9 @@ print("Composed Graph:")
 print(composed_graph.nodes())
 print(composed_graph.edges())
 
-#pos = graphviz_layout(composed_graph, prog="circo")
+# pos = graphviz_layout(composed_graph, prog="circo")
 pos = nx.spring_layout(composed_graph)
 
 # Draw the graph
 nx.draw_networkx(composed_graph, pos, with_labels=True)
 plt.show()
-
