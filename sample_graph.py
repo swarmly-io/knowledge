@@ -1,33 +1,40 @@
+from typing import List, Optional
 import networkx as nx
 import matplotlib.pyplot as plt
 
+from utils import dfs
+
 class GraphComposer:
-    def __init__(self, graph_dict, linking_instructions, filter_graphs):
+    def __init__(self, graph_dict, linking_instructions, join_graphs, lenses):
         self.graph_dict = graph_dict
         self.linking_instructions = linking_instructions
         self.composed_graph = nx.DiGraph()
-        self.filter_graphs = filter_graphs
+        self.join_graphs = join_graphs
+        self.lenses = lenses
 
     def compose_graphs(self):
         for linking_instruction in self.linking_instructions:
             self._link_graphs(linking_instruction)
             
-        for source_name, f_graph in self.filter_graphs['sources']:
-            for n in f_graph.nodes(data=True):
-                filters = n[1]['props']['filters']
-                for filter in filters:
-                    index = filter['index']
-                    filter = filter['filter']
-                    graph = self.filter_graphs['on'].get(index)
-                    if not graph:
-                        continue
+        for source_name, f_graph in self.join_graphs['sources']:
+            self.one_to_many_joins(source_name, f_graph)
 
-                    filtered_nodes = [node for node in graph.nodes(data=True) if filter(node[1]['props'])]
-                    for nt in filtered_nodes:
-                        new_source = source_name + ":" + n[0]
-                        new_target = index + ":" + nt[0]
-                        self.composed_graph.add_edge(new_source, new_target)
+    def one_to_many_joins(self, source_name, f_graph):
+        for n in f_graph.nodes(data=True):
+            joins = n[1]['props']['joins']
+            for join in joins:
+                index = join['index']
+                filter_fn = join['filter']
+                graph = self.join_graphs['on'].get(index)
+                if not graph:
+                    continue
 
+                filtered_nodes = [node for node in graph.nodes(data=True) if filter_fn(node[1]['props'])]
+                for nt in filtered_nodes:
+                    new_source = source_name + ":" + n[0]
+                    new_target = index + ":" + nt[0]
+                    self.composed_graph.add_edge(new_source, new_target)
+                        
     def _link_graphs(self, linking_instruction):
         target = linking_instruction['target']
         source = linking_instruction['source']
@@ -40,12 +47,36 @@ class GraphComposer:
             for target_node in target_nodes:
                 new_source = source + ":" + source_node[0]
                 new_target = target + ":" + target_node[0]
-                self.composed_graph.add_node(new_source, **source_node[1])
-                self.composed_graph.add_node(new_target, **target_node[1])
+                source_data = { **source_node[1], 'source': source }
+                target_data = { **target_node[1], 'source': target }
+                self.composed_graph.add_node(new_source, **source_data)
+                self.composed_graph.add_node(new_target, **target_data)
                 
                 self.composed_graph.add_edge(new_source, new_target)
                 
-
+    def apply_lenses(self, lense_names: List[str], graph: Optional[nx.DiGraph]):
+        # create a sub graph based on the lense
+        G: nx.DiGraph = graph or self.composed_graph
+        nodes = G.nodes(data=True)
+        new_nodes = []
+        for lense_name in lense_names:
+            lense = self.lenses[lense_name]
+            for n in nodes:
+                if lense['source'](n):
+                    if lense['condition'](n):
+                        new_nodes.append(n)              
+                else:
+                    new_nodes.append(n)
+        
+        T = nx.DiGraph()
+        for n in new_nodes:
+            T.add_node(n[0], **n[1])
+            
+        filtered_edges = [(u, v) for (u, v) in G.edges() if u in T.nodes() and v in T.nodes()]
+        T.add_edges_from(filtered_edges)
+        return T
+            
+                
     def get_composed_graph(self):
         return self.composed_graph
 
@@ -63,29 +94,39 @@ items_graph.add_node('carrot', props={'name': 'carrot' })
 items_graph.add_node('stone_pickaxe', props={'name': 'stone_pickaxe'})
 items_graph.add_node('wooden_pickaxe', props={'name': 'wooden_pickaxe'})
 
-
 actions_graph = nx.Graph()
 mine_filters = [{'index': 'blocks', 'filter': lambda x: x.get('material') == 'mineable/pickaxe' },
                 {'index': 'items', 'filter': lambda x: 'pickaxe' in x.get('name') }]
 actions_graph.add_node('mine', props = { 'name': 'mine', 
-                                        'filters': mine_filters })
-actions_graph.add_node('collect', props = { 'name': 'collect', 'filters': [{ 'index': 'items', 'filter': lambda x: x } ] })
-actions_graph.add_node('fight', props = { 'name':'fight', 'filters': [{'index': 'entities', 'filter': lambda x: x['type'] == 'Hostile mobs'} ] })
-actions_graph.add_node('hunt', props = { 'name':'hunt', 'filters': [{ 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' }] })
-actions_graph.add_node('eat', props = { 'name':'eat', 'filters': [{ 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 }] })
-actions_graph.add_node('craft', props = { 'name':'craft', 'filters': [{'index': 'recipe', 'filter': lambda x: x }] })
-actions_graph.add_node('smelt', props = { 'name':'smelt', 'filters': [{ 'index': 'smelting', 'filter': lambda x: x }]})
+                                        'joins': mine_filters })
+actions_graph.add_node('collect', props = { 'name': 'collect', 'joins': [{ 'index': 'items', 'filter': lambda x: x } ] })
+actions_graph.add_node('fight', props = { 'name':'fight', 'joins': [{'index': 'entities', 'filter': lambda x: x['type'] == 'Hostile mobs'} ] })
+actions_graph.add_node('hunt', props = { 'name':'hunt', 'joins': [{ 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' }] })
+actions_graph.add_node('eat', props = { 'name':'eat', 'joins': [{ 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 }] })
+actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipe', 'filter': lambda x: x }] })
+actions_graph.add_node('smelt', props = { 'name':'smelt', 'joins': [{ 'index': 'smelting', 'filter': lambda x: x }]})
 
 agent_graph = nx.Graph()
 agent_graph.add_node('bill', props={ 'actions': ['mine', 'collect', 'fight', 'hunt', 'eat', 'craft', 'smelt'] })
 
-# todo state graph -> inventory, health, observations
+inventory_graph = nx.Graph()
+inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })
 
+# todo state graph -> inventory, health, observations
 
 food_graph = nx.Graph()
 food_graph.add_node('apple', props={'name': 'apple'})
 food_graph.add_node('bread', props={'name': 'bread'})
 food_graph.add_node('carrot', props={'name': 'carrot'})
+
+def ins(x):
+    print('here',x)
+    return x
+
+lenses = {
+    'only_inventory_mining_items': { 'source': lambda x: 'items' in x[1]['source'], 
+                              'condition': lambda x: 'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in inventory_graph.nodes(data=True)] }
+}
 
 linking_instructions = [
     {
@@ -108,18 +149,19 @@ linking_instructions = [
         'target': 'actions',
         'link': lambda s, t: t['props']['name'] in s['props']['actions']
     }
-]
+] 
 
 graph_dict = {'blocks': blocks_graph, 
                           'items': items_graph, 
                           'food': food_graph, 
                           'actions': actions_graph, 
-                          'agent': agent_graph }
+                          'agent': agent_graph,
+                          'inventory': inventory_graph }
 
-filter_links = { 'sources': [('actions', actions_graph)], 'on': graph_dict }
+one_to_many_join_graphs = { 'sources': [('actions', actions_graph)], 'on': graph_dict }
 
 # Create an instance of the GraphComposer class
-composer = GraphComposer(graph_dict, linking_instructions, filter_links)
+composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
 
 # Compose the graphs
 composer.compose_graphs()
@@ -133,11 +175,17 @@ print(composed_graph.nodes())
 print(composed_graph.edges())
 
 def create_actions_tree(action):
-    dfs_tree = nx.dfs_tree(composed_graph, source=action)
+    dfs_tree = dfs(composed_graph, source=action)
     return dfs_tree
 
 def draw_action_tree(action):
     action_tree = create_actions_tree(action)
+    pos = nx.spring_layout(action_tree)
+    nx.draw_networkx(action_tree, pos, with_labels=True)
+    
+def draw_action_tree_with_lenses(action):
+    action_tree = create_actions_tree(action)
+    action_tree = composer.apply_lenses(['only_inventory_mining_items'], action_tree)
     pos = nx.spring_layout(action_tree)
     nx.draw_networkx(action_tree, pos, with_labels=True)
 
@@ -148,8 +196,11 @@ def draw_all_graph():
 def draw():
     draw_action_tree('actions:mine')
     plt.show()
+    draw_action_tree_with_lenses('actions:mine')
+    plt.show()
 
     draw_all_graph()
     plt.show()
     
 draw()
+
