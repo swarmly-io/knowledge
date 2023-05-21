@@ -2,7 +2,7 @@ from typing import List, Optional
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from utils import bfs_subgraph
+from utils import bfs_subgraph, dfs_paths, graph_from_paths
 
 class GraphComposer:
     def __init__(self, graph_dict, linking_instructions, join_graphs, lenses):
@@ -21,6 +21,9 @@ class GraphComposer:
 
     def one_to_many_joins(self, source_name, f_graph):
         for n in f_graph.nodes(data=True):
+            if not n[1]['props'].get('joins'):
+                continue
+            
             joins = n[1]['props']['joins']
             for join in joins:
                 index, filter_fn, sub_joins, graph = self.get_join_info(join)
@@ -122,9 +125,11 @@ actions_graph.add_node('fight', props = { 'name':'fight', 'joins': [{'index': 'e
 actions_graph.add_node('hunt', props = { 'name':'hunt', 'joins': [{ 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' }] })
 actions_graph.add_node('eat', props = { 'name':'eat', 'joins': [{ 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 }] })
 actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipe', 'filter': lambda x: x }] })
+actions_graph.add_node('trade', props={ 'name': 'trade', 'joins': [{ 'index': 'trade', 'filter': lambda x: 'bid' in x['name'] or 'ask' in x['name'] }] })
+# can only trade things in inventory/storage or that have an ask on them
 
 agent_graph = nx.Graph()
-agent_graph.add_node('bill', props={ 'actions': ['mine', 'collect', 'fight', 'hunt', 'eat', 'craft', 'smelt'] })
+agent_graph.add_node('bill', props={ 'actions': ['mine', 'collect', 'fight', 'hunt', 'eat', 'craft', 'smelt', 'trade'] })
 
 inventory_graph = nx.Graph()
 inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })
@@ -135,6 +140,16 @@ food_graph = nx.Graph()
 food_graph.add_node('apple', props={'name': 'apple'})
 food_graph.add_node('bread', props={'name': 'bread'})
 food_graph.add_node('carrot', props={'name': 'carrot'})
+
+goals_graph = nx.Graph()
+goals_graph.add_node('make_money', props={'name': 'make_money', 'objective': ['money'] })
+
+trade_graph = nx.Graph()
+trade_graph.add_node('bid', props={ 'name': 'bid', 'joins': [{'index': 'trade', 'filter': lambda x: 'debit' == x['name'] }]  }) # money -> debit -> all items
+trade_graph.add_node('ask', props={ 'name': 'ask', 'joins': [{'index': 'trade', 'filter': lambda x: 'credit' == x['name']  }] }) # inventory items -> credit -> money
+trade_graph.add_node('debit', props={'name': 'debit', 'joins': [{ 'index': 'items', 'filter': lambda x: x } ] }) 
+trade_graph.add_node('credit', props={'name': 'credit', 'joins': [{ 'index': 'inventory', 'filter': lambda x: x } ] }) # could be , { 'index': 'trade', 'filter': lambda x: 'money' in x['name'] }
+trade_graph.add_node('money', props={'name': 'money', 'joins': [{ 'index': 'trade', 'filter': lambda x: 'debit' == x['name'] or 'credit' == x['name'] } ] })
 
 def ins(x):
     print('here',x)
@@ -161,11 +176,22 @@ linking_instructions = [
         'target': 'food',
         'link': lambda s, t: s['props']['name'] == t['props']['name'],
     },
+    # {
+    #     'source': 'agent',
+    #     'target': 'actions',
+    #     'link': lambda s, t: True 
+    # },
     {
         'source': 'agent',
+        'target': 'goals',
+        'link': lambda s, t: True # all goals are linked to all actions
+    },
+    {
+        'source': 'goals',
         'target': 'actions',
-        'link': lambda s, t: t['props']['name'] in s['props']['actions']
-    }
+        'link': lambda s, t: True # all goals are linked to all actions
+        # todo get agent actions t['props']['name'] in s['props']['actions']
+    },
 ]
 
 graph_dict = {'blocks': blocks_graph, 
@@ -173,9 +199,11 @@ graph_dict = {'blocks': blocks_graph,
                           'food': food_graph, 
                           'actions': actions_graph, 
                           'agent': agent_graph,
-                          'inventory': inventory_graph }
+                          'inventory': inventory_graph,
+                          'goals': goals_graph,
+                          'trade': trade_graph }
 
-one_to_many_join_graphs = { 'sources': [('actions', actions_graph)], 'on': graph_dict }
+one_to_many_join_graphs = { 'sources': [('actions', actions_graph), ('trade', trade_graph)], 'on': graph_dict }
 
 # Create an instance of the GraphComposer class
 composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
@@ -205,15 +233,27 @@ def draw_action_tree_with_lenses(action):
     action_tree = composer.apply_lenses(['only_inventory_mining_items'], action_tree)
     pos = nx.spring_layout(action_tree)
     nx.draw_networkx(action_tree, pos, with_labels=True)
+    
+# this sort of makes sense but should start from agent node
+# the goal should be defined sufficiently in the declaration above: ('goals:make_money', 'trade:credit')
+def draw_decision(goal):
+    paths = dfs_paths(composed_graph, goal)
+    paths = [path for path in paths if "trade:credit" in path]
+    G = graph_from_paths(paths)
+    pos = nx.spring_layout(G)
+    nx.draw_networkx(G, pos, with_labels=True)
 
 def draw_all_graph():
-    pos = nx.spring_layout(composed_graph)
+    pos = nx.shell_layout(composed_graph)
     nx.draw_networkx(composed_graph, pos, with_labels=True)
 
 def draw():
     draw_action_tree('actions:mine')
     plt.show()
     draw_action_tree_with_lenses('actions:mine')
+    plt.show()
+    
+    draw_decision('goals:make_money')
     plt.show()
 
     draw_all_graph()

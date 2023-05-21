@@ -33,7 +33,7 @@ def dfs_with_edges(G: nx.Graph, source):
         return None, None
     return T, data_path
     
-def bfs_subgraph(digraph, source):
+def bfs_subgraph(digraph, source) -> nx.DiGraph:
     visited_nodes = set()
     visited_edges = set()
     queue = deque([(source, None)])
@@ -51,4 +51,22 @@ def bfs_subgraph(digraph, source):
     for edge in visited_edges:
         subgraph.add_edge(*edge)
 
+    return subgraph
+
+def dfs_paths(graph, start, path=[]):
+    path = path + [start]
+    paths = []
+    for neighbor in graph.neighbors(start):
+        if neighbor not in path:
+            new_paths = dfs_paths(graph, neighbor, path)
+            paths.extend(new_paths)
+    if not paths:  # Leaf node, add the path to the result
+        paths.append(path)
+    return paths
+
+def graph_from_paths(paths):
+    subgraph = nx.DiGraph()
+    for path in paths:
+        subgraph.add_nodes_from(path)
+        subgraph.add_edges_from(zip(path[:-1], path[1:]))
     return subgraph
