@@ -14,17 +14,19 @@ class GraphComposer:
             
         for source_name, f_graph in self.filter_graphs['sources']:
             for n in f_graph.nodes(data=True):
-                index = n[1]['props']['index']
-                filter = n[1]['props']['filter']
-                graph = self.filter_graphs['on'].get(index)
-                if not graph:
-                    continue
+                filters = n[1]['props']['filters']
+                for filter in filters:
+                    index = filter['index']
+                    filter = filter['filter']
+                    graph = self.filter_graphs['on'].get(index)
+                    if not graph:
+                        continue
 
-                filtered_nodes = [node for node in graph.nodes(data=True) if filter(node[1]['props'])]
-                for nt in filtered_nodes:
-                    new_source = source_name + ":" + n[0]
-                    new_target = index + ":" + nt[0]
-                    self.composed_graph.add_edge(new_source, new_target)
+                    filtered_nodes = [node for node in graph.nodes(data=True) if filter(node[1]['props'])]
+                    for nt in filtered_nodes:
+                        new_source = source_name + ":" + n[0]
+                        new_target = index + ":" + nt[0]
+                        self.composed_graph.add_edge(new_source, new_target)
 
     def _link_graphs(self, linking_instruction):
         target = linking_instruction['target']
@@ -49,9 +51,9 @@ class GraphComposer:
 
 blocks_graph = nx.Graph()
 blocks_graph.add_node('cobblestone', props={'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})
-blocks_graph.add_node('dirt', props={'drops': ['dirt'], 'material': 'mineable/shovel'})
-blocks_graph.add_node('wood', props={'drops': ['wood'], 'material': 'mineable/axe' })
-blocks_graph.add_node('carrot', props={'drops': ['carrot'], 'material': 'mineable/axe' })
+blocks_graph.add_node('dirt', props={'drops': ['dirt'], 'requires':[], 'material': 'mineable/shovel'})
+blocks_graph.add_node('wood', props={'drops': ['wood'], 'requires':[], 'material': 'mineable/axe' })
+blocks_graph.add_node('carrot', props={'drops': ['carrot'], 'requires':[], 'material': 'mineable/axe' })
 
 items_graph = nx.Graph()
 items_graph.add_node('stone', props={'name': 'stone',  })
@@ -59,15 +61,20 @@ items_graph.add_node('dirt', props={'name': 'dirt' })
 items_graph.add_node('wood', props={'name': 'wood' })
 items_graph.add_node('carrot', props={'name': 'carrot' })
 items_graph.add_node('stone_pickaxe', props={'name': 'stone_pickaxe'})
+items_graph.add_node('wooden_pickaxe', props={'name': 'wooden_pickaxe'})
+
 
 actions_graph = nx.Graph()
-actions_graph.add_node('mine', props = { 'name': 'mine', 'index': 'blocks', 'filter': lambda x: x.get('material') == 'mineable/pickaxe' })
-actions_graph.add_node('collect', props = { 'name': 'collect', 'index': 'items', 'filter': lambda x: x })
-actions_graph.add_node('fight', props = { 'name':'fight', 'index': 'entities', 'filter': lambda x: x['type'] == 'Hostile mobs' })
-actions_graph.add_node('hunt', props = { 'name':'hunt', 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' })
-actions_graph.add_node('eat', props = { 'name':'eat', 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 })
-actions_graph.add_node('craft', props = { 'name':'craft', 'index': 'recipe', 'filter': lambda x: x })
-actions_graph.add_node('smelt', props = { 'name':'smelt', 'index': 'smelting', 'filter': lambda x: x })
+mine_filters = [{'index': 'blocks', 'filter': lambda x: x.get('material') == 'mineable/pickaxe' },
+                {'index': 'items', 'filter': lambda x: 'pickaxe' in x.get('name') }]
+actions_graph.add_node('mine', props = { 'name': 'mine', 
+                                        'filters': mine_filters })
+actions_graph.add_node('collect', props = { 'name': 'collect', 'filters': [{ 'index': 'items', 'filter': lambda x: x } ] })
+actions_graph.add_node('fight', props = { 'name':'fight', 'filters': [{'index': 'entities', 'filter': lambda x: x['type'] == 'Hostile mobs'} ] })
+actions_graph.add_node('hunt', props = { 'name':'hunt', 'filters': [{ 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' }] })
+actions_graph.add_node('eat', props = { 'name':'eat', 'filters': [{ 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 }] })
+actions_graph.add_node('craft', props = { 'name':'craft', 'filters': [{'index': 'recipe', 'filter': lambda x: x }] })
+actions_graph.add_node('smelt', props = { 'name':'smelt', 'filters': [{ 'index': 'smelting', 'filter': lambda x: x }]})
 
 agent_graph = nx.Graph()
 agent_graph.add_node('bill', props={ 'actions': ['mine', 'collect', 'fight', 'hunt', 'eat', 'craft', 'smelt'] })
@@ -85,6 +92,11 @@ linking_instructions = [
         'source': 'blocks',
         'target': 'items',
         'link': lambda s, t: t['props']['name'] in s['props']['drops'],
+    },
+    {
+        'source': 'items',
+        'target': 'blocks',
+        'link': lambda s, t: s['props']['name'] in t['props']['requires'],
     },
     {
         'source': 'items',
@@ -120,9 +132,24 @@ print("Composed Graph:")
 print(composed_graph.nodes())
 print(composed_graph.edges())
 
-#pos = graphviz_layout(composed_graph, prog="circo")
-pos = nx.spring_layout(composed_graph)
+def create_actions_tree(action):
+    dfs_tree = nx.dfs_tree(composed_graph, source=action)
+    return dfs_tree
 
-# Draw the graph
-nx.draw_networkx(composed_graph, pos, with_labels=True)
-plt.show()
+def draw_action_tree(action):
+    action_tree = create_actions_tree(action)
+    pos = nx.spring_layout(action_tree)
+    nx.draw_networkx(action_tree, pos, with_labels=True)
+
+def draw_all_graph():
+    pos = nx.spring_layout(composed_graph)
+    nx.draw_networkx(composed_graph, pos, with_labels=True)
+
+def draw():
+    draw_action_tree('actions:mine')
+    plt.show()
+
+    draw_all_graph()
+    plt.show()
+    
+draw()
