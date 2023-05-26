@@ -70,3 +70,84 @@ def graph_from_paths(paths):
         subgraph.add_nodes_from(path)
         subgraph.add_edges_from(zip(path[:-1], path[1:]))
     return subgraph
+
+def graph_diff(ideal_graph, real_graph):
+    """
+    Compute the difference between two graphs based on the presence of edges.
+    
+    Args:
+        ideal_graph (nx.Graph): The ideal graph representing the expected state.
+        real_graph (nx.Graph): The real graph representing the actual state.
+    
+    Returns:
+        diff_graph (nx.Graph): A new graph with an edge property indicating fulfillment.
+    """
+    diff_graph = nx.DiGraph()
+    
+    # Iterate over the edges in the ideal graph
+    for u, v in ideal_graph.edges():
+        # Check if the edge exists in the real graph
+        if real_graph.has_edge(u, v):
+            fulfilled = True
+        else:
+            fulfilled = False
+        
+        # Add the edge to the diff graph with the fulfillment property
+        diff_graph.add_edge(u, v, fulfilled=fulfilled)
+    
+    return diff_graph
+
+def get_edges_in_order_dfs(diff_graph, root):
+    """
+    Retrieve the edges in order from the specified root node to the bottom of the tree,
+    including the edge data.
+    
+    Args:
+        diff_graph (nx.Graph): The diff graph representing the tree structure.
+        root: The root node of the tree.
+    
+    Returns:
+        edges (List[Tuple]): List of edges in order from the specified root to the bottom,
+            including the edge data.
+    """
+    edges = []
+    
+    def dfs(node, parent):
+        for child in diff_graph.neighbors(node):
+            if child != parent:
+                edge_data = diff_graph.get_edge_data(node, child)
+                edges.append((node, child, edge_data))
+                dfs(child, node)
+    
+    dfs(root, None)
+    
+    return edges
+
+def get_edges_in_order(diff_graph, root):
+    """
+    Retrieve the edges in order from the specified root node to the bottom of the tree,
+    including the edge data, using breadth-first search (BFS).
+    
+    Args:
+        diff_graph (nx.Graph): The diff graph representing the tree structure.
+        root: The root node of the tree.
+    
+    Returns:
+        edges (List[Tuple]): List of edges in order from the specified root to the bottom,
+            including the edge data.
+    """
+    edges = []
+    queue = deque([(root, None)])  # Start BFS from the root node
+    
+    while queue:
+        node, parent = queue.popleft()
+        
+        for child in diff_graph.neighbors(node):
+            if child != parent:
+                edge_data = diff_graph.get_edge_data(node, child)
+                edges.append((node, child, edge_data))
+                queue.append((child, node))
+    
+    return edges
+
+

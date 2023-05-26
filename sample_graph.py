@@ -2,7 +2,7 @@ from typing import List, Optional
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from utils import bfs_subgraph, dfs_paths, graph_from_paths
+from utils import bfs_subgraph, dfs_paths, get_edges_in_order, graph_from_paths, graph_diff
 
 class GraphComposer:
     def __init__(self, graph_dict, linking_instructions, join_graphs, lenses):
@@ -112,6 +112,13 @@ items_graph.add_node('wood', props={'name': 'wood' })
 items_graph.add_node('carrot', props={'name': 'carrot' })
 items_graph.add_node('stone_pickaxe', props={'name': 'stone_pickaxe'})
 items_graph.add_node('wooden_pickaxe', props={'name': 'wooden_pickaxe'})
+items_graph.add_node('stick', props={'name': 'stick'})
+items_graph.add_node('plank', props={'name': 'plank'})
+
+recipes_graph = nx.Graph()
+recipes_graph.add_node('wooden_pickaxe', props = { 'provides': { 'quantity': 1, 'name': 'wooden_pickaxe' },'needs': [{ 'name': 'stick', 'quantity': 2 }, { 'name': 'plank', 'quantity': 3 }] })
+recipes_graph.add_node('stick', props = { 'provides': { 'quantity': 4, 'name': 'stick' }, 'needs': [{ 'name': 'plank', 'quantity': 2 }] })
+recipes_graph.add_node('plank', props = { 'provides': { 'quantity': 4, 'name': 'plank' }, 'needs': [{ 'name': 'wood', 'quantity': 1 }] })
 
 food_graph = nx.Graph()
 food_graph.add_node('apple', props={'name': 'apple'})
@@ -151,7 +158,7 @@ actions_graph.add_node('collect', props = { 'name': 'collect', 'joins': [{ 'inde
 actions_graph.add_node('fight', props = { 'name':'fight', 'joins': [{'index': 'entities', 'filter': lambda x: x['type'] == 'Hostile mobs'} ] })
 actions_graph.add_node('hunt', props = { 'name':'hunt', 'joins': [{ 'index': 'entities', 'filter': lambda x: x['type'] == 'Passive mobs' }] })
 actions_graph.add_node('eat', props = { 'name':'eat', 'joins': [{ 'index': 'foods', 'filter': lambda x: x['food_points'] > 0 }] })
-actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipe', 'filter': lambda x: x }] })
+actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipes', 'filter': lambda x: x }] })
 actions_graph.add_node('trade', props={ 'name': 'trade', 'joins': [{ 'index': 'trade', 'filter': lambda x: 'bid' in x['name'] or 'ask' in x['name'] }] })
 # can only trade things in inventory/storage or that have an ask on them
 
@@ -179,7 +186,7 @@ agent_graph = nx.Graph()
 agent_graph.add_node('bill', props={ 'actions': ['mine', 'collect', 'fight', 'hunt', 'eat', 'craft', 'smelt', 'trade'] })
 
 inventory_graph = nx.Graph()
-inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })
+#inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })
 
 # todo state graph -> inventory, health, observations
 
@@ -238,6 +245,11 @@ def map_agent_to_agent_config_py():
     pass
 """
 
+lenses = {
+    'only_inventory_mining_items': { 'source': lambda x: 'items' in x[1]['source'], 
+                              'condition': lambda x: 'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in inventory_graph.nodes(data=True)] }
+}
+
 linking_instructions = [
     {
         'source': 'blocks',
@@ -254,11 +266,6 @@ linking_instructions = [
         'target': 'food',
         'link': lambda s, t: s['props']['name'] == t['props']['name'],
     },
-    # {
-    #     'source': 'agent',
-    #     'target': 'actions',
-    #     'link': lambda s, t: True 
-    # },
     {
         'source': 'agent',
         'target': 'goals',
@@ -270,6 +277,16 @@ linking_instructions = [
         'link': lambda s, t: True # all goals are linked to all actions
         # todo get agent actions t['props']['name'] in s['props']['actions']
     },
+    {
+        'source': 'recipes',
+        'target': 'items',
+        'link': lambda s, t: t['props']['name'] == s['props']['provides']['name']
+    },
+    {
+        'source': 'recipes',
+        'target': 'items',
+        'link': lambda s, t: t['props']['name'] in [n['name'] for n in s['props']['needs']]
+    },
 ]
 
 graph_dict = {'blocks': blocks_graph, 
@@ -279,7 +296,8 @@ graph_dict = {'blocks': blocks_graph,
                           'agent': agent_graph,
                           'inventory': inventory_graph,
                           'goals': goals_graph,
-                          'trade': trade_graph }
+                          'trade': trade_graph,
+                          'recipes': recipes_graph }
 
 one_to_many_join_graphs = { 'sources': [('actions', actions_graph), ('trade', trade_graph)], 'on': graph_dict }
 
@@ -293,9 +311,9 @@ composer.compose_graphs()
 composed_graph = composer.get_composed_graph()
 
 # Print the composed graph
-print("Composed Graph:")
-print(composed_graph.nodes())
-print(composed_graph.edges())
+# print("Composed Graph:")
+# print(composed_graph.nodes())
+# print(composed_graph.edges())
 
 def create_actions_tree(action):
     tree = bfs_subgraph(composed_graph, source=action)
@@ -312,6 +330,37 @@ def draw_action_tree_with_lenses(action):
     pos = nx.spring_layout(action_tree)
     nx.draw_networkx(action_tree, pos, with_labels=True)
     
+def make_path_to_missing_target(nodes):
+    # action -> contemplate
+    # should take multiple missing nodes and find the shortest path to those nodes
+    # if item -> check if craftable -> craft
+    # if mineable -> mine
+    # etc...
+    pass
+    
+def get_missing_node_workflow(action):
+    action_tree = create_actions_tree(action)
+    current_tree = composer.apply_lenses(['only_inventory_mining_items'], action_tree)
+    try:
+        is_path = nx.shortest_path(current_tree, action, 'items:stone')
+    except Exception:
+        is_path = None
+    
+    if not is_path:
+        # find unfulfilled nodes
+        diff = graph_diff(action_tree, current_tree)
+        
+        for s,t,v in get_edges_in_order(diff, action):
+            if v['fulfilled'] == False:
+                
+                print(s, t, v)
+                # find path from agent to unfulfilled
+                # if path -> create goal
+                # if no path -> attempt to find path to closest node
+                # if path -> create goal 
+                # ...
+
+    
 # this sort of makes sense but should start from agent node
 # the goal should be defined sufficiently in the declaration above: ('goals:make_money', 'trade:credit')
 def draw_decision(goal):
@@ -324,11 +373,14 @@ def draw_decision(goal):
 def draw_all_graph():
     pos = nx.shell_layout(composed_graph)
     nx.draw_networkx(composed_graph, pos, with_labels=True)
-
+    
 def draw():
     draw_action_tree('actions:mine')
     plt.show()
     draw_action_tree_with_lenses('actions:mine')
+    plt.show()
+    
+    get_missing_node_workflow('actions:mine')
     plt.show()
     
     draw_decision('goals:make_money')
@@ -338,3 +390,5 @@ def draw():
     plt.show()
     
 draw()
+
+# ability to traverse backwards from a desired node
