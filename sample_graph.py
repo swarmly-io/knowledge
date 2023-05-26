@@ -336,6 +336,9 @@ def make_path_to_missing_target(nodes):
     # if item -> check if craftable -> craft
     # if mineable -> mine
     # etc...
+    
+    # should create a goal for each step
+    # ie need sub goals
     pass
     
 def get_missing_node_workflow(action):
