@@ -460,10 +460,19 @@ def get_missing_node_workflow(action, target):
                     graphs = nx.compose(graphs, target_graph)
                 
         # todo - create sub goals
+        if graphs.number_of_edges() == 0:
+            raise Exception("No path to target found after search")
         
         # if action is an observation node -> ensure it's in observation graph
         # if action is an act_upon -> ensure all NEEDS nodes are met
-        return graphs
+        # if money required -> check if sufficient quantity
+        goals = set()
+        for s,t,d in graphs.edges(data=True):
+            if d['type'] == EDGE_TYPE.PROVIDES:
+                goals.add(t)
+        
+        return graphs, goals
+    raise Exception("No path to target found")
 
 
 # this sort of makes sense but should start from agent node
@@ -505,8 +514,9 @@ def draw():
 # draw_all_graph()
 # plt.show()
 
-G = get_missing_node_workflow('actions:mine', 'items:stone')
+G, goals = get_missing_node_workflow('actions:mine', 'items:stone')
 draw_graph(G)
+print(goals)
 
 #draw()
 
