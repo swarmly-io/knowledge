@@ -85,7 +85,7 @@ def graph_diff(ideal_graph, real_graph):
     diff_graph = nx.DiGraph()
     
     # Iterate over the edges in the ideal graph
-    for u, v in ideal_graph.edges():
+    for u, v, d in ideal_graph.edges(data=True):
         # Check if the edge exists in the real graph
         if real_graph.has_edge(u, v):
             fulfilled = True
@@ -93,7 +93,7 @@ def graph_diff(ideal_graph, real_graph):
             fulfilled = False
         
         # Add the edge to the diff graph with the fulfillment property
-        diff_graph.add_edge(u, v, fulfilled=fulfilled)
+        diff_graph.add_edge(u, v, fulfilled=fulfilled, **d)
     
     return diff_graph
 
@@ -151,3 +151,20 @@ def get_edges_in_order(diff_graph, root):
     return edges
 
 
+def paths_to_tree(G, paths):
+    # Create a new directed graph to store the tree
+    tree = nx.DiGraph()
+
+    for path in paths:
+        for i in range(len(path) - 1):
+            # Copy the node data for both nodes in the edge if they don't exist in the tree yet
+            if not tree.has_node(path[i]):
+                tree.add_node(path[i], **G.nodes[path[i]])
+            if not tree.has_node(path[i + 1]):
+                tree.add_node(path[i + 1], **G.nodes[path[i + 1]])
+
+            # Add an edge to the tree if it doesn't exist yet, and copy the edge data from the original graph
+            if not tree.has_edge(path[i], path[i + 1]):
+                tree.add_edge(path[i], path[i + 1], **G[path[i]][path[i + 1]])
+
+    return tree
