@@ -168,3 +168,36 @@ def paths_to_tree(G, paths):
                 tree.add_edge(path[i], path[i + 1], **G[path[i]][path[i + 1]])
 
     return tree
+
+def default(x):
+    return True
+
+def filtered_bfs(G, source, target, edge_condition = default, last_edge_condition = default, whole_branch_condition = default):
+    # Initialize the queue with the source node
+    queue = deque([(source, [])])
+    visited = {source: []}  # Stores visited nodes and their path
+    
+    # Create a graph to store the valid paths
+    valid_path_graph = nx.DiGraph()
+
+    while queue:
+        node, path = queue.popleft()
+        
+        # If we reached the target node and the last edge passes the last_edge_condition, add the path to the graph
+        if node == target and (not path or last_edge_condition(G[path[-1][0]][path[-1][1]])):
+            for i in range(len(path) - 1):
+                valid_path_graph.add_edge(path[i][0], path[i + 1][0], **G[path[i][0]][path[i][1]])
+            valid_path_graph.add_edge(path[-1][0], node, **G[path[-1][0]][node])
+            continue
+
+        for neighbor in G[node]:
+            edge = G[node][neighbor]
+            new_path = path + [(node, neighbor)]
+
+            # If the neighbor is not visited or is visited with a different path, and the edge passes the edge_condition, 
+            # and the path passes the whole_branch_condition, add it to the queue
+            if (neighbor not in visited or visited[neighbor] != new_path) and edge_condition(edge) and whole_branch_condition(new_path):
+                queue.append((neighbor, new_path))
+                visited[neighbor] = new_path
+
+    return valid_path_graph
