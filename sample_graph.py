@@ -19,6 +19,9 @@ class GraphComposer:
         self.graph_dict = graph_dict
         self.linking_instructions = linking_instructions
         self.composed_graph = nx.DiGraph()
+        for g in graph_dict:
+            for n in graph_dict[g].nodes(data=True):
+                self.composed_graph.add_node(g + ":" + n[0], **{ **n[1], 'source': g })
         self.join_graphs = join_graphs
         self.lenses = lenses
 
@@ -33,7 +36,7 @@ class GraphComposer:
         for n in f_graph.nodes(data=True):
             if not n[1]['props'].get('joins'):
                 continue
-            
+                        
             joins = n[1]['props']['joins']
             for join in joins:
                 index, filter_fn, sub_joins, graph = self.get_join_info(join)
@@ -114,10 +117,10 @@ class GraphComposer:
         return self.composed_graph
 
 blocks_graph = nx.Graph()
-blocks_graph.add_node('cobblestone', props={'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})
-blocks_graph.add_node('dirt', props={'drops': ['dirt'], 'requires':[], 'material': 'mineable/shovel'})
-blocks_graph.add_node('wood', props={'drops': ['wood'], 'requires':[], 'material': 'mineable/axe' })
-blocks_graph.add_node('carrot', props={'drops': ['carrot'], 'requires':[], 'material': 'mineable/axe' })
+blocks_graph.add_node('cobblestone', props={ 'name': 'cobblestone', 'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})
+blocks_graph.add_node('dirt', props={ 'name': 'dirt', 'drops': ['dirt'], 'requires':[], 'material': 'mineable/shovel'})
+blocks_graph.add_node('wood', props={ 'name': 'wood', 'drops': ['wood'], 'requires':[], 'material': 'mineable/axe' })
+blocks_graph.add_node('carrot', props={ 'name': 'carrot', 'drops': ['carrot'], 'requires':[], 'material': 'mineable/axe' })
 
 items_graph = nx.Graph()
 items_graph.add_node('stone', props={'name': 'stone' })
@@ -168,7 +171,8 @@ initial_state = {
         { 'id': 2, 'name': 'zombie', 'position': (0,0,1), 'type': 'Hostile mobs' },  
     ],
     'inventory': [
-        #{ 'id': 1, 'name': 'wooden_pickaxe', 'quantity': 1 }
+        { 'id': 1, 'name': 'plank', 'quantity': 1 },
+        { 'id': 1, 'name': 'stick', 'quantity': 1 }
     ],
     'blockNearBy': lambda x: True if x == 'blocks:stone' else False
 }
@@ -184,7 +188,7 @@ def state_to_graph(state):
     for i in state['inventory']:
         key = str(i['id']) + ':' + i['name']
         joins = [{ 'index': 'items', 'filter': 
-            lambda x: x['name'] == i['name'], 'type': EDGE_TYPE.PROVIDES }]
+            lambda x, y: x['name'] == i['name'], 'type': EDGE_TYPE.PROVIDES }]
         inventory_graph.add_node(key, props={ **i, 'joins': joins })
     
 state_to_graph(initial_state)
@@ -309,15 +313,21 @@ def map_agent_to_agent_config_py():
     pass
 """
 
+class LENSES(str, Enum):
+    ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
+    IN_OBSERVATION = "in_observation"
+    IN_INVENTORY = "in_inventory"
+    EXCLUDE_ASK_TRADES = "exclude_ask_trades"
+
 lenses = {
-    'only_inventory_mining_items': { 'source': lambda x: 'items' in x[1]['source'], 
+    LENSES.ONLY_INVENTORY_MINING_ITEMS: { 'source': lambda x: 'items:' in x[0],
                                      'condition': lambda x: 
                                          'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in inventory_graph.nodes(data=True)] },
-    'in_observation': { 'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'], 
+    LENSES.IN_OBSERVATION: { 'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'], 
                         'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in observations_graph.nodes(data=True)] },
-    'in_inventory': {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'], 
+    LENSES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'], 
                         'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in inventory_graph.nodes(data=True)] },
-    'exclude_ask_trades': { 'source': lambda x: 'trade:ask' == x[0], 
+    LENSES.EXCLUDE_ASK_TRADES: { 'source': lambda x: 'trade:ask' == x[0], 
                                      'condition': lambda x: False }
     #'can_obtain': {}
 }
@@ -405,19 +415,13 @@ def draw_action_tree(action):
     
 def draw_action_tree_with_lenses(action):
     action_tree = create_actions_tree(action)
-    action_tree = composer.apply_lenses(['only_inventory_mining_items'], action_tree)
+    action_tree = composer.apply_lenses([LENSES.IN_INVENTORY], action_tree)
     pos = nx.spring_layout(action_tree)
     nx.draw_networkx(action_tree, pos, with_labels=True)
     
 def make_path_to_missing_target(target_node):
     # action -> contemplate
     # should take multiple missing nodes and find the shortest path to those nodes
-    # if item -> check if craftable -> craft
-    # if mineable -> mine
-    # etc...
-    
-    # should create a goal for each step
-    # ie need sub goals
     
     # create a graph for each edge type
     # Observed linked to observe_graph
@@ -458,7 +462,7 @@ def make_path_to_missing_target(target_node):
     
 def get_feasible_workflows(action, target):
     action_tree = create_actions_tree(action)
-    current_tree = composer.apply_lenses(['only_inventory_mining_items'], action_tree)
+    current_tree = composer.apply_lenses([LENSES.IN_INVENTORY, LENSES.IN_OBSERVATION], action_tree)
     try:
         path = nx.shortest_path(current_tree, action, target)
     except Exception:
@@ -471,6 +475,7 @@ def get_feasible_workflows(action, target):
         for s,t,v in get_edges_in_order(diff, action):
             if v['fulfilled'] == False:
                 target_graph = make_path_to_missing_target(t)
+                draw_graph(target_graph)
                 if target_graph.number_of_edges() > 0:
                     graphs = nx.compose(graphs, target_graph)
                 
@@ -486,7 +491,7 @@ def get_feasible_workflows(action, target):
             if d['type'] == EDGE_TYPE.PROVIDES:
                 goals.add(t)
         
-        return graphs, goals
+        return graphs, list(goals)
 
     return current_tree, path
 
@@ -531,7 +536,10 @@ plt.show()
 
 G, goals = get_feasible_workflows('actions:mine', 'items:stone')
 draw_graph(G)
-print(goals)
+for g in goals:
+    print(g)
+    T = get_feasible_workflows('actions:craft', g)
+    draw_graph(G)
 
 #draw()
 
