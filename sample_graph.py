@@ -1,7 +1,8 @@
 from enum import Enum
-from typing import List, Optional
+from typing import Callable, List, Optional, Tuple
 import networkx as nx
 import matplotlib.pyplot as plt
+from pydantic import BaseModel
 
 from utils import bfs_subgraph, dfs_paths, filtered_bfs, get_edges_in_order, graph_from_paths, graph_diff, paths_to_tree
 
@@ -115,6 +116,13 @@ class GraphComposer:
                 
     def get_composed_graph(self):
         return self.composed_graph
+    
+class Node(BaseModel):
+    name: str
+    
+    def to_node(self):
+        return (self.name, self.__dict__)
+    
 
 blocks_graph = nx.Graph()
 blocks_graph.add_node('cobblestone', props={ 'name': 'cobblestone', 'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})
@@ -216,6 +224,11 @@ feasible_action_graph.add_node(EDGE_TYPE.ACT_UPON)
         - index: items
           filter:
 """
+class JoinInner(BaseModel):
+    index: str
+    filter: Callable[[object, object], bool]
+class Join(JoinInner):
+    join: JoinInner
 
 # todo tool graph, so pickaxe links to mineable, sword to zombie
 mine_joins = [{'index': 'items', 'filter': lambda x,y: 'pickaxe' in x.get('name'), 'type': EDGE_TYPE.NEEDS, 'join': 
@@ -332,6 +345,11 @@ lenses = {
     #'can_obtain': {}
 }
 
+class LinkingInstruction(BaseModel):
+    source: str
+    target: str
+    link: Callable[[object, object], bool]
+
 linking_instructions = [
     {
         'source': 'blocks',
@@ -387,6 +405,9 @@ graph_dict = {'blocks': blocks_graph,
                           'goals': goals_graph,
                           'trade': trade_graph,
                           'recipes': recipes_graph }
+class OneToManyJoins(BaseModel):
+    sources: List[Tuple[str, object]]
+    on: object
 
 one_to_many_join_graphs = { 'sources': [('actions', actions_graph), ('trade', trade_graph), ('inventory', inventory_graph), ('recipes', recipes_graph)], 'on': graph_dict }
 
