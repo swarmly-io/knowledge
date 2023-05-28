@@ -47,7 +47,8 @@ def bfs_subgraph(digraph, source) -> nx.DiGraph:
             neighbors = digraph.successors(node)
             queue.extend([(neighbor, (node, neighbor)) for neighbor in neighbors])
 
-    subgraph = digraph.subgraph(visited_nodes).copy()
+    subgraph = nx.DiGraph()
+
     for edge in visited_edges:
         subgraph.add_edge(*edge)
 
