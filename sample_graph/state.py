@@ -1,6 +1,6 @@
 import networkx as nx
 from sample_graph.graph_composer import EdgeType
-from sample_graph.graphs import inventory_graph, observations_graph
+from sample_graph.mini_graphs import inventory_graph, observations_graph
 
 initial_state = {
     'observations': [

@@ -2,7 +2,7 @@ import networkx as nx
 from sample_graph.agent_config import LENSES
 from sample_graph.graph_composer import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
-from sample_graph.graphs import feasible_action_graph
+from sample_graph.mini_graphs import feasible_action_graph
 
 class FindSubGoals:
     def __init__(self, composer):
