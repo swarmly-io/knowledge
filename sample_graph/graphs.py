@@ -1,5 +1,5 @@
 import networkx as nx
-from sample_graph.graph_composer import EDGE_TYPE
+from sample_graph.graph_composer import EdgeType
 
 blocks_graph = nx.Graph()
 blocks_graph.add_node('cobblestone', props={ 'name': 'cobblestone', 'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})
@@ -18,8 +18,8 @@ items_graph.add_node('stick', props={'name': 'stick'})
 items_graph.add_node('plank', props={'name': 'plank'})
 
 recipes_graph = nx.Graph()
-recipes_provides_join = [{ 'index': 'items', 'filter': lambda x,y: x['name'] in [z['name'] for z in y['needs']] , 'type': EDGE_TYPE.NEEDS, 
-                          'join': {'index': 'items', 'filter': lambda x,y: x['name'] == y['provides']['name'], 'type': EDGE_TYPE.PROVIDES } }]
+recipes_provides_join = [{ 'index': 'items', 'filter': lambda x,y: x['name'] in [z['name'] for z in y['needs']] , 'type': EdgeType.NEEDS, 
+                          'join': {'index': 'items', 'filter': lambda x,y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES } }]
 recipes_graph.add_node('wooden_pickaxe', 
                        props = { 'provides': { 'quantity': 1, 'name': 'wooden_pickaxe' },'needs': [{ 'name': 'stick', 'quantity': 2 }, { 'name': 'plank', 'quantity': 3 }],
                                 'joins': recipes_provides_join })
@@ -52,8 +52,8 @@ food_graph.add_node('carrot', props={'name': 'carrot'})
 
 
 feasible_action_graph = nx.Graph()
-feasible_action_graph.add_node(EDGE_TYPE.OBSERVED)
-feasible_action_graph.add_node(EDGE_TYPE.ACT_UPON)
+feasible_action_graph.add_node(EdgeType.OBSERVED)
+feasible_action_graph.add_node(EdgeType.ACT_UPON)
 
 """yaml
     actions:
@@ -76,19 +76,19 @@ feasible_action_graph.add_node(EDGE_TYPE.ACT_UPON)
 
 
 # todo tool graph, so pickaxe links to mineable, sword to zombie
-mine_joins = [{'index': 'items', 'filter': lambda x,y: 'pickaxe' in x.get('name'), 'type': EDGE_TYPE.NEEDS, 'join': 
-    { 'index': 'blocks', 'filter': lambda x,y: x.get('material') == 'mineable/pickaxe', 'type': EDGE_TYPE.ACT_UPON } }]
+mine_joins = [{'index': 'items', 'filter': lambda x,y: 'pickaxe' in x.get('name'), 'type': EdgeType.NEEDS, 'join': 
+    { 'index': 'blocks', 'filter': lambda x,y: x.get('material') == 'mineable/pickaxe', 'type': EdgeType.ACT_UPON } }]
 
 actions_graph = nx.Graph()
 
 actions_graph.add_node('mine', props = { 'name': 'mine', 
                                         'joins': mine_joins })
-actions_graph.add_node('collect', props = { 'name': 'collect', 'joins': [{ 'index': 'items', 'filter': lambda x,y: x, 'type': EDGE_TYPE.OBSERVED } ] })
-actions_graph.add_node('fight', props = { 'name':'fight', 'joins': [{'index': 'entities', 'filter': lambda x,y: x['type'] == 'Hostile mobs', 'type': EDGE_TYPE.OBSERVED } ] })
-actions_graph.add_node('hunt', props = { 'name':'hunt', 'joins': [{ 'index': 'entities', 'filter': lambda x,y: x['type'] == 'Passive mobs','type': EDGE_TYPE.OBSERVED }] })
-actions_graph.add_node('eat', props = { 'name':'eat', 'joins': [{ 'index': 'foods', 'filter': lambda x,y: x['food_points'] > 0, 'type': EDGE_TYPE.NEEDS }] })
-actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipes', 'filter': lambda x,y: x, 'type': EDGE_TYPE.ACT_UPON }] })
-actions_graph.add_node('trade', props={ 'name': 'trade', 'joins': [{ 'index': 'trade', 'filter': lambda x,y: 'bid' in x['name'] or 'ask' in x['name'], 'type': EDGE_TYPE.ACT_UPON }] })
+actions_graph.add_node('collect', props = { 'name': 'collect', 'joins': [{ 'index': 'items', 'filter': lambda x,y: x, 'type': EdgeType.OBSERVED } ] })
+actions_graph.add_node('fight', props = { 'name':'fight', 'joins': [{'index': 'entities', 'filter': lambda x,y: x['type'] == 'Hostile mobs', 'type': EdgeType.OBSERVED } ] })
+actions_graph.add_node('hunt', props = { 'name':'hunt', 'joins': [{ 'index': 'entities', 'filter': lambda x,y: x['type'] == 'Passive mobs','type': EdgeType.OBSERVED }] })
+actions_graph.add_node('eat', props = { 'name':'eat', 'joins': [{ 'index': 'foods', 'filter': lambda x,y: x['food_points'] > 0, 'type': EdgeType.NEEDS }] })
+actions_graph.add_node('craft', props = { 'name':'craft', 'joins': [{'index': 'recipes', 'filter': lambda x,y: x, 'type': EdgeType.ACT_UPON }] })
+actions_graph.add_node('trade', props={ 'name': 'trade', 'joins': [{ 'index': 'trade', 'filter': lambda x,y: 'bid' in x['name'] or 'ask' in x['name'], 'type': EdgeType.ACT_UPON }] })
 
 """yaml
     agent:
@@ -132,13 +132,13 @@ goals_graph.add_node('make_money', props={'name': 'make_money', 'objective': ['m
 """
 
 
-money_joins = [{ 'index': 'items', 'filter': lambda x,y: x, 'type': EDGE_TYPE.PROVIDES }]
+money_joins = [{ 'index': 'items', 'filter': lambda x,y: x, 'type': EdgeType.PROVIDES }]
 trade_graph = nx.Graph()
-trade_graph.add_node('bid', props={ 'name': 'bid', 'joins': [{'index': 'trade', 'filter': lambda x,y: 'debit' == x['name'], 'type': EDGE_TYPE.ACT_UPON }]  }) # money -> debit -> all items
-trade_graph.add_node('ask', props={ 'name': 'ask', 'joins': [{'index': 'trade', 'filter': lambda x,y: 'credit' == x['name'], 'type': EDGE_TYPE.ACT_UPON  }] }) # inventory items -> credit -> money
-trade_graph.add_node('debit', props={'name': 'debit', 'joins': [{ 'index': 'trade', 'filter': lambda x,y: x['name'] == 'money', 'type': EDGE_TYPE.NEEDS } ] }) 
-trade_graph.add_node('credit', props={'name': 'credit', 'joins': [{ 'index': 'inventory', 'filter': lambda x,y: x, 'type': EDGE_TYPE.NEEDS },
-                                                                  { 'index': 'trade', 'filter': lambda x,y: 'money' == x['name'], 'type': EDGE_TYPE.PROVIDES  }] }) # could be , { 'index': 'trade', 'filter': lambda x,y: 'money' in x['name'] }
+trade_graph.add_node('bid', props={ 'name': 'bid', 'joins': [{'index': 'trade', 'filter': lambda x,y: 'debit' == x['name'], 'type': EdgeType.ACT_UPON }]  }) # money -> debit -> all items
+trade_graph.add_node('ask', props={ 'name': 'ask', 'joins': [{'index': 'trade', 'filter': lambda x,y: 'credit' == x['name'], 'type': EdgeType.ACT_UPON  }] }) # inventory items -> credit -> money
+trade_graph.add_node('debit', props={'name': 'debit', 'joins': [{ 'index': 'trade', 'filter': lambda x,y: x['name'] == 'money', 'type': EdgeType.NEEDS } ] }) 
+trade_graph.add_node('credit', props={'name': 'credit', 'joins': [{ 'index': 'inventory', 'filter': lambda x,y: x, 'type': EdgeType.NEEDS },
+                                                                  { 'index': 'trade', 'filter': lambda x,y: 'money' == x['name'], 'type': EdgeType.PROVIDES  }] }) # could be , { 'index': 'trade', 'filter': lambda x,y: 'money' in x['name'] }
 trade_graph.add_node('money', props={'name': 'money', 'joins': money_joins })
 
 inventory_graph = nx.Graph()

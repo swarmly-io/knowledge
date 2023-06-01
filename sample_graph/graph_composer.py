@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class EDGE_TYPE(str, Enum):
+class EdgeType(str, Enum):
     NEEDS = "NEEDS"
     PROVIDES = "PROVIDES"
     GOAL = "GOAL"

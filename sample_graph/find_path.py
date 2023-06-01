@@ -1,6 +1,7 @@
 import networkx as nx
+from sample_graph.graph_composer import EdgeType
 
-def find_path(filtered_graph, unfiltered_graph, start_node, target_node, search_type = "provides"):
+def find_path(filtered_graph, unfiltered_graph, start_node, target_node, search_type = EdgeType.PROVIDES):
     try:
         filtered_paths = nx.all_shortest_paths(filtered_graph, start_node, target_node)
         for filtered_path in filtered_paths:
@@ -15,7 +16,6 @@ def find_path(filtered_graph, unfiltered_graph, start_node, target_node, search_
         unfiltered_paths = nx.all_shortest_paths(unfiltered_graph, start_node, target_node)
         paths_with_needs = []
         for path in unfiltered_paths:
-            needs_edges = []
             previous_node = start_node
             for p in path:
                 if p == start_node or p == target_node:
@@ -25,7 +25,7 @@ def find_path(filtered_graph, unfiltered_graph, start_node, target_node, search_
                 except:
                     sub_path = None
 
-                if not sub_path and unfiltered_graph[previous_node][p]['type'] == 'needs':
+                if not sub_path and unfiltered_graph[previous_node][p]['type'] == EdgeType.NEEDS:
                     if not filtered_graph[previous_node] or not filtered_graph[previous_node][p]:
                         paths_with_needs.append((previous_node, p))   
                     

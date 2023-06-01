@@ -1,6 +1,6 @@
 from enum import Enum
 
-from sample_graph.graph_composer import EDGE_TYPE
+from sample_graph.graph_composer import EdgeType
 import sample_graph.graphs as g
 
 class LENSES(str, Enum):
@@ -27,31 +27,31 @@ linking_instructions = [
         'source': 'blocks',
         'target': 'items',
         'link': lambda s, t: t['props']['name'] in s['props']['drops'],
-        'type': EDGE_TYPE.PROVIDES
+        'type': EdgeType.PROVIDES
     },
     {
         'source': 'items',
         'target': 'blocks',
         'link': lambda s, t: s['props']['name'] in t['props']['requires'],
-        'type': EDGE_TYPE.NEEDS
+        'type': EdgeType.NEEDS
     },
     {
         'source': 'items',
         'target': 'food',
         'link': lambda s, t: s['props']['name'] == t['props']['name'],
-        'type': EDGE_TYPE.PROVIDES
+        'type': EdgeType.PROVIDES
     },
     {
         'source': 'agent',
         'target': 'goals',
         'link': lambda s, t: True, # all goals are linked to all actions
-        'type': EDGE_TYPE.GOAL
+        'type': EdgeType.GOAL
     },
     {
         'source': 'goals',
         'target': 'actions',
         'link': lambda s, t: True, # all goals are linked to all actions
-        'type': EDGE_TYPE.ACTION
+        'type': EdgeType.ACTION
         # todo get agent actions t['props']['name'] in s['props']['actions']
     },
 ]

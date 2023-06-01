@@ -1,6 +1,6 @@
 import networkx as nx
 from sample_graph.agent_config import LENSES
-from sample_graph.graph_composer import EDGE_TYPE
+from sample_graph.graph_composer import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
 from sample_graph.graphs import feasible_action_graph
 
@@ -37,7 +37,7 @@ class FindSubGoals:
                 tree = None
             if tree:
                 trees = nx.compose(trees, tree)
-                trees.add_edge('actions', 'actions:' + a, type = EDGE_TYPE.ACTION)
+                trees.add_edge('actions', 'actions:' + a, type = EdgeType.ACTION)
         
         trees.add_node('actions', source='none')
                 
@@ -49,7 +49,7 @@ class FindSubGoals:
         #new_tree = trim_to_feasible_paths(trees)
         # todo find the most efficient, feasible path
         #draw_graph(trees)
-        new_tree = filtered_bfs(trees, 'actions', target_node, last_edge_condition= lambda x: x['type'] == EDGE_TYPE.PROVIDES)
+        new_tree = filtered_bfs(trees, 'actions', target_node, last_edge_condition= lambda x: x['type'] == EdgeType.PROVIDES)
         return new_tree
                 
         
@@ -81,7 +81,7 @@ class FindSubGoals:
             # if money required -> check if sufficient quantity
             goals = set()
             for s,t,d in graphs.edges(data=True):
-                if d['type'] == EDGE_TYPE.PROVIDES:
+                if d['type'] == EdgeType.PROVIDES:
                     goals.add(t)
             
             return graphs, list(goals)

@@ -1,5 +1,5 @@
 import networkx as nx
-from sample_graph.graph_composer import EDGE_TYPE
+from sample_graph.graph_composer import EdgeType
 from sample_graph.graphs import inventory_graph, observations_graph
 
 initial_state = {
@@ -22,7 +22,7 @@ def state_to_graph(state):
     for i in state['inventory']:
         key = str(i['id']) + ':' + i['name']
         joins = [{ 'index': 'items', 'filter': 
-            lambda x, y: x['name'] == i['name'], 'type': EDGE_TYPE.PROVIDES }]
+            lambda x, y: x['name'] == i['name'], 'type': EdgeType.PROVIDES }]
         inventory_graph.add_node(key, props={ **i, 'joins': joins })
     
 state_to_graph(initial_state)
