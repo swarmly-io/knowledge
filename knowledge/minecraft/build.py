@@ -129,7 +129,8 @@ def load_smelting_recipes(es):
         e = SmeltingRecipe(**s)
         entries.append(e)
     es.bulk_load(entries)
-    
+
+
 def load_entities(es):
     with open("./knowledge/extraction/data/entities.json") as file:
         entities = json.load(file)
@@ -138,7 +139,8 @@ def load_entities(es):
         e = EntityMc(**en)
         entries.append(e)
     es.bulk_load(entries)
-    
+
+
 def load_hostile_entities_dmg(es):
     with open("./knowledge/extraction/data/entities_dmg.json") as file:
         entities = json.load(file)
@@ -173,11 +175,11 @@ def create_minecraft_indexes(elastic_config):
     import minecraft_data
     # Java edition minecraft-data
     mcd = minecraft_data("1.17.1")
-    
+
     esen = elastic_config.get_elastic_client("entities")
     load_entities(esen)
     print("Completed loading entities")
-    
+
     esdmg = elastic_config.get_elastic_client("entitiesdmg")
     load_hostile_entities_dmg(esdmg)
     print("Completed loading hostile entities dmg")

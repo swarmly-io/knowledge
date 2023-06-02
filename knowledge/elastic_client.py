@@ -26,7 +26,7 @@ class ElasticClient:
     def get(self, doc_id: str):
         result = self.es.get(index=self.index, id=doc_id)
         return result['_source']
-    
+
     def get_all(self):
         s = Search(using=self.es, index=self.index)
         result = [r.to_dict() for r in s.scan()]
