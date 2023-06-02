@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from knowledge.elastic_client import ElasticConfig
-from knowledge.graph.build import build_block_graph
+from knowledge.graph.build import build_block_graph, build_entity_loot_graph
 
 current_env = 'remote' if os.path.exists('.env') else 'local'
 
@@ -20,3 +20,4 @@ elastic_config = ElasticConfig(
     port=os.getenv('ELASTIC_PORT'))
 
 build_block_graph(elastic_config)
+build_entity_loot_graph(elastic_config)
