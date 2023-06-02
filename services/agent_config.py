@@ -1,7 +1,7 @@
 from enum import Enum
 
-from sample_graph.graph_composer import EdgeType
-from sample_graph.graph_dict import graph_dict
+from services.graph_composer import EdgeType
+from services.graph_dict import graph_dict
 import networkx as nx
 
 class LENSES(str, Enum):

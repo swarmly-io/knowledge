@@ -1,8 +1,8 @@
 import networkx as nx
-from sample_graph.agent_config import LENSES
-from sample_graph.graph_composer import EdgeType
+from services.agent_config import LENSES
+from services.graph_composer import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
-from sample_graph.mini_graphs import feasible_action_graph
+from services.mini_graphs import feasible_action_graph
 
 class FindSubGoals:
     def __init__(self, composer):
@@ -12,25 +12,11 @@ class FindSubGoals:
         tree = bfs_subgraph(self.composer.composed_graph, source=action)
         return tree
 
-    def make_path_to_missing_target(self, target_node):
-        # action -> contemplate
-        # should take multiple missing nodes and find the shortest path to those nodes
-        
-        # create a graph for each edge type
-        # Observed linked to observe_graph
-        # Needs linked to inventory_graph
-        def shortest_path_conditions(s, t, v):
-            if v['type'] in list(feasible_action_graph.nodes()):
-                print(s,t,v)
-                return True
-            return False
-        
+    def make_path_to_missing_target(self, target_node):        
         trees = nx.DiGraph()
         graph = self.composer.apply_lenses(['exclude_ask_trades'], self.composer.composed_graph)
         for a in self.composer.graph_dict['actions'].nodes():
             try:
-                # mapper needs context on how to get a target_node
-                # each edge needs a type
                 paths = list(nx.all_shortest_paths(graph, 'actions:' + a, target_node))
                 tree = paths_to_tree(graph, paths)
             except:

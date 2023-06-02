@@ -1,5 +1,5 @@
 import networkx as nx
-from sample_graph.graph_composer import EdgeType
+from services.graph_composer import EdgeType
 
 blocks_graph = nx.Graph()
 blocks_graph.add_node('cobblestone', props={ 'name': 'cobblestone', 'drops': ['stone'], 'requires': ['wooden_pickaxe', 'stone_pickaxe'], 'material': 'mineable/pickaxe'})

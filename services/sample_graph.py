@@ -1,10 +1,10 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from sample_graph.experiment_algs import FindSubGoals
-from sample_graph.graph_composer import GraphComposer
+from services.experiment_algs import FindSubGoals
+from services.graph_composer import GraphComposer
 
 from utils import dfs_paths, graph_from_paths
-from sample_graph.agent_config import LENSES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
+from services.agent_config import LENSES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
 
 """
 # shortcut to custom lang
@@ -97,11 +97,3 @@ plt.show()
 
 G, goals = find.get_feasible_workflows('actions:mine', 'items:stone')
 draw_graph(G)
-# for g in goals:
-#     print(g)
-#     T = find.get_feasible_workflows('actions:craft', g)
-#     draw_graph(G)
-
-#draw()
-
-# ability to traverse backwards from a desired node

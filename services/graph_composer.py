@@ -114,9 +114,3 @@ class GraphComposer:
                 
     def get_composed_graph(self):
         return self.composed_graph
-    
-class Node(BaseModel):
-    name: str
-    
-    def to_node(self):
-        return (self.name, self.__dict__)

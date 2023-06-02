@@ -1,6 +1,6 @@
 import networkx as nx
-from sample_graph.find_path import find_path
-from sample_graph.graph_composer import EdgeType
+from services.find_path import find_path
+from services.graph_composer import EdgeType
 
 
 def add_needs_edges(filtered_graph, needs_edges):

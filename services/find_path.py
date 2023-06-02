@@ -1,5 +1,5 @@
 import networkx as nx
-from sample_graph.graph_composer import EdgeType
+from services.graph_composer import EdgeType
 
 def find_path(filtered_graph, unfiltered_graph, start_node, target_node, search_type = EdgeType.PROVIDES):
     try:

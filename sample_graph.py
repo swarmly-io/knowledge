@@ -1,2 +1,2 @@
-import sample_graph.agent_config as ag
-import sample_graph.sample_graph
+import services.agent_config as ag
+import services.sample_graph
