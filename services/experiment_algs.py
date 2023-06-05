@@ -1,8 +1,7 @@
 import networkx as nx
-from services.agent_config import LENSES
+from services.agent_config import LENSE_TYPES
 from services.graph_composer import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
-from services.mini_graphs import feasible_action_graph
 
 
 class FindSubGoals:
@@ -52,7 +51,7 @@ class FindSubGoals:
     def get_feasible_workflows(self, action, target):
         action_tree = self.create_actions_tree(action)
         current_tree = self.composer.apply_lenses(
-            [LENSES.IN_INVENTORY, LENSES.IN_OBSERVATION], action_tree)
+            [LENSE_TYPES.IN_INVENTORY, LENSE_TYPES.IN_OBSERVATION], action_tree)
         try:
             path = nx.shortest_path(current_tree, action, target)
         except Exception:

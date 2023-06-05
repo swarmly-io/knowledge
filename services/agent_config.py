@@ -1,11 +1,11 @@
 from enum import Enum
 
 from services.graph_composer import EdgeType
-from services.graph_dict import graph_dict
+from services.mini_graph_dict import graph_dict
 import networkx as nx
 
 
-class LENSES(str, Enum):
+class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
     IN_OBSERVATION = "in_observation"
     IN_INVENTORY = "in_inventory"
@@ -13,14 +13,14 @@ class LENSES(str, Enum):
 
 
 lenses = {
-    LENSES.ONLY_INVENTORY_MINING_ITEMS: {'source': lambda x: 'items:' in x[0],
+    LENSE_TYPES.ONLY_INVENTORY_MINING_ITEMS: {'source': lambda x: 'items:' in x[0],
                                          'condition': lambda x:
                                          'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
-    LENSES.IN_OBSERVATION: {'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'],
+    LENSE_TYPES.IN_OBSERVATION: {'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'],
                             'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.observations_graph.nodes(data=True)]},
-    LENSES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'],
+    LENSE_TYPES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'],
                           'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
-    LENSES.EXCLUDE_ASK_TRADES: {'source': lambda x: 'trade:ask' == x[0],
+    LENSE_TYPES.EXCLUDE_ASK_TRADES: {'source': lambda x: 'trade:ask' == x[0],
                                 'condition': lambda x: False}
     # 'can_obtain': {}
 }
@@ -63,7 +63,7 @@ joins = {
     "actions": {
         "mine": [{'index': 'items', 'filter': lambda x, y: 'pickaxe' in x.get('name'), 'type': EdgeType.NEEDS, 'join':
                   {'index': 'blocks', 'filter': lambda x, y: x.get('material') == 'mineable/pickaxe', 'type': EdgeType.ACT_UPON}}],
-        "collect": [{'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.OBSERVED}],
+        "collect": [{'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.OBSERVED }],
         "fight": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Hostile mobs', 'type': EdgeType.OBSERVED}],
         "hunt": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Passive mobs', 'type': EdgeType.OBSERVED}],
         "eat": [{'index': 'foods', 'filter': lambda x, y: x['food_points'] > 0, 'type': EdgeType.NEEDS}],
