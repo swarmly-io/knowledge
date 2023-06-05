@@ -4,6 +4,8 @@ from services.graph_composer import EdgeType
 from services.mini_graph_dict import graph_dict
 import networkx as nx
 
+from services.state import run_state
+
 
 class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
@@ -63,7 +65,7 @@ joins = {
     "actions": {
         "mine": [{'index': 'items', 'filter': lambda x, y: 'pickaxe' in x.get('name'), 'type': EdgeType.NEEDS, 'join':
                   {'index': 'blocks', 'filter': lambda x, y: x.get('material') == 'mineable/pickaxe', 'type': EdgeType.ACT_UPON}}],
-        "collect": [{'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.OBSERVED }],
+        "collect": [{'index': 'observations', 'filter': lambda x, y: x['type'] in ['item', 'block'], 'type': EdgeType.OBSERVED }],
         "fight": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Hostile mobs', 'type': EdgeType.OBSERVED}],
         "hunt": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Passive mobs', 'type': EdgeType.OBSERVED}],
         "eat": [{'index': 'foods', 'filter': lambda x, y: x['food_points'] > 0, 'type': EdgeType.NEEDS}],
@@ -107,6 +109,8 @@ apply_joins(ajoin, graph_dict['actions'])
 apply_joins(tjoin, graph_dict['trade'])
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
 
+run_state()
+
 one_to_many_join_graphs = {
     'sources': [
         ('actions',
@@ -115,6 +119,8 @@ one_to_many_join_graphs = {
          graph_dict['trade']),
         ('inventory',
          graph_dict['inventory']),
+        ('observations',
+         graph_dict['observations']),
         ('recipes',
          graph_dict['recipes'])],
     'on': graph_dict}

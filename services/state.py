@@ -9,6 +9,8 @@ initial_state = {
             0, 0, 0), 'type': 'Hostile mobs'},
         {'id': 2, 'name': 'zombie', 'position': (
             0, 0, 1), 'type': 'Hostile mobs'},
+        {'id': 3, 'name': 'wooden_pickaxe', 'position': (
+            0, 0, 1), 'type': 'item' },
     ],
     'inventory': [
         {'id': 1, 'name': 'plank', 'quantity': 1},
@@ -18,18 +20,23 @@ initial_state = {
 }
 
 
-def state_to_graph(state):
+def state_to_graph(state):    
     for o in state['observations']:
         key = str(o['id']) + ':' + o['name']
-        observations_graph.add_node(key, props=o)
+        if o['type'] == "item":
+            observations_graph.add_node(key, props={ **o, 'joins': [{ 'index': 'items', 'filter': lambda x,y: x['name'] == o['name'], 'type': EdgeType.PROVIDES }] } )
+        else:
+            observations_graph.add_node(key, props={ **o, 'joins': [] } )
 
     for i in state['inventory']:
         key = str(i['id']) + ':' + i['name']
         joins = [{'index': 'items',
                   'filter': lambda x,
                   y: x['name'] == i['name'],
-                  'type': EdgeType.PROVIDES}]
+                  'type': EdgeType.PROVIDES }]
         inventory_graph.add_node(key, props={**i, 'joins': joins})
 
 
-state_to_graph(initial_state)
+def run_state():
+    state_to_graph(initial_state)
+    print("Ran State")
