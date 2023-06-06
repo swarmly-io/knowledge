@@ -14,7 +14,9 @@ initial_state = {
     ],
     'inventory': [
         {'id': 1, 'name': 'plank', 'quantity': 1},
-        {'id': 1, 'name': 'stick', 'quantity': 1}
+        {'id': 1, 'name': 'stick', 'quantity': 1},
+        {'id': 1, 'name': 'wooden_pickaxe', 'quantity': 1}
+
     ],
     'blockNearBy': lambda x: True if x == 'blocks:stone' else False
 }
@@ -30,9 +32,10 @@ def state_to_graph(state):
 
     for i in state['inventory']:
         key = str(i['id']) + ':' + i['name']
+        # todo adaptive edge type, it should be the same as the previous edge
         joins = [{'index': 'items',
                   'filter': lambda x,
-                  y: x['name'] == i['name'],
+                  y: x['name'] == y['name']),
                   'type': EdgeType.PROVIDES }]
         inventory_graph.add_node(key, props={**i, 'joins': joins})
 

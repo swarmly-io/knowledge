@@ -47,9 +47,7 @@ class GraphComposer:
 
                 filtered_nodes = [
                     node for node in graph.nodes(
-                        data=True) if filter_fn(
-                        node[1]['props'],
-                        n[1]['props'])]
+                        data=True) if filter_fn(node[1]['props'], n[1]['props'])]
                 for nt in filtered_nodes:
                     new_source = source_name + ":" + n[0]
                     new_target = index + ":" + nt[0]
@@ -66,7 +64,7 @@ class GraphComposer:
                             n[1]['props'])]
                     for nt in filtered_nodes:
                         for nft in new_filtered_nodes:
-                            e_type = join['type']
+                            e_type = sub_joins['type']
                             new_source = index + ":" + nt[0]
                             new_target = new_index + ":" + nft[0]
                             self.composed_graph.add_edge(

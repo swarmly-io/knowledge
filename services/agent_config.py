@@ -75,14 +75,18 @@ joins = {
     "trade": {
         "bid": [{'index': 'trade', 'filter': lambda x, y: 'debit' == x['name'], 'type': EdgeType.ACT_UPON}],
         "ask": [{'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.ACT_UPON}],
-        "debit": [{'index': 'trade', 'filter': lambda x, y: x['name'] == 'money', 'type': EdgeType.NEEDS}],
+        "debit": [{'index': 'trade', 'filter': lambda x, y: x['name'] == '-money', 'type': EdgeType.NEEDS,
+                  'join': {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES }
+                  }],
         "credit": [{'index': 'inventory', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS},
-                   {'index': 'trade', 'filter': lambda x, y: 'money' == x['name'], 'type': EdgeType.PROVIDES}],
-        "money": [{'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES}]
+                   {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS, 'join':
+                   {'index': 'trade', 'filter': lambda x, y: 'money' == x['name'], 'type': EdgeType.PROVIDES}}],
+        "money": []
     },
     'recipes': {
-        'all': [{'index': 'items', 'filter': lambda x, y: x['name'] in [z['name'] for z in y['needs']], 'type': EdgeType.NEEDS,
-                 'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
+        'all': [{'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}]
+         #   {'index': 'items', 'filter': lambda x, y: x['name'] in [z['name'] for z in y['needs']], 'type': EdgeType.NEEDS,
+          #       'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
     }
 }
 

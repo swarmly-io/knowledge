@@ -1,23 +1,44 @@
 import networkx as nx
 from services.graph_composer import EdgeType
 
-def find_all_paths(graph, start, end):
-    # Use depth-first search to find all paths
+def find_all_paths(graph, start, end, target_edge_type):
+    # Use recursion to find all paths
     paths = []
-    stack = [(start, [start])]
-    
-    while stack:
-        node, path = stack.pop()
-        
-        if node == end:
-            paths.append(path)
-        
-        for neighbor in graph.successors(node):  # Use successors instead of neighbors
-            if neighbor not in path:
-                stack.append((neighbor, path + [neighbor]))
-    
+    visited = set()  # Track visited nodes within each path
+    find_paths_recursive(graph, start, end, target_edge_type, [start], visited, paths)
     return paths
 
+def find_paths_recursive(graph, current_node, end, target_edge_type, path, visited, paths):
+    if current_node == end:
+        if is_valid_path(graph, path, target_edge_type):
+            paths.append(path)
+        return
+
+    visited.add(current_node)  # Mark current node as visited within the path
+
+    for neighbor in graph.successors(current_node):
+        if neighbor not in visited:
+            find_paths_recursive(graph, neighbor, end, target_edge_type, path + [neighbor], visited.copy(), paths)
+    
+    visited.remove(current_node)  # Remove current node from visited set within the path
+
+def is_valid_path(graph, path, target_edge_type):
+    if len(path) > 1:
+        for u, v in zip(path[:-1], path[1:]):
+            edge_type = graph.edges[u, v].get('type')
+            if edge_type == target_edge_type and v != path[-1]:
+                return False
+        return graph.edges[path[-2], path[-1]].get('type') == target_edge_type
+    return False
+
+def path_edges(graph, path):
+    edges = []
+    if len(path) > 1:
+        for u, v in zip(path[:-1], path[1:]):
+            edge_type = graph.edges[u, v].get('type')
+            edges.append(edge_type)
+        return edges
+    return []
 
 def find_path(
         filtered_graph,
@@ -27,23 +48,27 @@ def find_path(
         search_type=EdgeType.PROVIDES):
     try:
         filtered_paths = find_all_paths(
-            filtered_graph, start_node, target_node)
+            filtered_graph, start_node, target_node, search_type)
         feasible_paths = []
         for filtered_path in filtered_paths:
             last_edge = (filtered_path[-2], filtered_path[-1])
             if filtered_graph[last_edge[0]
                               ][last_edge[1]]['type'] == search_type:
-                print(last_edge)
+                
+                #print(filtered_graph[filtered_path[-3]][filtered_path[-2]], filtered_graph[filtered_path[-2]][filtered_path[-1]])
                 feasible_paths.append(filtered_path)
         if feasible_paths:
+            for f in feasible_paths:
+                print(path_edges(filtered_graph, f))
+            
             return True, feasible_paths
 
     except (nx.NetworkXNoPath, StopIteration):
         pass
 
     try:
-        unfiltered_paths = nx.find_all_paths(
-            unfiltered_graph, start_node, target_node)
+        unfiltered_paths = find_all_paths(
+            unfiltered_graph, start_node, target_node, search_type)
         paths_with_needs = []
         for path in unfiltered_paths:
             previous_node = start_node
