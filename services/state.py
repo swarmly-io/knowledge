@@ -35,7 +35,7 @@ def state_to_graph(state):
         # todo adaptive edge type, it should be the same as the previous edge
         joins = [{'index': 'items',
                   'filter': lambda x,
-                  y: x['name'] == y['name']),
+                  y: x['name'] == y['name'],
                   'type': EdgeType.PROVIDES }]
         inventory_graph.add_node(key, props={**i, 'joins': joins})
 
