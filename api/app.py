@@ -7,8 +7,23 @@ from services.mini_graph_dict import graph_dict
 from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 from services.graph_composer import GraphComposer
 from services.find_path import find_path
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:5173",
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger("my_logger")

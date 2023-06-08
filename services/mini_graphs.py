@@ -157,7 +157,6 @@ trade_graph.add_node('debit', props={'name': 'debit'})
 # could be , { 'index': 'trade', 'filter': lambda x,y: 'money' in x['name'] }
 trade_graph.add_node('credit', props={'name': 'credit'})
 trade_graph.add_node('money', props={'name': 'money'})
-trade_graph.add_node('-money', props={'name': '-money'})
 
 inventory_graph = nx.Graph()
 # inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })

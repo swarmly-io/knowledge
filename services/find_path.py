@@ -10,8 +10,7 @@ def find_all_paths(graph, start, end, target_edge_type):
 
 def find_paths_recursive(graph, current_node, end, target_edge_type, path, visited, paths):
     if current_node == end:
-        if is_valid_path(graph, path, target_edge_type):
-            paths.append(path)
+        paths.append(path)
         return
 
     visited.add(current_node)  # Mark current node as visited within the path
@@ -21,15 +20,6 @@ def find_paths_recursive(graph, current_node, end, target_edge_type, path, visit
             find_paths_recursive(graph, neighbor, end, target_edge_type, path + [neighbor], visited.copy(), paths)
     
     visited.remove(current_node)  # Remove current node from visited set within the path
-
-def is_valid_path(graph, path, target_edge_type):
-    if len(path) > 1:
-        for u, v in zip(path[:-1], path[1:]):
-            edge_type = graph.edges[u, v].get('type')
-            if edge_type == target_edge_type and v != path[-1]:
-                return False
-        return graph.edges[path[-2], path[-1]].get('type') == target_edge_type
-    return False
 
 def path_edges(graph, path):
     edges = []
@@ -55,7 +45,6 @@ def find_path(
             if filtered_graph[last_edge[0]
                               ][last_edge[1]]['type'] == search_type:
                 
-                #print(filtered_graph[filtered_path[-3]][filtered_path[-2]], filtered_graph[filtered_path[-2]][filtered_path[-1]])
                 feasible_paths.append(filtered_path)
         if feasible_paths:
             for f in feasible_paths:

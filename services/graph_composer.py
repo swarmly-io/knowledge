@@ -40,35 +40,30 @@ class GraphComposer:
 
             joins = n[1]['props']['joins']
             for join in joins:
-                index, filter_fn, sub_joins, graph = self.get_join_info(join)
-                e_type = join['type']
-                if not graph:
-                    continue
+                self.create_join(join, source_name, n)
 
-                filtered_nodes = [
-                    node for node in graph.nodes(
-                        data=True) if filter_fn(node[1]['props'], n[1]['props'])]
-                for nt in filtered_nodes:
-                    new_source = source_name + ":" + n[0]
-                    new_target = index + ":" + nt[0]
-                    self.composed_graph.add_edge(
-                        new_source, new_target, **{'type': e_type, 'source': new_source})
+    def create_join(self, join, source_name, n):
+        index, filter_fn, sub_joins, graph = self.get_join_info(join)
+        e_type = join['type']
+        if not graph:
+            print(index, filter_fn, sub_joins, graph)
+            print("not graph")
+        else: 
+        
+            filtered_nodes = [
+                        node for node in graph.nodes(
+                            data=True) if filter_fn(node[1]['props'], n[1]['props'])]
+            for nt in filtered_nodes:
+                new_source = source_name + ":" + n[0]
+                new_target = index + ":" + nt[0]
+                if source_name == "inventory" and index == "items":
+                    print(source_name)
+                self.add_edge(
+                            new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index })
 
                 if sub_joins:
-                    new_index, filter_fn, _, graph = self.get_join_info(
-                        sub_joins)
-                    new_filtered_nodes = [
-                        node for node in graph.nodes(
-                            data=True) if filter_fn(
-                            node[1]['props'],
-                            n[1]['props'])]
-                    for nt in filtered_nodes:
-                        for nft in new_filtered_nodes:
-                            e_type = sub_joins['type']
-                            new_source = index + ":" + nt[0]
-                            new_target = new_index + ":" + nft[0]
-                            self.composed_graph.add_edge(
-                                new_source, new_target, **{'type': e_type, 'source': new_source})
+                    self.create_join(sub_joins, index, nt)
+
 
     def get_join_info(self, join):
         index = join['index']
@@ -101,12 +96,12 @@ class GraphComposer:
                 self.composed_graph.add_node(new_source, **source_data)
                 self.composed_graph.add_node(new_target, **target_data)
 
-                self.composed_graph.add_edge(
-                    new_source, new_target, **{'type': e_type})
+                self.add_edge(
+                    new_source, new_target, **{'type': e_type, 'esource': source, 'etarget': target })
 
     def apply_lenses(self,
                      lense_names: List[str],
-                     graph: Optional[nx.DiGraph]):
+                     graph: Optional[nx.DiGraph] = None):
         # create a sub graph based on the lense
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
@@ -133,3 +128,13 @@ class GraphComposer:
 
     def get_composed_graph(self):
         return self.composed_graph
+    
+    def add_edge(self, source, target, **attr):
+        # if self.composed_graph.has_edge(source, target):
+        #     old_edge = self.composed_graph[source][target]
+        #     self.composed_graph.remove_edge(source, target)
+        #     self.composed_graph.add_edge(source, old_edge['etarget'], **old_edge)
+        #     self.composed_graph.add_edge(source, attr['etarget'], **attr)
+        #     print('here', source, target)
+        # else:
+        self.composed_graph.add_edge(source, target, **attr)

@@ -11,8 +11,9 @@ class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
     IN_OBSERVATION = "in_observation"
     IN_INVENTORY = "in_inventory"
-    EXCLUDE_ASK_TRADES = "exclude_ask_trades"
+    ONLY_TRADES = "only_trades"
 
+only_trades = lambda x: True if 'action' in x[0] and 'trade' not in x[0] else False
 
 lenses = {
     LENSE_TYPES.ONLY_INVENTORY_MINING_ITEMS: {'source': lambda x: 'items:' in x[0],
@@ -22,7 +23,7 @@ lenses = {
                             'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.observations_graph.nodes(data=True)]},
     LENSE_TYPES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'],
                           'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
-    LENSE_TYPES.EXCLUDE_ASK_TRADES: {'source': lambda x: 'trade:ask' == x[0],
+    LENSE_TYPES.ONLY_TRADES: {'source': only_trades,
                                 'condition': lambda x: False}
     # 'can_obtain': {}
 }
@@ -73,14 +74,14 @@ joins = {
         "trade": [{'index': 'trade', 'filter': lambda x, y: 'bid' in x['name'] or 'ask' in x['name'], 'type': EdgeType.ACT_UPON}]
     },
     "trade": {
-        "bid": [{'index': 'trade', 'filter': lambda x, y: 'debit' == x['name'], 'type': EdgeType.ACT_UPON}],
-        "ask": [{'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.ACT_UPON}],
-        "debit": [{'index': 'trade', 'filter': lambda x, y: x['name'] == '-money', 'type': EdgeType.NEEDS,
-                  'join': {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES }
-                  }],
-        "credit": [{'index': 'inventory', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS},
-                   {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS, 'join':
-                   {'index': 'trade', 'filter': lambda x, y: 'money' == x['name'], 'type': EdgeType.PROVIDES}}],
+        "bid": [{ 'index': 'trade', 'filter': lambda x, y: 'debit' == x['name'], 'type': EdgeType.PROVIDES,
+                  'join': {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES}  }],
+        "ask": [{ 'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
+                   'join': {'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.PROVIDES} }],
+        "debit": [],
+        "credit": [
+                   
+                   ],
         "money": []
     },
     'recipes': {
@@ -94,7 +95,7 @@ joins = {
 def get_join(graph, action):
     if graph in joins and action in joins[graph]:
         return joins[graph][action]
-    print("Invalid Join")
+    print("Invalid Join", action)
     return []
 
 
