@@ -3,6 +3,7 @@ from enum import Enum
 from services.graph_composer import EdgeType
 from services.mini_graph_dict import graph_dict
 import networkx as nx
+from services.models import Join, Joins, OneToManyJoins
 
 from services.state import run_state
 
@@ -79,9 +80,7 @@ joins = {
         "ask": [{ 'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
                    'join': {'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.PROVIDES} }],
         "debit": [],
-        "credit": [
-                   
-                   ],
+        "credit": [],
         "money": []
     },
     'recipes': {
@@ -90,7 +89,9 @@ joins = {
           #       'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
     }
 }
-
+#x= Joins(**mjoins)
+#x.make_strings()
+#print(x)
 
 def get_join(graph, action):
     if graph in joins and action in joins[graph]:

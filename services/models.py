@@ -1,16 +1,28 @@
 
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 from pydantic import BaseModel
+
+from services.lambda_utils import parse_function
 
 
 class JoinInner(BaseModel):
     index: str
     filter: Callable[[object, object], bool]
+    filter_str: str = ""
+    
+    def make_str(self):
+        self.filter_str = parse_function(self.filter)
 
 
 class Join(JoinInner):
-    join: JoinInner
+    join: Optional[JoinInner]
 
+class Joins(Dict[str, Join]):
+    
+    def make_strings(self):
+        for k, v in self.items():
+            for vk, vv in v.items():
+                vv.make_str()
 
 class LinkingInstruction(BaseModel):
     source: str
