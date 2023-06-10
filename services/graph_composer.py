@@ -3,7 +3,6 @@ import networkx as nx
 from enum import Enum
 from pydantic import BaseModel
 
-
 class EdgeType(str, Enum):
     NEEDS = "NEEDS"
     PROVIDES = "PROVIDES"
@@ -13,6 +12,7 @@ class EdgeType(str, Enum):
     OBSERVED = "OBSERVE"
     ACT_UPON = "ACT_UPON"
 
+MAX_JOIN_DEPTH = 50
 
 class GraphComposer:
     def __init__(self, graph_dict, linking_instructions, join_graphs, lenses):
@@ -34,35 +34,40 @@ class GraphComposer:
             self.one_to_many_joins(source_name, f_graph)
 
     def one_to_many_joins(self, source_name, f_graph):
-        for n in f_graph.nodes(data=True):
+        nodes = [n for n in f_graph.nodes(data=True)]
+        for n in nodes:
             if not n[1]['props'].get('joins'):
                 continue
 
             joins = n[1]['props']['joins']
             for join in joins:
+                print(join)
                 self.create_join(join, source_name, n)
 
-    def create_join(self, join, source_name, n):
+    def create_join(self, join, source_name, n, rec_count = 0):
+        if rec_count > MAX_JOIN_DEPTH:
+            raise Exception("Max join depth has been reacted, please simplify your joins")
+            
         index, filter_fn, sub_joins, graph = self.get_join_info(join)
         e_type = join['type']
-        if not graph:
-            print(index, filter_fn, sub_joins, graph)
-            print("not graph")
+        if graph == None:
+            raise Exception(f"A graph is missing to perform join {index} {sub_joins}")
+        elif not graph:
+            print(f"Empty join graph {index}")
+            return
         else: 
-        
             filtered_nodes = [
                         node for node in graph.nodes(
                             data=True) if filter_fn(node[1]['props'], n[1]['props'])]
             for nt in filtered_nodes:
                 new_source = source_name + ":" + n[0]
                 new_target = index + ":" + nt[0]
-                if source_name == "inventory" and index == "items":
-                    print(source_name)
                 self.add_edge(
                             new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index })
 
                 if sub_joins:
-                    self.create_join(sub_joins, index, nt)
+                    print('here', rec_count)
+                    self.create_join(sub_joins, index, nt, rec_count=rec_count+1)
 
 
     def get_join_info(self, join):

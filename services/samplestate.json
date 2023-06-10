@@ -1,0 +1,769 @@
+{
+    "position": {
+        "x": 134.5,
+        "y": 63,
+        "z": 64.5
+    },
+    "status": {
+        "health": 20,
+        "food": 20,
+        "saturation": 5,
+        "oxygen": 399
+    },
+    "xp": 0,
+    "time": 22619,
+    "weather": {
+        "isRaining": true,
+        "thunderLevel": 0
+    },
+    "closeEntities": [
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 496,
+            "position": {
+                "x": 136.02001953125,
+                "y": 71.199951171875,
+                "z": 62.849365234375
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 2.552544031041707,
+            "pitch": -1.4971652489763858,
+            "onGround": true,
+            "height": 1.62,
+            "width": 0.6,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                20,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                0,
+                127,
+                1,
+                {
+                    "type": "compound",
+                    "name": "",
+                    "value": {}
+                },
+                {
+                    "type": "compound",
+                    "name": "",
+                    "value": {}
+                }
+            ],
+            "type": "player",
+            "name": "player",
+            "username": "radagastgrey",
+            "uuid": "9eaf65c6-ebd8-3013-bba6-5ccdc3881437",
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.10000000149011612,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 2.552544031041707
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 669,
+            "position": {
+                "x": 134.5,
+                "y": 63,
+                "z": 64.5
+            },
+            "velocity": {
+                "x": 0,
+                "y": -0.0784000015258789,
+                "z": 0
+            },
+            "yaw": 3.141592653589793,
+            "pitch": 0,
+            "onGround": true,
+            "height": 1.62,
+            "width": 0,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "heldItem": null,
+            "isValid": true,
+            "metadata": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                127
+            ],
+            "username": "bot12345",
+            "type": "player",
+            "name": "player",
+            "timeSinceOnGround": 0,
+            "isInWater": false,
+            "isInLava": false,
+            "isCollidedHorizontally": false,
+            "isCollidedVertically": true,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.10000000149011612,
+                    "modifiers": []
+                }
+            }
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 2267,
+            "position": {
+                "x": 144.47117449665362,
+                "y": 43.10000002384186,
+                "z": 74.69769192733034
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 4.221515128261284,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.9,
+            "width": 0.5,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                6,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                1
+            ],
+            "type": "mob",
+            "uuid": "7bc1af5c-efdb-4044-8887-f90aad1e228a",
+            "mobType": "Bat",
+            "objectType": "Bat",
+            "displayName": "Bat",
+            "entityType": 4,
+            "name": "bat",
+            "headPitch": -2.2825634123738343,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.699999988079071,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 0.8590292412159588
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 4168,
+            "position": {
+                "x": 130.25,
+                "y": 56.10000002384186,
+                "z": 49.25
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 1.2517283229146832,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.9,
+            "width": 0.5,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                6,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                1
+            ],
+            "type": "mob",
+            "uuid": "2c282d0a-8601-46cd-bad4-23c7a1edf7fe",
+            "mobType": "Bat",
+            "objectType": "Bat",
+            "displayName": "Bat",
+            "entityType": 4,
+            "name": "bat",
+            "headPitch": -0.662679700366597,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.699999988079071,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 3.436116964863836
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13734,
+            "position": {
+                "x": 118.6181682038854,
+                "y": 55.99990176321311,
+                "z": 43.276555486858506
+            },
+            "velocity": {
+                "x": -0.10975,
+                "y": -0.09125,
+                "z": -0.128625
+            },
+            "yaw": 5.5959619142068195,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.9,
+            "width": 0.5,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                6,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                0
+            ],
+            "type": "mob",
+            "uuid": "8b28a2d5-ad1e-4f73-9dcb-c1f1378b88d8",
+            "mobType": "Bat",
+            "objectType": "Bat",
+            "displayName": "Bat",
+            "entityType": 4,
+            "name": "bat",
+            "headPitch": -2.159844949342983,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.699999988079071,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 6.258641614573416
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13807,
+            "position": {
+                "x": 122.79372071594193,
+                "y": 63,
+                "z": 73.63633812443919
+            },
+            "velocity": {
+                "x": -0.051625000000000004,
+                "y": -0.078375,
+                "z": -0.033875
+            },
+            "yaw": 0.8590292412159588,
+            "pitch": 0,
+            "onGround": true,
+            "height": 1.95,
+            "width": 0.6,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                20,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                false,
+                0,
+                false
+            ],
+            "type": "mob",
+            "uuid": "8f8cd560-3347-4622-b2d4-bce15c0e11c0",
+            "mobType": "Zombie",
+            "objectType": "Zombie",
+            "displayName": "Zombie",
+            "entityType": 107,
+            "name": "zombie",
+            "headPitch": -2.012582793705961,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.23000000417232513,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 1.1044661672776614
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13811,
+            "position": {
+                "x": 139.44738379326665,
+                "y": 64.53584062504456,
+                "z": 63.5000463718919
+            },
+            "velocity": {
+                "x": -0.059375000000000004,
+                "y": -0.30425,
+                "z": 0
+            },
+            "yaw": 1.5707963267948966,
+            "pitch": -0.3436116964863838,
+            "onGround": true,
+            "height": 1.95,
+            "width": 0.6,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                20,
+                0,
+                false,
+                0,
+                0,
+                null,
+                6,
+                false,
+                0,
+                false
+            ],
+            "type": "mob",
+            "uuid": "59376570-331d-492a-8266-7750863df42a",
+            "mobType": "Zombie",
+            "objectType": "Zombie",
+            "displayName": "Zombie",
+            "entityType": 107,
+            "name": "zombie",
+            "headPitch": 2.233476027161494,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.23000000417232513,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 1.7916895602504288
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13812,
+            "position": {
+                "x": 134.49364436552213,
+                "y": 64,
+                "z": 73.29405536246558
+            },
+            "velocity": {
+                "x": 0,
+                "y": -0.078375,
+                "z": -0.057
+            },
+            "yaw": 0,
+            "pitch": -0.1472621556370215,
+            "onGround": true,
+            "height": 1.95,
+            "width": 0.6,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                20,
+                0,
+                false,
+                0,
+                0,
+                null,
+                4,
+                false,
+                0,
+                false
+            ],
+            "type": "mob",
+            "uuid": "c9c67c65-beef-4297-9ab2-6a3895a63af3",
+            "mobType": "Zombie",
+            "objectType": "Zombie",
+            "displayName": "Zombie",
+            "entityType": 107,
+            "name": "zombie",
+            "headPitch": -2.061670178918302,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.23000000417232513,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 0
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13919,
+            "position": {
+                "x": 149.125,
+                "y": 63,
+                "z": 73.875
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 5.031456984264903,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.25,
+            "width": 0.25,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                {
+                    "present": true,
+                    "itemId": 849,
+                    "itemCount": 5
+                }
+            ],
+            "type": "object",
+            "mobType": "Item",
+            "objectType": "Item",
+            "displayName": "Item",
+            "entityType": 41,
+            "name": "item",
+            "uuid": "9cfe98a4-2894-4c72-9f6c-9b727e0c589b",
+            "objectData": 0
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13988,
+            "position": {
+                "x": 124.22305814543502,
+                "y": 53,
+                "z": 37.51128001810194
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 4.417864669110647,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.25,
+            "width": 0.25,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                {
+                    "present": true,
+                    "itemId": 808,
+                    "itemCount": 1
+                }
+            ],
+            "type": "object",
+            "mobType": "Item",
+            "objectType": "Item",
+            "displayName": "Item",
+            "entityType": 41,
+            "name": "item",
+            "uuid": "ebdb19ab-d82f-44b6-8bb2-1d0e13204b94",
+            "objectData": 0
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 13993,
+            "position": {
+                "x": 128.73773836750874,
+                "y": 53,
+                "z": 38.672490887518656
+            },
+            "velocity": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "yaw": 2.184388641949153,
+            "pitch": 0,
+            "onGround": true,
+            "height": 0.25,
+            "width": 0.25,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                {
+                    "present": true,
+                    "itemId": 808,
+                    "itemCount": 2
+                }
+            ],
+            "type": "object",
+            "mobType": "Item",
+            "objectType": "Item",
+            "displayName": "Item",
+            "entityType": 41,
+            "name": "item",
+            "uuid": "b699f586-f617-4f7b-a8a5-29efc9331abb",
+            "objectData": 0
+        },
+        {
+            "_events": {},
+            "_eventsCount": 0,
+            "id": 14029,
+            "position": {
+                "x": 144.1893892459586,
+                "y": 65,
+                "z": 36.517320870249854
+            },
+            "velocity": {
+                "x": -0.062125,
+                "y": -0.078375,
+                "z": -0.000625
+            },
+            "yaw": 1.5707963267948966,
+            "pitch": 0,
+            "onGround": true,
+            "height": 1.95,
+            "width": 0.6,
+            "effects": {},
+            "equipment": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "isValid": true,
+            "metadata": [
+                0,
+                300,
+                null,
+                false,
+                false,
+                false,
+                0,
+                0,
+                0,
+                20,
+                0,
+                false,
+                0,
+                0,
+                null,
+                0,
+                false,
+                0,
+                false
+            ],
+            "type": "mob",
+            "uuid": "d2c8c4ab-ea25-4594-bbe9-46aab30522b4",
+            "mobType": "Zombie",
+            "objectType": "Zombie",
+            "displayName": "Zombie",
+            "entityType": 107,
+            "name": "zombie",
+            "headPitch": 0.9817477042468106,
+            "attributes": {
+                "minecraft:generic.movement_speed": {
+                    "value": 0.23000000417232513,
+                    "modifiers": []
+                }
+            },
+            "headYaw": 1.5707963267948966
+        }
+    ],
+    "inventory": {
+        "items": {
+            "826": 1,
+            "701": 1
+        },
+        "emptySlots": 35
+    },
+    "world": {}
+}

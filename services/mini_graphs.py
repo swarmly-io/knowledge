@@ -57,9 +57,9 @@ recipes_graph.add_node('plank', props={'provides': {
                        'quantity': 4, 'name': 'plank'}, 'needs': [{'name': 'wood', 'quantity': 1}]})
 
 food_graph = nx.Graph()
-food_graph.add_node('apple', props={'name': 'apple'})
-food_graph.add_node('bread', props={'name': 'bread'})
-food_graph.add_node('carrot', props={'name': 'carrot'})
+food_graph.add_node('apple', props={'name': 'apple', 'food_points': 1 })
+food_graph.add_node('bread', props={'name': 'bread', 'food_points': 1 })
+food_graph.add_node('carrot', props={'name': 'carrot', 'food_points': 1 })
 
 feasible_action_graph = nx.Graph()
 feasible_action_graph.add_node(EdgeType.OBSERVED)
@@ -161,3 +161,5 @@ trade_graph.add_node('money', props={'name': 'money'})
 inventory_graph = nx.Graph()
 # inventory_graph.add_node('wooden_pickaxe', props = { 'name': 'wooden_pickaxe', 'quantity': 1 })
 observations_graph = nx.Graph()
+
+entities_graph = nx.Graph()

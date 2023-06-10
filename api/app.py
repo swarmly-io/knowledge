@@ -1,13 +1,17 @@
 import logging
+import timeit
 from typing import List
 from fastapi import Depends, FastAPI, Response
 import dill as pickle
 from pydantic import BaseModel
+from models.agent_state import AgentMCState
 from services.mini_graph_dict import graph_dict
 from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 from services.graph_composer import GraphComposer
 from services.find_path import find_path
 from fastapi.middleware.cors import CORSMiddleware
+
+from services.state import state_to_graph
 
 app = FastAPI()
 
@@ -30,10 +34,17 @@ logger = logging.getLogger("my_logger")
 
 class Graph:
     def __init__(self) -> None:
-        self.composer: GraphComposer = None 
+        self.composer: GraphComposer = None
+        self.state : AgentMCState = None
     
     def set_composer(self, composer):
         self.composer = composer 
+        
+    def set_state(self, state: AgentMCState):
+        self.state = state
+        
+    def run_state(self):
+        state_to_graph(self.state)
         
     def get_graph(self):
         return self
@@ -48,6 +59,17 @@ class Graph:
         unfiltered_graph = self.composer.get_composed_graph()
         path = find_path(filtered_graph, unfiltered_graph, source_node, target_node)
         return path
+    
+    def build_graph(self):
+        if not self.composer:
+            self.composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
+            self.set_composer(self.composer)
+
+        t = timeit.timeit(self.composer.compose_graphs, number=1)
+        print(f"Built in {t}")
+
+        g = self.composer.get_composed_graph()
+        return dict(nodes=len(g.nodes()), edges= len(g.edges()))
         
 
 graph = Graph()
@@ -55,12 +77,8 @@ graph = Graph()
 # init graph needs to take all info from agent_config
 @app.post("/init")
 def init_graph(graph: Graph = Depends(graph.get_graph)):
-    composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
-    composer.compose_graphs()
-    graph.get_graph().set_composer(composer)
+    return graph.build_graph()
 
-    g = composer.get_composed_graph()
-    return dict(nodes=len(g.nodes()), edges= len(g.edges()))
 
 @app.get("/graph")
 def get_graph(graph: Graph = Depends(graph.get_graph)):
@@ -79,9 +97,14 @@ class FindPathRequest(BaseModel):
 def find_path_to_target(request: FindPathRequest, graph: Graph = Depends(graph.get_graph)):
     return graph.find_path(request.source_node, request.target_node, request.lenses)
     
-@app.post("update_state")
-def update_state():
-    return
+@app.post("/update_state")
+def update_state(state: AgentMCState, graph: Graph = Depends(graph.get_graph)):
+    # persist state
+    graph.set_state(state)
+    # run state_to_graph - clears and updates individual graph
+    graph.run_state()
+    # rerun graph composer
+    return graph.build_graph()
 
 # adding a subgraph should recompute the graph
 # needs links, filters and joins

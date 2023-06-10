@@ -1,44 +1,52 @@
+import json
 import networkx as nx
+from models.agent_state import AgentMCState
 from services.graph_composer import EdgeType
 from services.mini_graphs import inventory_graph, observations_graph
 
-initial_state = {
-    'observations': [
-        # should resolve these to entities entries - cache
-        {'id': 1, 'name': 'zombie', 'position': (
-            0, 0, 0), 'type': 'Hostile mobs'},
-        {'id': 2, 'name': 'zombie', 'position': (
-            0, 0, 1), 'type': 'Hostile mobs'},
-        {'id': 3, 'name': 'wooden_pickaxe', 'position': (
-            0, 0, 1), 'type': 'item' },
-    ],
-    'inventory': [
-        {'id': 1, 'name': 'plank', 'quantity': 1},
-        {'id': 1, 'name': 'stick', 'quantity': 1},
-        {'id': 1, 'name': 'wooden_pickaxe', 'quantity': 1}
+with open("./services/samplestate.json", 'r') as f:
+    initial_state = AgentMCState(**json.loads(f.read()))
 
-    ],
-    'blockNearBy': lambda x: True if x == 'blocks:stone' else False
+# todo lookup k in items lookup
+items_lookup = {
+    "701": "wooden_pickaxe"
 }
 
-
-def state_to_graph(state):    
-    for o in state['observations']:
-        key = str(o['id']) + ':' + o['name']
-        if o['type'] == "item":
-            observations_graph.add_node(key, props={ **o, 'joins': [{ 'index': 'items', 'filter': lambda x,y: x['name'] == o['name'], 'type': EdgeType.PROVIDES }] } )
-        else:
-            observations_graph.add_node(key, props={ **o, 'joins': [] } )
-
-    for i in state['inventory']:
-        key = str(i['id']) + ':' + i['name']
-        # todo adaptive edge type, it should be the same as the previous edge
+def inventory_state_runner(state: AgentMCState):
+    inventory_graph.clear()
+    
+    inv_state = state.inventory.items
+    for k, i in inv_state.items():
+        name = items_lookup.get(k)
+        if not name:
+            print(f"Couldn't find item {k}")
+            continue
+        
+        key = f"{k}:{name}"
         joins = [{'index': 'items',
                   'filter': lambda x,
                   y: x['name'] == y['name'],
                   'type': EdgeType.PROVIDES }]
-        inventory_graph.add_node(key, props={**i, 'joins': joins})
+        
+        inventory_graph.add_node(key, props={**{ k: i, 'name': name }, 'joins': joins}) 
+    
+def observation_state_runner(state: AgentMCState):
+    # do to this should include items laying on the ground
+    obs_state = state.closeEntities
+    observations_graph.clear()
+    for o in obs_state:
+        key = str(o.id) + ':' + o.name
+        if o.type == "item":
+            # todo join should be defined in agent config
+            observations_graph.add_node(key, props={ **o.dict(), 'joins': [{ 'index': 'items', 'filter': lambda x,y: x['name'] == o['name'], 'type': EdgeType.PROVIDES }] } )
+        else:
+            observations_graph.add_node(key, props={ **o.dict(), 'joins': [], 'type': EdgeType.OBSERVED } )
 
+def state_to_graph(state: AgentMCState):
+    inventory_state_runner(state)
+    print("ran inventory state")
+    observation_state_runner(state)
+    print("ran observation state")
 
 def run_state():
     state_to_graph(initial_state)

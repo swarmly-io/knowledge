@@ -43,7 +43,7 @@ linking_instructions = [
     },
     {
         'source': 'items',
-        'target': 'food',
+        'target': 'foods',
         'link': lambda s, t: s['props']['name'] == t['props']['name'],
         'type': EdgeType.PROVIDES
     },
