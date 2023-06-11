@@ -9,7 +9,7 @@ def find_all_paths(graph, start, end, target_edge_type):
     return paths
 
 def find_paths_recursive(graph, current_node, end, target_edge_type, path, visited, paths):
-    if current_node == end:
+    if path[-1] == end and is_valid_path(graph, path, target_edge_type):
         paths.append(path)
         return
 
@@ -21,6 +21,15 @@ def find_paths_recursive(graph, current_node, end, target_edge_type, path, visit
     
     visited.remove(current_node)  # Remove current node from visited set within the path
 
+def is_valid_path(graph, path, target_edge_type):
+    if len(path) > 1:
+        for u, v in zip(path[:-1], path[1:]):
+            edge_type = graph.edges[u, v].get('type')
+            if edge_type == target_edge_type and v != path[-1]:
+                return False
+        return graph.edges[path[-2], path[-1]].get('type') == target_edge_type
+    return False
+
 def path_edges(graph, path):
     edges = []
     if len(path) > 1:
@@ -30,7 +39,7 @@ def path_edges(graph, path):
         return edges
     return []
 
-def find_path(
+def find_path_with_feasibility(
         filtered_graph,
         unfiltered_graph,
         start_node,
@@ -42,16 +51,12 @@ def find_path(
         feasible_paths = []
         for filtered_path in filtered_paths:
             last_edge = (filtered_path[-2], filtered_path[-1])
-            if filtered_graph[last_edge[0]
-                              ][last_edge[1]]['type'] == search_type:
+            if filtered_graph[last_edge[0]][last_edge[1]]['type'] == search_type:
                 
                 feasible_paths.append(filtered_path)
         if feasible_paths:
-            for f in feasible_paths:
-                print(path_edges(filtered_graph, f))
-            
-            return True, feasible_paths
-
+            typed_paths = make_typed_path(filtered_graph, feasible_paths)
+            return True, typed_paths
     except (nx.NetworkXNoPath, StopIteration):
         pass
 
@@ -60,7 +65,7 @@ def find_path(
             unfiltered_graph, start_node, target_node, search_type)
         paths_with_needs = []
         for path in unfiltered_paths:
-            previous_node = start_node
+            new_path = []
             for p in path:
                 if p == start_node or p == target_node:
                     continue
@@ -69,16 +74,29 @@ def find_path(
                 except BaseException:
                     sub_path = None
 
-                if not sub_path and unfiltered_graph[previous_node][p]['type'] == EdgeType.NEEDS:
-                    if not filtered_graph[previous_node] or not filtered_graph[previous_node][p]:
-                        paths_with_needs.append((previous_node, p))
-
-                previous_node = p
+                if not sub_path:
+                    new_path = path
+                    index = path.index(p)
+                    new_path = new_path[:index + 1]
+                    break
+                    
+            if len(new_path) > 0:
+                paths_with_needs.append(new_path)
 
         if paths_with_needs:
-            return False, paths_with_needs
+            typed_paths = make_typed_path(unfiltered_graph, paths_with_needs)
+
+            return False, typed_paths
 
     except Exception:
         print("No paths found")
 
     return False, []
+
+def make_typed_path(filtered_graph, feasible_paths):
+    typed_paths = []
+    for f in feasible_paths:
+        types = path_edges(filtered_graph, f)
+        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1] }, zip(f, [""] + types))))
+    return typed_paths
+

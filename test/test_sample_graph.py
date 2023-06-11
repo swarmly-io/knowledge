@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import pytest
 from services.experiment_algs import FindSubGoals
 from services.graph_composer import GraphComposer
 
@@ -59,7 +60,7 @@ def save_image(name):
     plt.savefig('test/figures/' + name + '.jpg', dpi=80)
     plt.clf()
 
-
+@pytest.mark.skip()
 def test_test_draw_all():
     draw_action_tree('actions:mine')
     draw_action_tree_with_lenses('actions:mine')

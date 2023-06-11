@@ -11,6 +11,7 @@ class EdgeType(str, Enum):
     ACTION = "ACTION"
     OBSERVED = "OBSERVE"
     ACT_UPON = "ACT_UPON"
+    ACCRUE = "accrue"
 
 MAX_JOIN_DEPTH = 50
 
@@ -63,7 +64,7 @@ class GraphComposer:
                 new_source = source_name + ":" + n[0]
                 new_target = index + ":" + nt[0]
                 self.add_edge(
-                            new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index })
+                            new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index, 'source_name': join.get('source_name') or source_name })
 
                 if sub_joins:
                     print('here', rec_count)
@@ -110,19 +111,18 @@ class GraphComposer:
         # create a sub graph based on the lense
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
-        new_nodes = []
+        remove_nodes = []
         for lense_name in lense_names:
             lense = self.lenses[lense_name]
             for n in nodes:
                 if lense['source'](n):
                     if lense['condition'](n):
-                        new_nodes.append(n)
-                else:
-                    new_nodes.append(n)
+                        remove_nodes.append(n)
 
         T = nx.DiGraph()
-        for n in new_nodes:
-            T.add_node(n[0], **n[1])
+        T.add_nodes_from(nodes)
+        for n in remove_nodes:
+            T.remove_node(n[0])
 
         filtered_edges = [
             (u, v, s) for (

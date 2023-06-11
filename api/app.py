@@ -1,17 +1,10 @@
 import logging
-import timeit
 from typing import List
-from fastapi import Depends, FastAPI, Response
-import dill as pickle
+from fastapi import Depends, FastAPI
 from pydantic import BaseModel
+from api.graph import Graph
 from models.agent_state import AgentMCState
-from services.mini_graph_dict import graph_dict
-from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
-from services.graph_composer import GraphComposer
-from services.find_path import find_path
 from fastapi.middleware.cors import CORSMiddleware
-
-from services.state import state_to_graph
 
 app = FastAPI()
 
@@ -19,7 +12,6 @@ origins = [
     "http://localhost",
     "http://localhost:5173",
 ]
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,46 +23,6 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger("my_logger")
-
-class Graph:
-    def __init__(self) -> None:
-        self.composer: GraphComposer = None
-        self.state : AgentMCState = None
-    
-    def set_composer(self, composer):
-        self.composer = composer 
-        
-    def set_state(self, state: AgentMCState):
-        self.state = state
-        
-    def run_state(self):
-        state_to_graph(self.state)
-        
-    def get_graph(self):
-        return self
-    
-    def find_path(self, source_node, target_node, lenses = []):
-        # todo validate lenses
-        if not lenses:
-            filtered_graph = self.composer.get_composed_graph()
-        else:
-            filtered_graph = self.composer.apply_lenses(lenses)
-        
-        unfiltered_graph = self.composer.get_composed_graph()
-        path = find_path(filtered_graph, unfiltered_graph, source_node, target_node)
-        return path
-    
-    def build_graph(self):
-        if not self.composer:
-            self.composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
-            self.set_composer(self.composer)
-
-        t = timeit.timeit(self.composer.compose_graphs, number=1)
-        print(f"Built in {t}")
-
-        g = self.composer.get_composed_graph()
-        return dict(nodes=len(g.nodes()), edges= len(g.edges()))
-        
 
 graph = Graph()
 
@@ -128,8 +80,3 @@ def add_lense():
 @app.post("/remove_lense")
 def remove_lense():
     return
-
-@app.get("/hello")
-def hello():
-    pickled_obj = pickle.dumps(lenses)
-    return Response(content=pickled_obj, media_type="application/octet-stream")

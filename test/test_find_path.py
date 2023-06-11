@@ -1,5 +1,5 @@
 import networkx as nx
-from services.find_path import find_path
+from services.find_path import find_path_with_feasibility
 from services.graph_composer import EdgeType
 
 
@@ -11,23 +11,23 @@ def add_needs_edges(filtered_graph, needs_edges):
 # Example usage
 # Create the filtered and unfiltered graphs
 filtered_graph = nx.DiGraph()
-filtered_graph.add_edges_from([('A', 'B', {'type': EdgeType.PROVIDES}),
+filtered_graph.add_edges_from([('A', 'B', {'type': EdgeType.NEEDS}),
                                ('A', 'C', {'type': EdgeType.NEEDS}),
-                               ('B', 'D', {'type': EdgeType.PROVIDES}),
+                               ('B', 'D', {'type': EdgeType.NEEDS}),
                                ('B', 'E', {'type': EdgeType.NEEDS}),
-                               ('D', 'G', {'type': EdgeType.PROVIDES}),
+                               ('D', 'G', {'type': EdgeType.NEEDS}),
                                ('E', 'F', {'type': EdgeType.NEEDS}),
                                ('H', 'I', {'type': EdgeType.NEEDS}),
                                ('I', 'J', {'type': EdgeType.NEEDS}),
                                ('J', 'K', {'type': EdgeType.PROVIDES})])
 
 unfiltered_graph = nx.DiGraph()
-unfiltered_graph.add_edges_from([('A', 'B', {'type': EdgeType.PROVIDES}),
+unfiltered_graph.add_edges_from([('A', 'B', {'type': EdgeType.NEEDS}),
                                  ('A', 'C', {'type': EdgeType.NEEDS}),
-                                 ('B', 'D', {'type': EdgeType.PROVIDES}),
+                                 ('B', 'D', {'type': EdgeType.NEEDS}),
                                  ('B', 'E', {'type': EdgeType.NEEDS}),
                                  ('C', 'F', {'type': EdgeType.NEEDS}),
-                                 ('D', 'G', {'type': EdgeType.PROVIDES}),
+                                 ('D', 'G', {'type': EdgeType.NEEDS}),
                                  ('E', 'F', {'type': EdgeType.NEEDS}),
                                  ('F', 'H', {'type': EdgeType.NEEDS}),
                                  ('G', 'H', {'type': EdgeType.NEEDS}),
@@ -40,24 +40,21 @@ target_node = 'K'
 
 
 def test_finds_missing_node_for_incomplete_graph():
-    results = find_path(
+    results = find_path_with_feasibility(
         filtered_graph,
         unfiltered_graph,
         start_node,
         target_node)
     assert results[0] == False
-    assert results[1] == [('F', 'H')]
-    # simulate achieving sub goal
-    if not results[0]:
-        add_needs_edges(filtered_graph, results[1])
+    assert list(map(lambda x: x['node'], results[1][1])) == ['A', 'B', 'E', 'F', 'H']
 
 
 def test_finds_path_when_graph_complete():
     # try again
-    results = find_path(
-        filtered_graph,
+    results = find_path_with_feasibility(
+        unfiltered_graph,
         unfiltered_graph,
         start_node,
         target_node)
-    assert results[0]
-    assert results[1] == ['A', 'B', 'E', 'F', 'H', 'I', 'J', 'K']
+    assert results[0] == True
+    assert list(map(lambda x: x['node'], results[1][0])) == ['A', 'B', 'D', 'G', 'H', 'I', 'J', 'K']
