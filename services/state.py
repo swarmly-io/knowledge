@@ -12,7 +12,7 @@ items_lookup = {
     "701": "wooden_pickaxe"
 }
 
-def inventory_state_runner(state: AgentMCState):
+def inventory_state_runner(state: AgentMCState, inventory_graph):
     inventory_graph.clear()
     
     inv_state = state.inventory.items
@@ -30,7 +30,7 @@ def inventory_state_runner(state: AgentMCState):
         
         inventory_graph.add_node(key, props={**{ k: i, 'name': name }, 'joins': joins}) 
     
-def observation_state_runner(state: AgentMCState):
+def observation_state_runner(state: AgentMCState, observations_graph):
     # do to this should include items laying on the ground
     obs_state = state.closeEntities
     observations_graph.clear()
@@ -42,12 +42,10 @@ def observation_state_runner(state: AgentMCState):
         else:
             observations_graph.add_node(key, props={ **o.dict(), 'joins': [], 'type': EdgeType.OBSERVED } )
 
-def state_to_graph(state: AgentMCState):
-    inventory_state_runner(state)
-    print("ran inventory state")
-    observation_state_runner(state)
-    print("ran observation state")
 
-def run_state():
-    state_to_graph(initial_state)
-    print("Ran State")
+
+def state_to_graph(inventory_graph, observations_graph, state: AgentMCState):
+    inventory_state_runner(state, inventory_graph)
+    print("ran inventory state")
+    observation_state_runner(state, observations_graph)
+    print("ran observation state")

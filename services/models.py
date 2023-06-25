@@ -40,3 +40,18 @@ class Node(BaseModel):
 
     def to_node(self):
         return (self.name, self.__dict__)
+
+class TagLink(BaseModel):
+    tag: str
+    action: str
+    index: str
+    node: Optional[str]
+    
+    def from_csv_entry(entry: str):
+        try:
+            tag, action, index, node = (entry + ",,,,").replace(" ", "").split(",")[0:4]
+            return TagLink(tag=tag, action=action, index=index, node=node)
+        except Exception as e:
+            print("Error in tag link", entry)
+            raise Exception(f"Error creating tag link: {entry}")          
+    

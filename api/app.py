@@ -2,7 +2,8 @@ import logging
 from typing import List
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
-from api.graph import Graph
+from api.graph import GraphService
+from api.models import AgentDto
 from models.agent_state import AgentMCState
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,16 +25,26 @@ app.add_middleware(
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger("my_logger")
 
-graph = Graph()
+graph = GraphService()
+
+@app.post("/create_agent")
+def add_goals(agent: AgentDto, graph: GraphService = Depends(graph.get_graph)):
+    graph.create_agent(agent)
+    return { 'message': f'agent created: {agent.name}' }
+     
+@app.post("/{agent}/tag_links")
+def add_tag_links(name:str, links: List[str], graph: GraphService = Depends(graph.get_graph)):
+    graph.add_tag_links(links)
+    pass
 
 # init graph needs to take all info from agent_config
 @app.post("/init")
-def init_graph(graph: Graph = Depends(graph.get_graph)):
+def init_graph(graph: GraphService = Depends(graph.get_graph)):
     return graph.build_graph()
 
 
 @app.get("/graph")
-def get_graph(graph: Graph = Depends(graph.get_graph)):
+def get_graph(graph: GraphService = Depends(graph.get_graph)):
     g = graph.composer.get_composed_graph()
     return dict(nodes=g.nodes(data=True), edges= [e for e in g.edges(data=True)])
  
@@ -46,11 +57,15 @@ class FindPathRequest(BaseModel):
     lenses: List[str] = []
 
 @app.post("/find_path")
-def find_path_to_target(request: FindPathRequest, graph: Graph = Depends(graph.get_graph)):
+def find_path_to_target(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
     return graph.find_path(request.source_node, request.target_node, request.lenses)
+
+@app.post("/work_flow")
+def make_work_flow(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
+    return graph.make_workflow(request.source_node, request.target_node, request.lenses)
     
 @app.post("/update_state")
-def update_state(state: AgentMCState, graph: Graph = Depends(graph.get_graph)):
+def update_state(state: AgentMCState, graph: GraphService = Depends(graph.get_graph)):
     # persist state
     graph.set_state(state)
     # run state_to_graph - clears and updates individual graph

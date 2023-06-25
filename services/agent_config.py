@@ -5,9 +5,6 @@ from services.mini_graph_dict import graph_dict
 import networkx as nx
 from services.models import Join, Joins, OneToManyJoins
 
-from services.state import run_state
-
-
 class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
     IN_OBSERVATION = "in_observation"
@@ -125,8 +122,6 @@ def apply_joins(ajoin, graph, all_name=None):
 apply_joins(ajoin, graph_dict['actions'])
 apply_joins(tjoin, graph_dict['trade'])
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
-
-run_state()
 
 one_to_many_join_graphs = {
     'sources': [

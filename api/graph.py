@@ -1,17 +1,33 @@
 import timeit
+from typing import List
+from api.models import AgentDto
+from models.goals import GoalStatement
+from services.agent_graph_builder import Agent
 
 from services.mini_graph_dict import graph_dict
 from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
-from services.graph_composer import GraphComposer
+from services.graph_composer import EdgeType, GraphComposer
 from services.find_path import find_path_with_feasibility
-from services.state import state_to_graph
 from models.agent_state import AgentMCState
+from services.models import TagLink
 
 
-class Graph:
-    def __init__(self) -> None:
+class GraphService:
+    def __init__(self):
         self.composer: GraphComposer = None
         self.state : AgentMCState = None
+        self.goals: List[GoalStatement] = []
+        self.agent: Agent = None
+        self.graph_dict = graph_dict
+        
+    def create_agent(self, agent: AgentDto):
+        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict)
+        
+    def add_tag_links(self, links: List[str]):
+        tag_links = []
+        for link in links:
+            tag_links.append(TagLink.from_csv_entry(link))
+        self.agent.add_tag_links(tag_links)
     
     def set_composer(self, composer):
         self.composer = composer 
@@ -20,10 +36,13 @@ class Graph:
         self.state = state
         
     def run_state(self):
-        state_to_graph(self.state)
+        self.agent.make_graph_state(self.state)
         
     def get_graph(self):
         return self
+    
+    def add_goals(self, goals: List[GoalStatement]):
+        self.goals = self.goals + goals
     
     def find_path(self, source_node, target_node, lenses = []):
         # todo validate lenses
@@ -38,7 +57,7 @@ class Graph:
     
     def build_graph(self):
         if not self.composer:
-            self.composer = GraphComposer(graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
+            self.composer = GraphComposer(self.graph_dict, linking_instructions, one_to_many_join_graphs, lenses)
             self.set_composer(self.composer)
 
         t = timeit.timeit(self.composer.compose_graphs, number=1)
@@ -46,3 +65,38 @@ class Graph:
 
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
+        
+    def make_workflow(self, source_node, target_node, lenses = []):
+        # find path
+        feasible, path = self.find_path(source_node, target_node, lenses)
+        # for each need node find a path
+        if not feasible:
+            raise Exception(f"Can't make path")
+        
+        # trim unfeasible paths
+        # choose a single path - what goals are satisfied, goal priorities, time estimates of each needs and acts_upon node
+        # create a workflow document
+        
+        # create a workflow document
+        # action name
+        # goal name
+        # requirements: needs
+        # actionable nodes acrue, credit, observe
+        workflow = {
+            'actionable': []
+        } 
+        needs = []
+        for p in path:
+            if p['type'] == EdgeType.GOAL: 
+                workflow['goal'] = p['node']
+            elif p['type'] in [EdgeType.ACCRUE, EdgeType.ACT_UPON, EdgeType.OBSERVED]:
+                workflow['actionable'] = p['node']
+            elif p['type'] in [EdgeType.NEEDS]:
+                # todo no goal needed, go from any action node and find path to needs
+                needs.append(p['node'])
+            else:
+                print('Unknown node' + p)
+        print(workflow)
+                
+             
+        
