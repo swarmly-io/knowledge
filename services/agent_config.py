@@ -60,13 +60,6 @@ linking_instructions = [
         'link': lambda s, t: True,  # all goals are linked to all actions
         'type': EdgeType.GOAL
     },
-    {
-        'source': 'goals',
-        'target': 'actions',
-        'link': lambda s, t: True,  # all goals are linked to all actions
-        'type': EdgeType.ACTION
-        # todo get agent actions t['props']['name'] in s['props']['actions']
-    },
 ]
 
 joins = {

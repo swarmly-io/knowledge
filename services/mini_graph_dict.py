@@ -10,4 +10,4 @@ graph_dict = {'blocks': blocks_graph,
               'goals': goals_graph,
               'trade': trade_graph,
               'recipes': recipes_graph, 
-              'entities': entities_graph}
+              'entities': entities_graph }
