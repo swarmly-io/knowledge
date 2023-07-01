@@ -35,7 +35,11 @@ def add_goals(agent: AgentDto, graph: GraphService = Depends(graph.get_graph)):
 @app.post("/{agent}/tag_links")
 def add_tag_links(name:str, links: List[str], graph: GraphService = Depends(graph.get_graph)):
     graph.add_tag_links(links)
-    pass
+    return { 'message': f'added links: {len(links)}' }
+
+@app.post("/agent/{name}/run")
+def run(name: str, graph: GraphService = Depends(graph.get_graph)):
+    return graph.run()
 
 # init graph needs to take all info from agent_config
 @app.post("/init")
@@ -55,6 +59,7 @@ class FindPathRequest(BaseModel):
     source_node: str
     target_node: str
     lenses: List[str] = []
+    tags: List[str] = []
 
 @app.post("/find_path")
 def find_path_to_target(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):

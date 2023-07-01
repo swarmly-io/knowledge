@@ -27,19 +27,34 @@ class Agent:
         self.tag_links: List[TagLink] = []
         self.goal_valuation: GoalValuation = GoalValuation(self.all_tags, self.groups)
 
-    def run_graph(self, composer: GraphComposer):
+    def run_graph_and_get_targets(self, composer: GraphComposer):
         goals, focus_tags = self.goal_valuation.select(self.goals, self.state.tags, goal_count=1)[0]
         print(f"Prioritising {goals[0].name} with {len(focus_tags)} tags")
         targets = self.focus_graph_and_get_targets(composer, goals, focus_tags)
-        print(targets)
+        print("Targets", targets)
         self.make_graph()
         self.make_graph_state()
         
         # get paths to each target
-        for target in targets:
-            print(target)
-        # if cant reach targets, make subtasks for each unfeasible target
-        
+        resolved_targets = []
+        for index, node in targets:
+            resolved_target = self.resolve_target(composer, index, node)
+            resolved_targets.append(resolved_target)
+        return resolved_targets  
+            
+    def resolve_target(self, composer: GraphComposer, index: str, node: str) -> List[str]:
+        graph = composer.get_composed_graph()
+        end_nodes = []
+        for n in graph.nodes():
+            if f"{index}:" in n:
+                if node and n == f"{index}:{node}":
+                    end_nodes.append(n)
+                elif not node:
+                    end_nodes.append(n)
+        return end_nodes
+                        
+                    
+            
     def make_graph(self):
         goals_graph = nx.Graph()
         for goal in self.goals:

@@ -21,7 +21,7 @@ class GraphService:
         self.graph_dict = graph_dict
         
     def create_agent(self, agent: AgentDto):
-        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict)
+        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups)
         
     def add_tag_links(self, links: List[str]):
         tag_links = []
@@ -52,8 +52,7 @@ class GraphService:
             filtered_graph = self.composer.apply_lenses(lenses)
         
         unfiltered_graph = self.composer.get_composed_graph()
-        path = find_path_with_feasibility(filtered_graph, unfiltered_graph, source_node, target_node)
-        return path
+        return find_path_with_feasibility(filtered_graph, unfiltered_graph, source_node, target_node)
     
     def build_graph(self):
         if not self.composer:
@@ -65,6 +64,16 @@ class GraphService:
 
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
+    
+    def run(self):
+        targets = self.agent.run_graph_and_get_targets(self.composer)
+        paths = []
+        for target in targets:
+            # todo calculate lenses for each group? goal? tag? etc.
+            path = self.find_path(f"agent:{self.agent.name}", target, [])
+            paths.append((target, path))
+            
+        return paths
         
     def make_workflow(self, source_node, target_node, lenses = []):
         # find path
