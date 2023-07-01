@@ -37,9 +37,9 @@ class GoalStatement(BaseModel):
     def get_tags(self):
         return list(map(lambda x: x.tag, self.success + self.failure))
     
-    def has_tag(self, tag_name: str):
+    def has_tag(self, tag: Tag):
         tags = map(lambda x: x.tag, self.success + self.failure)
-        contains_tag = next(filter(lambda x: x == tag_name, tags), None)
+        contains_tag = next(filter(lambda x: x == tag.name, tags), None)
         return contains_tag
     
 class Action(BaseModel):

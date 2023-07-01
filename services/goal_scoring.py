@@ -1,9 +1,9 @@
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from models.goals import GoalStatement, Group, GroupType, Tag
 from services.group_utils import binary, ordered_ranked
 
-class GoalScoring:
+class GoalValuation:
     
     def __init__(self, tags: List[Tag], groups: List[Group]):
         self.tags_dict = { t.name: t for t in tags }
@@ -24,10 +24,31 @@ class GoalScoring:
             "money": 8
         }
         
-    def select(goals: List[GoalStatement], active_tags: List[Tag]):
-        return
+    # select highest score goals
+    # returns intersection of selected goal and tags (success != active, failure == active)
+    def select(self, goals: List[GoalStatement], active_tags: List[Tag], goal_count: int = 1):
+        scores = self.score_goals(goals, active_tags)
+        if not scores:
+            raise Exception("No goals to select from")
+        scores = scores[0: goal_count]
+        focus_tags = []
+        goals: List[GoalStatement] = []
+        
+        tag_dict = { a.name: a for a in active_tags }
+        goal_scores = {}
+        for fscore, sscore, goal in scores:
+            goals.append(goal)
+            for tag in goal.success:
+                if tag not in tag_dict:
+                    focus_tags.append(self.tags_dict.get(tag))
+            for tag in goal.failure:
+                if tag in tag_dict:
+                    focus_tags.append(self.tags_dict.get(tag))
+            goal_scores[goal.name] = { 'failure': fscore, 'success': sscore }
+        
+        return goals, focus_tags
     
-    def score_goals(self, goals: List[GoalStatement], active_tags: List[Tag]):
+    def score_goals(self, goals: List[GoalStatement], active_tags: List[Tag]) -> List[Tuple[float, float, GoalStatement]]:
         needs_multiplier_dict = self.calculate_needs_multiplier(active_tags)
         chosen_goals = []
         for goal in goals:
@@ -40,7 +61,7 @@ class GoalScoring:
             else:
                 print("Skipped ", goal.name)
         
-        # todo if failure score is high - select those first goals
+        # if failure score is high - select those first goals
         # otherwise select high success goals 
         return list(map(lambda x: (x[0], x[1], x[-1]), sorted(chosen_goals, key=lambda x: (x[0], x[1]))))
 

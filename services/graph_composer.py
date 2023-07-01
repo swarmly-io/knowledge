@@ -2,6 +2,9 @@ from typing import List, Optional
 import networkx as nx
 from enum import Enum
 from pydantic import BaseModel
+from models.goals import GoalStatement, Tag
+
+from services.models import TagLink
 
 class EdgeType(str, Enum):
     NEEDS = "NEEDS"
@@ -130,6 +133,29 @@ class GraphComposer:
                 data=True) if u in T.nodes() and v in T.nodes()]
         T.add_edges_from(filtered_edges)
         return T
+    
+    def remove_goal_links(self, goals: List[GoalStatement]):
+        for goal in goals:
+            try:
+                self.composed_graph.remove_edges_from(list(self.composed_graph.edges(f"goals:{goal.name}")))
+            except:
+                print(f"couldn't remove goal edge {goal.name}")
+        print("Removed all goal edges")
+    
+    def link_goals_and_get_targets(self, goals: List[GoalStatement], focus_tags: List[Tag], tag_links: List[TagLink]):
+        tag_link_dict = { t.tag: t for t in tag_links }
+        targets = []
+        for tag in focus_tags:
+            for goal in goals:
+                if goal.has_tag(tag):
+                    link = tag_link_dict.get(tag.name)
+                    if not link:
+                        raise Exception(f"Error link wasn't found for: {tag.name}")
+                    
+                    self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
+                    targets.append((link.index, link.node))
+        
+        return targets
 
     def get_composed_graph(self):
         return self.composed_graph
