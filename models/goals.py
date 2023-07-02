@@ -3,6 +3,7 @@ from typing import List, Union
 from pydantic import BaseModel
 
 class TagType(str, Enum):
+    THREAT = "threat"
     SURVIVAL = "survival"
     GOAL = "goal"
     VALUE = "value"
@@ -19,7 +20,7 @@ class GoalSuccess(BaseModel):
 class GoalFailure(BaseModel):
     tag: str
     
-class GroupType(Enum, str):
+class GroupType(str, Enum):
     ORDERED_RANKED = "ordered_rank"
     BINARY = "binary"
     CUSTOM_FUNCTION = "function"

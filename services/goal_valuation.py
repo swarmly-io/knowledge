@@ -1,4 +1,5 @@
 
+from copy import deepcopy
 from typing import Dict, List, Tuple
 from models.goals import GoalStatement, Group, GroupType, Tag
 from services.group_utils import binary, ordered_ranked
@@ -11,17 +12,17 @@ class GoalValuation:
         self.tag_score_fn = self.tag_scoring_functions(tag_groups, groups)
         # todo move to config
         self.group_absolute_rankings = {
-            "health": 1,
-            "goals": 6,
-            "hostility": 0,
-            "food": 2,
-            "shelter": 3,
-            "defence": 4,
-            "tools": 7,
-            "activity": 10,
-            "inventory": 5,
-            "tasks": 9,
-            "money": 8
+            "health": 2,
+            "goals": 7,
+            "hostility": 1,
+            "food": 3,
+            "shelter": 4,
+            "defence": 5,
+            "tools": 8,
+            "activity": 11,
+            "inventory": 6,
+            "tasks": 10,
+            "money": 9
         }
         
     # select highest score goals
@@ -71,7 +72,7 @@ class GoalValuation:
     def filter_tags(self, goal, active_tags, needs_multiplier_dict):
         success_tags = []
         success_score = 0
-        tag_dict = { at:at for at in active_tags }
+        tag_dict = { at.name:at for at in active_tags }
         for success in goal.success:
             tag = tag_dict.get(success.tag)
             if tag:
@@ -84,8 +85,10 @@ class GoalValuation:
                 success_score += score
         failure_tags = []
         failure_score = 0
-        for failure in goal.success:
+        for failure in goal.failure:
             tag = tag_dict.get(failure.tag)
+            if not tag:
+                continue
             score = self.score(tag, needs_multiplier_dict)
             if score > 0:
                 failure_tags.append(failure)
@@ -96,10 +99,13 @@ class GoalValuation:
     def calculate_needs_multiplier(self, active_tags: List[Tag]):        
         # group is the denominator, lowest group is the numerator
         lowest_score = min([self.group_absolute_rankings.get(a.group) for a in active_tags])
+        print([self.group_absolute_rankings.get(a.group) for a in active_tags])
         return { g: lowest_score/self.group_absolute_rankings[g]  for g in self.group_absolute_rankings }
     
+    # todo use Tag type in calculation
     def score(self, tag: Tag, need_multiplier_dict: Dict[str, any]):
-        return self.tag_score_fn.get(tag.name)(tag) * need_multiplier_dict[tag.name]
+        score = self.tag_score_fn.get(tag.group)(self.groups_lookup[tag.group], tag)
+        return float(score) * need_multiplier_dict[tag.group]
 
     def group_tags(self, tags: List[Tag]):
         groups = {}
@@ -112,16 +118,19 @@ class GoalValuation:
     def tag_scoring_functions(self, tags: Dict[str, List[Tag]], groups: List[Group]):
         group_dict = { g.name: g for g in groups } 
         thunks = { }
+        self.groups_lookup = {}
         for n, tg in tags.items():
             group = group_dict.get(tg[0].group)
             if group.type == GroupType.ORDERED_RANKED:
                 # value should be the order
                 tg = sorted(tg, key=lambda x: x.value)
-                thunks[tg[0].name] = lambda ct: ordered_ranked(tags, ct)
+                self.groups_lookup[tg[0].group] = tg   
+                thunks[tg[0].group] = lambda tg, ct: ordered_ranked(tg, ct)
             elif group.type == GroupType.BINARY:
                 # binary types should have starting values, if not active it's the opposite of that value
                 # like a toggle
-                thunks[tg[0].name] = lambda ct: binary(tags, ct)
+                self.groups_lookup[tg[0].group] = tg
+                thunks[tg[0].group] = lambda tg, ct: binary(tg, ct)
             elif group.type == GroupType.CUSTOM_FUNCTION:
                 print("Not implemented")
             

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from models.agent_state import AgentMCState
 from models.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
-from services.goal_scoring import GoalValuation
+from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.models import TagLink
 
@@ -52,8 +52,6 @@ class Agent:
                 elif not node:
                     end_nodes.append(n)
         return end_nodes
-                        
-                    
             
     def make_graph(self):
         goals_graph = nx.Graph()

@@ -7,12 +7,12 @@ def ordered_ranked(tags: List[Tag], current_tag: Tag):
     for i in tags:            
         values.append(score)
         
-        if i == current_tag or score > 0:
+        if i == current_tag and score > 0:
             score += 1
         
-    return tuple(values), values[tags.index(current_tag)]
+    return values[tags.index(current_tag)]
 
 def binary(tags: List[Tag], current_tag: Tag):
     opp = lambda x: 1 if x == 0 else 0
     values = [current_tag.value if t == current_tag else opp(t.value) for t in tags]
-    return tuple(values), values[tags.index(current_tag)]
+    return values[tags.index(current_tag)]
