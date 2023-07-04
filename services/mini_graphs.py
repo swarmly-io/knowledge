@@ -61,29 +61,11 @@ food_graph = nx.Graph()
 food_graph.add_node('apple', props={'name': 'apple', 'food_points': 1 })
 food_graph.add_node('bread', props={'name': 'bread', 'food_points': 1 })
 food_graph.add_node('carrot', props={'name': 'carrot', 'food_points': 1 })
+food_graph.add_node('food', props={'name': 'food', 'food_points': 1 })
 
 feasible_action_graph = nx.Graph()
 feasible_action_graph.add_node(EdgeType.OBSERVED)
 feasible_action_graph.add_node(EdgeType.ACT_UPON)
-
-"""yaml
-    actions:
-     - name: mine
-       joins:
-         - index: items
-           filter:
-              when: pickaxe
-              in: name
-           join:
-              index: blocks
-              filter:
-                 when: material
-                 eq: mineable/pickaxe
-     - name: collect
-       joins:
-        - index: items
-          filter:
-"""
 
 # todo tool graph, so pickaxe links to mineable, sword to zombie
 
@@ -96,26 +78,6 @@ actions_graph.add_node('eat', props={'name': 'eat'})
 actions_graph.add_node('craft', props={'name': 'craft'})
 actions_graph.add_node('trade', props={'name': 'trade'})
 
-"""yaml
-    agent:
-        name: bill
-        actions:
-         - mine
-         - collect
-         - fight
-         - hunt
-         - eat
-         - craft
-         - smelt
-         - trade
-        inventory:
-         - name: wooden_pickaxe
-           quantity: 1
-        goals:
-          - name: make_money
-            objective: money
-
-"""
 agent_graph = nx.Graph()
 agent_graph.add_node(
     'bill',

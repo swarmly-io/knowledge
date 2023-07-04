@@ -43,7 +43,7 @@ def observation_state_runner(state: AgentMCState, observations_graph):
             observations_graph.add_node(key, props={ **o.dict(), 'joins': [], 'type': EdgeType.OBSERVED } )
 
 
-
+# todo foods, tools, weapons etc.
 def state_to_graph(inventory_graph, observations_graph, state: AgentMCState):
     inventory_state_runner(state, inventory_graph)
     print("ran inventory state")

@@ -86,6 +86,9 @@ joins = {
         'all': [{'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}]
          #   {'index': 'items', 'filter': lambda x, y: x['name'] in [z['name'] for z in y['needs']], 'type': EdgeType.NEEDS,
           #       'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
+    },
+    'foods': {
+        'all': [{ 'index': 'foods', 'filter': lambda x,y: x['name'] != 'food' and y['name'] == 'food', 'type': EdgeType.PROVIDES }]
     }
 }
 #x= Joins(**mjoins)
@@ -102,6 +105,7 @@ def get_join(graph, action):
 def rjoin(x): return get_join("recipes", x)
 def ajoin(x): return get_join("actions", x)
 def tjoin(x): return get_join("trade", x)
+def fjoin(x): return get_join("foods", x)
 
 
 def apply_joins(ajoin, graph, all_name=None):
@@ -115,6 +119,7 @@ def apply_joins(ajoin, graph, all_name=None):
 apply_joins(ajoin, graph_dict['actions'])
 apply_joins(tjoin, graph_dict['trade'])
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
+apply_joins(fjoin, graph_dict['foods'], all_name='all')
 
 one_to_many_join_graphs = {
     'sources': [
@@ -127,5 +132,7 @@ one_to_many_join_graphs = {
         ('observations',
          graph_dict['observations']),
         ('recipes',
-         graph_dict['recipes'])],
+         graph_dict['recipes']),
+        ('foods',
+         graph_dict['foods'])],
     'on': graph_dict}

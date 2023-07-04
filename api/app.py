@@ -33,7 +33,7 @@ def add_goals(agent: AgentDto, graph: GraphService = Depends(graph.get_graph)):
     return { 'message': f'agent created: {agent.name}' }
      
 @app.post("/{agent}/tag_links")
-def add_tag_links(name:str, links: List[str], graph: GraphService = Depends(graph.get_graph)):
+def add_tag_links(agent:str, links: List[str], graph: GraphService = Depends(graph.get_graph)):
     graph.add_tag_links(links)
     return { 'message': f'added links: {len(links)}' }
 
@@ -41,11 +41,14 @@ def add_tag_links(name:str, links: List[str], graph: GraphService = Depends(grap
 def run(name: str, graph: GraphService = Depends(graph.get_graph)):
     return graph.run()
 
+@app.post("/agent/{name}/active_tags")
+def add_active_tags(name: str, tags: List[str], graph: GraphService = Depends(graph.get_graph)):
+    return graph.add_active_tags(tags)
+
 # init graph needs to take all info from agent_config
 @app.post("/init")
 def init_graph(graph: GraphService = Depends(graph.get_graph)):
     return graph.build_graph()
-
 
 @app.get("/graph")
 def get_graph(graph: GraphService = Depends(graph.get_graph)):

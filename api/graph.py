@@ -34,9 +34,16 @@ class GraphService:
         
     def set_state(self, state: AgentMCState):
         self.state = state
+        self.agent.state.mcState = self.state
+        
+    def add_active_tags(self, tags: List[str]):
+        tag_dict = { t.name: t for t in self.agent.all_tags }
+        active_tags = [tag_dict.get(t) for t in tags]
+        self.agent.state.tags = active_tags
+        return self.agent.state.tags
         
     def run_state(self):
-        self.agent.make_graph_state(self.state)
+        self.agent.make_graph_state()
         
     def get_graph(self):
         return self
@@ -69,9 +76,10 @@ class GraphService:
         targets = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
         for target in targets:
-            # todo calculate lenses for each group? goal? tag? etc.
-            path = self.find_path(f"agent:{self.agent.name}", target, [])
-            paths.append((target, path))
+            for node in target:
+                # todo calculate lenses for each group? goal? tag? etc.
+                path = self.find_path(f"agent:{self.agent.name}", node, [])
+                paths.append((node, path))
             
         return paths
         
