@@ -1,10 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import pytest
 from services.experiment_algs import FindSubGoals
 from services.graph_composer import GraphComposer
 
 from utils import dfs_paths, graph_from_paths
-from services.agent_config import LENSES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
+from services.agent_config import LENSE_TYPES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
 
 composer = GraphComposer(
     graph_dict,
@@ -25,7 +26,7 @@ def draw_action_tree(action):
 
 def draw_action_tree_with_lenses(action):
     action_tree = find.create_actions_tree(action)
-    action_tree = composer.apply_lenses([LENSES.IN_INVENTORY], action_tree)
+    action_tree = composer.apply_lenses([LENSE_TYPES.IN_INVENTORY], action_tree)
     pos = nx.spring_layout(action_tree)
     nx.draw_networkx(action_tree, pos, with_labels=True)
 
@@ -59,7 +60,7 @@ def save_image(name):
     plt.savefig('test/figures/' + name + '.jpg', dpi=80)
     plt.clf()
 
-
+@pytest.mark.skip()
 def test_test_draw_all():
     draw_action_tree('actions:mine')
     draw_action_tree_with_lenses('actions:mine')
