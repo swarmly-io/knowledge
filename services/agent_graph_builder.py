@@ -28,8 +28,9 @@ class Agent:
         self.goal_valuation: GoalValuation = GoalValuation(self.all_tags, self.groups)
 
     def run_graph_and_get_targets(self, composer: GraphComposer):
-        goals, focus_tags = self.goal_valuation.select(self.goals, self.state.tags, goal_count=1)[0]
+        goals, focus_tags, scores = self.goal_valuation.select(self.goals, self.state.tags, goal_count=1)
         print(f"Prioritising {goals[0].name} with {len(focus_tags)} tags")
+        print("Scores", scores)
         targets = self.focus_graph_and_get_targets(composer, goals, focus_tags)
         print("Targets", targets)
         self.make_graph()
@@ -37,12 +38,15 @@ class Agent:
         
         # get paths to each target
         resolved_targets = []
-        for index, node in targets:
+        for index, node in set(targets):
             resolved_target = self.resolve_target(composer, index, node)
             resolved_targets.append(resolved_target)
         return resolved_targets  
             
     def resolve_target(self, composer: GraphComposer, index: str, node: str) -> List[str]:
+        if node == '':
+            node = None
+        
         graph = composer.get_composed_graph()
         end_nodes = []
         for n in graph.nodes():
@@ -56,15 +60,15 @@ class Agent:
     def make_graph(self):
         goals_graph = nx.Graph()
         for goal in self.goals:
-            goals_graph.add_node(goal.name, { "props": { "name": goal.name, "tags": list(map(lambda x: x.name, goal.get_tags())) } })
+            goals_graph.add_node(goal.name, **{ "props": { "name": goal.name, "tags": goal.get_tags() } })
 
         actions_graph = nx.Graph()
         for action in self.actions:
-            actions_graph.add_node(action.name, { "props": { "name": action.name } })
+            actions_graph.add_node(action.name, **{ "props": { "name": action.name } })
         
         tags_graph = nx.Graph()
         for tag in self.all_tags:
-            tags_graph.add_node(action.name, { "props": { "name": tag.name, "type": tag.type } })
+            tags_graph.add_node(action.name, **{ "props": { "name": tag.name, "type": tag.type } })
             
         observations_graph = nx.Graph()
         inventory_graph = nx.Graph()
@@ -90,5 +94,5 @@ class Agent:
         
         
     def make_graph_state(self):
-        state_to_graph(self, self.graph_dict['inventory'], self.graph_dict['observations'])
+        state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)
         

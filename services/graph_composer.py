@@ -150,6 +150,8 @@ class GraphComposer:
                 if goal.has_tag(tag):
                     link = tag_link_dict.get(tag.name)
                     if not link:
+                        missing = [t.name for t in focus_tags if tag_link_dict.get(t.name) is None]
+                        print("missing links", missing)
                         raise Exception(f"Error link wasn't found for: {tag.name}")
                     
                     self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")

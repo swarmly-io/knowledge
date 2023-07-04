@@ -40,14 +40,14 @@ class GoalValuation:
         for fscore, sscore, goal in scores:
             goals.append(goal)
             for tag in goal.success:
-                if tag not in tag_dict:
-                    focus_tags.append(self.tags_dict.get(tag))
+                if tag.tag not in tag_dict:
+                    focus_tags.append(self.tags_dict.get(tag.tag))
             for tag in goal.failure:
-                if tag in tag_dict:
-                    focus_tags.append(self.tags_dict.get(tag))
+                if tag.tag in tag_dict:
+                    focus_tags.append(self.tags_dict.get(tag.tag))
             goal_scores[goal.name] = { 'failure': fscore, 'success': sscore }
         
-        return goals, focus_tags
+        return (goals, focus_tags, goal_scores)
     
     def score_goals(self, goals: List[GoalStatement], active_tags: List[Tag]) -> List[Tuple[float, float, GoalStatement]]:
         needs_multiplier_dict = self.calculate_needs_multiplier(active_tags)
@@ -64,7 +64,7 @@ class GoalValuation:
         
         # if failure score is high - select those first goals
         # otherwise select high success goals 
-        return list(map(lambda x: (x[0], x[1], x[-1]), sorted(chosen_goals, key=lambda x: (x[0], x[1]))))
+        return list(map(lambda x: (x[0], x[1], x[-1]), sorted(chosen_goals, key=lambda x: (x[0], x[1]), reverse=True)))
 
     # if success and active, skip
     # if success and not active, score
@@ -116,7 +116,7 @@ class GoalValuation:
         return groups
 
     def tag_scoring_functions(self, tags: Dict[str, List[Tag]], groups: List[Group]):
-        group_dict = { g.name: g for g in groups } 
+        group_dict = { g.name: g for g in groups }
         thunks = { }
         self.groups_lookup = {}
         for n, tg in tags.items():
@@ -132,7 +132,9 @@ class GoalValuation:
                 self.groups_lookup[tg[0].group] = tg
                 thunks[tg[0].group] = lambda tg, ct: binary(tg, ct)
             elif group.type == GroupType.CUSTOM_FUNCTION:
-                print("Not implemented")
+                print(f"Not implemented {n} {tg}")
+                self.groups_lookup[tg[0].group] = tg
+                thunks[tg[0].group] = lambda tg, ct: 0
             
         return thunks
             

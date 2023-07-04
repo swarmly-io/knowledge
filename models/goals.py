@@ -12,7 +12,7 @@ class Tag(BaseModel):
     name: str
     group: str
     type: TagType
-    value: Union[str, int, bool]
+    value: Union[str, int, bool] = 0
 
 class GoalSuccess(BaseModel):
     tag: str
