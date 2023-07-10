@@ -72,8 +72,8 @@ def find_path_to_target(request: FindPathRequest, graph: GraphService = Depends(
 def make_work_flow(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
     return graph.make_workflow(request.source_node, request.target_node, request.lenses)
     
-@app.post("/update_state")
-def update_state(state: AgentMCState, graph: GraphService = Depends(graph.get_graph)):
+@app.post("/update_state/{name}")
+def update_state(name: str, state: AgentMCState, graph: GraphService = Depends(graph.get_graph)):
     # persist state
     graph.set_state(state)
     # run state_to_graph - clears and updates individual graph
@@ -81,25 +81,29 @@ def update_state(state: AgentMCState, graph: GraphService = Depends(graph.get_gr
     # rerun graph composer
     return graph.build_graph()
 
-# adding a subgraph should recompute the graph
-# needs links, filters and joins
-@app.post("/add_sub_graph")
-def add_sub_graph():
-    return
+# # adding a subgraph should recompute the graph
+# # needs links, filters and joins
+# @app.post("/add_sub_graph")
+# def add_sub_graph():
+#     return
 
-@app.post("/remove_sub_graph")
-def remove_sub_graph():
-    return
+# @app.post("/remove_sub_graph")
+# def remove_sub_graph():
+#     return
 
-# never get the whole graph
-@app.post("/get_subgraph")
-def get_sub_graph():
-    return
+# # never get the whole graph
+# @app.post("/get_subgraph")
+# def get_sub_graph():
+#     return
 
-@app.post("/add_lense")
-def add_lense():
-    return
+# @app.post("/add_lense")
+# def add_lense():
+#     return
 
-@app.post("/remove_lense")
-def remove_lense():
-    return
+# @app.post("/remove_lense")
+# def remove_lense():
+#     return
+
+@app.get("/health")
+def health():
+    return { 'health': 'OK' }

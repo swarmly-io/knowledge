@@ -73,6 +73,9 @@ class GraphService:
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
     
     def run(self):
+        if not self.composer:
+            self.build_graph()
+        
         targets = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
         for target in targets:

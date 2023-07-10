@@ -15,6 +15,7 @@ items_lookup = {
 def inventory_state_runner(state: AgentMCState, inventory_graph):
     inventory_graph.clear()
     
+    #todo fix
     inv_state = state.inventory.items
     for k, i in inv_state.items():
         name = items_lookup.get(k)
