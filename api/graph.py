@@ -43,6 +43,8 @@ class GraphService:
         return self.agent.state.tags
         
     def run_state(self):
+        if not self.state or not self.agent.state.mcState:
+            raise Exception("No state found")
         self.agent.make_graph_state()
         
     def get_graph(self):
@@ -72,11 +74,12 @@ class GraphService:
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
     
-    def run(self):
+    def run(self, name):
         if not self.composer:
             self.build_graph()
+        print(f"Finding next path for {name}")
         
-        targets = self.agent.run_graph_and_get_targets(self.composer)
+        targets, goals, focus_tags = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
         for target in targets:
             for node in target:
@@ -84,7 +87,7 @@ class GraphService:
                 path = self.find_path(f"agent:{self.agent.name}", node, [])
                 paths.append((node, path))
             
-        return paths
+        return paths, (targets, goals, focus_tags)
         
     def make_workflow(self, source_node, target_node, lenses = []):
         # find path

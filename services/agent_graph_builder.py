@@ -41,7 +41,7 @@ class Agent:
         for index, node in set(targets):
             resolved_target = self.resolve_target(composer, index, node)
             resolved_targets.append(resolved_target)
-        return resolved_targets  
+        return (resolved_targets, goals, focus_tags)
             
     def resolve_target(self, composer: GraphComposer, index: str, node: str) -> List[str]:
         if node == '':
@@ -93,6 +93,6 @@ class Agent:
         return composer.link_goals_and_get_targets(goals, focus_tags, self.tag_links)
         
         
-    def make_graph_state(self):
+    def make_graph_state(self):        
         state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)
         

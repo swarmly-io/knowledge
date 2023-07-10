@@ -39,7 +39,13 @@ def add_tag_links(agent:str, links: List[str], graph: GraphService = Depends(gra
 
 @app.post("/agent/{name}/run")
 def run(name: str, graph: GraphService = Depends(graph.get_graph)):
-    return graph.run()
+    paths, (targets, goals, focus_tags) = graph.run(name)
+    return {
+        "paths": paths,
+        "targets": targets,
+        "goals": goals,
+        "focus_tags": focus_tags
+    }
 
 @app.post("/agent/{name}/active_tags")
 def add_active_tags(name: str, tags: List[str], graph: GraphService = Depends(graph.get_graph)):
