@@ -44,10 +44,15 @@ def test_scoring_will_focus_on_hords_low_health():
     tag_dict = { t.name:t for t in test_object.tags }
     active_tags = [tag_dict.get("no_health"), tag_dict.get("zombie_close")]
     scores = test_object.valuation.score_goals(test_object.goals, active_tags)
-    for fail_score, success_score, goals in scores:
-        assert fail_score == 1.0
-        assert success_score == 0.0
-        assert goals == test_object.goals[1]
+    fail_score, success_score, goals = scores[0]
+    assert fail_score == 1.0
+    assert success_score == 0.0
+    assert goals == test_object.goals[1]
+    
+    fail_score, success_score, goals = scores[1]
+    assert fail_score == 0.5
+    assert success_score == 0.0
+    assert goals == test_object.goals[0]
         
 def test_scoring_will_focus_on_cake():
     test_object = TestGoals()

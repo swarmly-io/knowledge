@@ -1,0 +1,15 @@
+[
+    "health_high, eat, foods, food",
+    "health_low, eat, foods, food",
+    "health_critical, fight, hostile_entities",
+    "zombie_close, fight, hostile_entities",
+    "got_credit, trade, trade, credit",
+    "got_paid, trade, trade, credit",
+    "food_low, collect, foods",
+    "food_low, hunt, entities",
+    "food_low, trade, foods",
+    "food_high, collect, foods",
+    "no_weapon, collect, weapons",
+    "no_weapon, craft, weapons",
+    "food_inventory_high, collect, foods"
+]

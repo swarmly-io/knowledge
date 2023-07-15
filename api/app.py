@@ -78,7 +78,7 @@ def find_path_to_target(request: FindPathRequest, graph: GraphService = Depends(
 def make_work_flow(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
     return graph.make_workflow(request.source_node, request.target_node, request.lenses)
     
-@app.post("/update_state/{name}")
+@app.post("/{name}/update_state")
 def update_state(name: str, state: AgentMCState, graph: GraphService = Depends(graph.get_graph)):
     # persist state
     graph.set_state(state)

@@ -40,7 +40,7 @@ class MinecraftGenericMovementSpeed(BaseModel):
     modifiers: List[Modifier]
 
 class Attributes(BaseModel):
-    minecraft_generic_movement_speed: MinecraftGenericMovementSpeed = Field(
+    minecraft_generic_movement_speed: Optional[MinecraftGenericMovementSpeed] = Field(
         ..., alias='minecraft:generic.movement_speed'
     )
 
@@ -67,7 +67,7 @@ class CloseEntity(BaseModel):
     entityType: Optional[int] = None
     name: str
     headPitch: Optional[float] = None
-    attributes: Optional[Attributes] = None
+   # attributes: Optional[Attributes] = None
     headYaw: Optional[float] = None
     objectData: Optional[int] = None
     heldItem: Optional[Any] = None

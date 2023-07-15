@@ -8,14 +8,14 @@ from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.models import TagLink
 
-from services.state import state_to_graph
+from services.state import StateRunner
 
 class AgentState(BaseModel):
     mcState: Optional[AgentMCState]
     tags: List[Tag]
 
 class Agent:
-    def __init__(self, name: str, goals: List[GoalStatement], actions: List[Action], all_tags: List[Tag], graph_dict, groups: List[Group]):
+    def __init__(self, name: str, goals: List[GoalStatement], actions: List[Action], all_tags: List[Tag], graph_dict, groups: List[Group], state_runner: StateRunner):
         self.name = name
         self.goals = goals
         self.actions = actions
@@ -26,6 +26,7 @@ class Agent:
         self.make_graph()
         self.tag_links: List[TagLink] = []
         self.goal_valuation: GoalValuation = GoalValuation(self.all_tags, self.groups)
+        self.state_runner = state_runner
 
     def run_graph_and_get_targets(self, composer: GraphComposer):
         goals, focus_tags, scores = self.goal_valuation.select(self.goals, self.state.tags, goal_count=1)
@@ -92,7 +93,7 @@ class Agent:
         composer.remove_goal_links(self.goals)
         return composer.link_goals_and_get_targets(goals, focus_tags, self.tag_links)
         
-        
     def make_graph_state(self):        
-        state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)
+        self.state_runner.state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)
+        
         

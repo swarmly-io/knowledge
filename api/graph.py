@@ -1,16 +1,16 @@
 import timeit
 from typing import List
 from api.models import AgentDto
+from mini_graphs.minecraft.state import MinecraftStateRunner
 from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
 
-from services.mini_graph_dict import graph_dict
-from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
+from mini_graphs.minecraft.mini_graph_dict import graph_dict
+from mini_graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 from services.graph_composer import EdgeType, GraphComposer
 from services.find_path import find_path_with_feasibility
 from models.agent_state import AgentMCState
 from services.models import TagLink
-
 
 class GraphService:
     def __init__(self):
@@ -21,7 +21,8 @@ class GraphService:
         self.graph_dict = graph_dict
         
     def create_agent(self, agent: AgentDto):
-        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups)
+        state_runner = MinecraftStateRunner()
+        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups, state_runner=state_runner)
         
     def add_tag_links(self, links: List[str]):
         tag_links = []
@@ -46,6 +47,17 @@ class GraphService:
         if not self.state or not self.agent.state.mcState:
             raise Exception("No state found")
         self.agent.make_graph_state()
+        # note: hack
+        new_sources = []
+        for x in self.composer.join_graphs['sources']:
+            if x[0] == 'inventory':
+                new_sources.append((x[0], self.graph_dict['inventory']))
+            if x[0] == 'observations':
+                new_sources.append((x[0], self.graph_dict['observations']))
+            else:
+                new_sources.append((x[0], x[1]))
+        self.composer.join_graphs['sources'] = new_sources
+        
         
     def get_graph(self):
         return self
