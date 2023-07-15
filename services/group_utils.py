@@ -3,7 +3,6 @@ from models.goals import Tag
 
 def ordered_ranked(tags: List[Tag], current_tag):
     values = []
-    max_value = max([int(o.value) for o in tags])
     
     tags = sorted(tags, key=lambda x: x.value)
     for tag in tags:
@@ -11,7 +10,9 @@ def ordered_ranked(tags: List[Tag], current_tag):
             values.append(int(tag.value))
         else:
             values.append(0)
-            
+    
+    max_value = max(values)
+
     return values[tags.index(current_tag)]/max_value
 
 def binary(tags: List[Tag], current_tag: Tag):

@@ -1,7 +1,7 @@
 from enum import Enum
 
 from services.graph_composer import EdgeType
-from services.mini_graph_dict import graph_dict
+from mini_graphs.minecraft.mini_graph_dict import graph_dict
 import networkx as nx
 from services.models import Join, Joins, OneToManyJoins
 

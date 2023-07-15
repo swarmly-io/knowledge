@@ -1,11 +1,5 @@
-import json
-import networkx as nx
 from models.agent_state import AgentMCState
 from services.graph_composer import EdgeType
-from services.mini_graphs import inventory_graph, observations_graph
-
-with open("./services/samplestate.json", 'r') as f:
-    initial_state = AgentMCState(**json.loads(f.read()))
 
 # todo lookup k in items lookup
 items_lookup = {

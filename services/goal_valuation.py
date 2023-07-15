@@ -1,5 +1,4 @@
 
-from copy import deepcopy
 from typing import Dict, List, Tuple
 from models.goals import GoalStatement, Group, GroupType, Tag
 from services.group_utils import binary, ordered_ranked

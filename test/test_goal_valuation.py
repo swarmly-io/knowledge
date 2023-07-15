@@ -16,7 +16,7 @@ class TestGoals:
         self.tags = [
             Tag(name="high_health", type=TagType.SURVIVAL, value=0, group="health"),
             Tag(name="no_health", type=TagType.SURVIVAL, value=1, group="health"),
-            Tag(name="zombie_close", type=TagType.THREAT, value=1, group="hostility"),
+            Tag(name="zombie_close", type=TagType.THREAT, value=0, group="hostility"),
             Tag(name="zombie_far", type=TagType.THREAT, value=1, group="hostility"),
             Tag(name="eat_cake", type=TagType.GOAL, value=1, group="goals")
         ]
