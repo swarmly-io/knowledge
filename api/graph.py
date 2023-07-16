@@ -1,16 +1,16 @@
 import timeit
 from typing import List
 from api.models import AgentDto
+from mini_graphs.minecraft.state import MinecraftStateRunner
 from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
 
-from services.mini_graph_dict import graph_dict
-from services.agent_config import lenses, linking_instructions, one_to_many_join_graphs
+from mini_graphs.minecraft.mini_graph_dict import graph_dict
+from mini_graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 from services.graph_composer import EdgeType, GraphComposer
 from services.find_path import find_path_with_feasibility
 from models.agent_state import AgentMCState
 from services.models import TagLink
-
 
 class GraphService:
     def __init__(self):
@@ -21,7 +21,8 @@ class GraphService:
         self.graph_dict = graph_dict
         
     def create_agent(self, agent: AgentDto):
-        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups)
+        state_runner = MinecraftStateRunner()
+        self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups, state_runner=state_runner)
         
     def add_tag_links(self, links: List[str]):
         tag_links = []
@@ -42,8 +43,24 @@ class GraphService:
         self.agent.state.tags = active_tags
         return self.agent.state.tags
         
-    def run_state(self):
+    def run_state(self, run_agent_goals: bool = True):
+        if not self.state or not self.agent.state.mcState:
+            raise Exception("No state found")
         self.agent.make_graph_state()
+        # note: hack
+        new_sources = []
+        for x in self.composer.join_graphs['sources']:
+            if x[0] == 'inventory':
+                new_sources.append((x[0], self.graph_dict['inventory']))
+            if x[0] == 'observations':
+                new_sources.append((x[0], self.graph_dict['observations']))
+            else:
+                new_sources.append((x[0], x[1]))
+        self.composer.join_graphs['sources'] = new_sources
+        
+        if run_agent_goals:
+            results = self.agent.run_graph_and_get_targets(self.composer)
+            print(results)
         
     def get_graph(self):
         return self
@@ -72,16 +89,20 @@ class GraphService:
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
     
-    def run(self):
-        targets = self.agent.run_graph_and_get_targets(self.composer)
+    def run(self, name):
+        if not self.composer:
+            self.build_graph()
+        print(f"Finding next path for {name}")
+        
+        targets, goals, focus_tags = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
         for target in targets:
             for node in target:
                 # todo calculate lenses for each group? goal? tag? etc.
                 path = self.find_path(f"agent:{self.agent.name}", node, [])
                 paths.append((node, path))
-            
-        return paths
+        
+        return paths, (targets, goals, focus_tags)
         
     def make_workflow(self, source_node, target_node, lenses = []):
         # find path

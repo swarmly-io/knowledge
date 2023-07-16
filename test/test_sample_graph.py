@@ -1,11 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import pytest
-from services.experiment_algs import FindSubGoals
+from mini_graphs.minecraft.experiment_algs import FindSubGoals
 from services.graph_composer import GraphComposer
 
 from utils import dfs_paths, graph_from_paths
-from services.agent_config import LENSE_TYPES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
+from mini_graphs.minecraft.agent_config import LENSE_TYPES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
 
 composer = GraphComposer(
     graph_dict,

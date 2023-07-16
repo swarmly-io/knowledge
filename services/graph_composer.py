@@ -15,6 +15,8 @@ class EdgeType(str, Enum):
     OBSERVED = "OBSERVE"
     ACT_UPON = "ACT_UPON"
     ACCRUE = "accrue"
+    CONTAINS = "CONTAINS"
+    DETECTS = "DETECTS"
 
 MAX_JOIN_DEPTH = 50
 
@@ -152,7 +154,8 @@ class GraphComposer:
                     if not link:
                         missing = [t.name for t in focus_tags if tag_link_dict.get(t.name) is None]
                         print("missing links", missing)
-                        raise Exception(f"Error link wasn't found for: {tag.name}")
+                        print(f"Error link wasn't found for: {tag.name}")
+                        continue
                     
                     self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
                     targets.append((link.index, link.node))

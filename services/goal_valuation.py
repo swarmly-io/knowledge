@@ -1,5 +1,4 @@
 
-from copy import deepcopy
 from typing import Dict, List, Tuple
 from models.goals import GoalStatement, Group, GroupType, Tag
 from services.group_utils import binary, ordered_ranked
@@ -13,7 +12,7 @@ class GoalValuation:
         # todo move to config
         self.group_absolute_rankings = {
             "health": 2,
-            "goals": 7,
+            "goal": 7,
             "hostility": 1,
             "food": 3,
             "shelter": 4,

@@ -1,7 +1,7 @@
 from enum import Enum
 
 from services.graph_composer import EdgeType
-from services.mini_graph_dict import graph_dict
+from mini_graphs.minecraft.mini_graph_dict import graph_dict
 import networkx as nx
 from services.models import Join, Joins, OneToManyJoins
 
@@ -76,7 +76,7 @@ joins = {
     "trade": {
         "bid": [{ 'index': 'trade', 'filter': lambda x, y: 'debit' == x['name'], 'type': EdgeType.ACCRUE,
                   'join': {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES }  }],
-        "ask": [{ 'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
+        "ask": [{ 'index': 'inventory', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
                    'join': {'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.PROVIDES } }],
         "debit": [],
         "credit": [],

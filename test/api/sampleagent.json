@@ -1,0 +1,362 @@
+{
+    "name": "bill",
+    "goals": [
+        {
+            "name": "stay alive",
+            "type": "survival",
+            "success": [
+                {
+                    "tag": "health_high"
+                },
+                {
+                    "tag": "food_inventory_high"
+                },
+                {
+                    "tag": "food_high"
+                },
+                {
+                    "tag": "zombie_far"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "health_low"
+                },
+                {
+                    "tag": "health_critical"
+                },
+                {
+                    "tag": "zombie_close"
+                },
+                {
+                    "tag": "food_low"
+                },
+                {
+                    "tag": "food_inventory_low"
+                },
+                {
+                    "tag": "no_health"
+                }
+            ]
+        },
+        {
+            "name": "have shelter",
+            "type": "survival",
+            "success": [
+                {
+                    "tag": "got_shelter"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "no_shelter"
+                }
+            ]
+        },
+        {
+            "name": "have defence",
+            "type": "survival",
+            "success": [
+                {
+                    "tag": "got_weapon"
+                },
+                {
+                    "tag": "got_tools"
+                },
+                {
+                    "tag": "got_armour"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "no_tools"
+                },
+                {
+                    "tag": "no_weapon"
+                },
+                {
+                    "tag": "no_armour"
+                }
+            ]
+        },
+        {
+            "name": "have tools",
+            "type": "survival",
+            "success": [
+                {
+                    "tag": "got_tools"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "no_tools"
+                }
+            ]
+        },
+        {
+            "name": "make money",
+            "type": "goal",
+            "success": [
+                {
+                    "tag": "completed_job"
+                },
+                {
+                    "tag": "got_credit"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "no_jobs"
+                },
+                {
+                    "tag": "stuck"
+                },
+                {
+                    "tag": "no_credit"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "mine"
+        },
+        {
+            "name": "collect"
+        },
+        {
+            "name": "fight"
+        },
+        {
+            "name": "hunt"
+        },
+        {
+            "name": "eat"
+        },
+        {
+            "name": "craft"
+        },
+        {
+            "name": "smelt"
+        },
+        {
+            "name": "trade"
+        }
+    ],
+    "tag_list": [
+        {
+            "name": "health_high",
+            "group": "health",
+            "type": "survival",
+            "value": 3
+        },
+        {
+            "name": "food_inventory_high",
+            "group": "inventory",
+            "type": "goal",
+            "value": 0
+        },
+        {
+            "name": "food_high",
+            "group": "food",
+            "type": "survival",
+            "value": 0
+        },
+        {
+            "name": "zombie_far",
+            "group": "hostility",
+            "type": "threat",
+            "value": 0
+        },
+        {
+            "name": "health_low",
+            "group": "health",
+            "type": "survival",
+            "value": 2
+        },
+        {
+            "name": "health_critical",
+            "group": "health",
+            "type": "survival",
+            "value": 1
+        },
+        {
+            "name": "zombie_close",
+            "group": "hostility",
+            "type": "threat",
+            "value": 1
+        },
+        {
+            "name": "food_low",
+            "group": "food",
+            "type": "survival",
+            "value": 1
+        },
+        {
+            "name": "food_inventory_low",
+            "group": "inventory",
+            "type": "goal",
+            "value": 1
+        },
+        {
+            "name": "no_health",
+            "group": "health",
+            "type": "survival",
+            "value": 0
+        },
+        {
+            "name": "got_shelter",
+            "group": "shelter",
+            "type": "survival",
+            "value": 0
+        },
+        {
+            "name": "no_shelter",
+            "group": "shelter",
+            "type": "survival",
+            "value": 1
+        },
+        {
+            "name": "got_weapon",
+            "group": "defence",
+            "type": "survival",
+            "value": 1
+        },
+        {
+            "name": "got_armour",
+            "group": "defence",
+            "type": "survival",
+            "value": 2
+        },
+        {
+            "name": "no_weapon",
+            "group": "defence",
+            "type": "survival",
+            "value": 0
+        },
+        {
+            "name": "no_armour",
+            "group": "defence",
+            "type": "survival",
+            "value": 3
+        },
+        {
+            "name": "got_tools",
+            "group": "tools",
+            "type": "survival",
+            "value": 1
+        },
+        {
+            "name": "no_tools",
+            "group": "tools",
+            "type": "survival",
+            "value": 0
+        },
+        {
+            "name": "completed_job",
+            "group": "tasks",
+            "type": "value",
+            "value": 0
+        },
+        {
+            "name": "got_credit",
+            "group": "money",
+            "type": "goal",
+            "value": 0
+        },
+        {
+            "name": "no_credit",
+            "group": "money",
+            "type": "goal",
+            "value": 0
+        },
+        {
+            "name": "no_jobs",
+            "group": "activity",
+            "type": "goal",
+            "value": 2
+        },
+        {
+            "name": "stuck",
+            "group": "tasks",
+            "type": "goal",
+            "value": 2
+        },
+        {
+            "name": "goal_succeeded",
+            "group": "goals",
+            "type": "goal",
+            "value": 0
+        },
+        {
+            "name": "on_task",
+            "group": "activity",
+            "type": "goal",
+            "value": 1
+        },
+        {
+            "name": "goal_failed",
+            "group": "goals",
+            "type": "goal",
+            "value": 1
+        },
+        {
+            "name": "stuck",
+            "group": "tasks",
+            "type": "goal",
+            "value": 2
+        },
+        {
+            "name": "no_task",
+            "group": "activity",
+            "type": "goal",
+            "value": 0
+        }
+    ],
+    "groups": [
+        {
+            "name": "health",
+            "type": "ordered_rank"
+        },
+        {
+            "name": "goals",
+            "type": "binary"
+        },
+        {
+            "name": "hostility",
+            "type": "binary"
+        },
+        {
+            "name": "food",
+            "type": "binary"
+        },
+        {
+            "name": "shelter",
+            "type": "binary"
+        },
+        {
+            "name": "defence",
+            "type": "binary"
+        },
+        {
+            "name": "tools",
+            "type": "binary"
+        },
+        {
+            "name": "activity",
+            "type": "binary"
+        },
+        {
+            "name": "inventory",
+            "type": "binary"
+        },
+        {
+            "name": "tasks",
+            "type": "function"
+        },
+        {
+            "name": "money",
+            "type": "binary"
+        }
+    ]
+}
