@@ -18,13 +18,13 @@ class TestGoals:
             Tag(name="no_health", type=TagType.SURVIVAL, value=1, group="health"),
             Tag(name="zombie_close", type=TagType.THREAT, value=0, group="hostility"),
             Tag(name="zombie_far", type=TagType.THREAT, value=1, group="hostility"),
-            Tag(name="eat_cake", type=TagType.GOAL, value=1, group="goals")
+            Tag(name="eat_cake", type=TagType.GOAL, value=1, group="goal")
         ]
         
         self.groups: List[Group] = [
             Group(name="health", type=GroupType.ORDERED_RANKED),
             Group(name="hostility", type=GroupType.BINARY),
-            Group(name="goals", type=GroupType.BINARY)
+            Group(name="goal", type=GroupType.BINARY)
         ]
         
         self.valuation = GoalValuation(self.tags, self.groups)

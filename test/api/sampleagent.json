@@ -61,10 +61,16 @@
                     "tag": "got_weapon"
                 },
                 {
+                    "tag": "got_tools"
+                },
+                {
                     "tag": "got_armour"
                 }
             ],
             "failure": [
+                {
+                    "tag": "no_tools"
+                },
                 {
                     "tag": "no_weapon"
                 },
@@ -96,9 +102,6 @@
                 },
                 {
                     "tag": "got_credit"
-                },
-                {
-                    "tag": "got_paid"
                 }
             ],
             "failure": [
@@ -107,29 +110,9 @@
                 },
                 {
                     "tag": "stuck"
-                }
-            ]
-        },
-        {
-            "name": "fulfilling goals",
-            "type": "goal",
-            "success": [
-                {
-                    "tag": "goal_succeeded"
                 },
                 {
-                    "tag": "on_task"
-                }
-            ],
-            "failure": [
-                {
-                    "tag": "goal_failed"
-                },
-                {
-                    "tag": "stuck"
-                },
-                {
-                    "tag": "no_task"
+                    "tag": "no_credit"
                 }
             ]
         }
@@ -279,10 +262,10 @@
             "name": "got_credit",
             "group": "money",
             "type": "goal",
-            "value": 1
+            "value": 0
         },
         {
-            "name": "got_paid",
+            "name": "no_credit",
             "group": "money",
             "type": "goal",
             "value": 0
@@ -373,7 +356,7 @@
         },
         {
             "name": "money",
-            "type": "function"
+            "type": "binary"
         }
     ]
 }

@@ -76,7 +76,7 @@ joins = {
     "trade": {
         "bid": [{ 'index': 'trade', 'filter': lambda x, y: 'debit' == x['name'], 'type': EdgeType.ACCRUE,
                   'join': {'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.PROVIDES }  }],
-        "ask": [{ 'index': 'items', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
+        "ask": [{ 'index': 'inventory', 'filter': lambda x, y: x, 'type': EdgeType.NEEDS,
                    'join': {'index': 'trade', 'filter': lambda x, y: 'credit' == x['name'], 'type': EdgeType.PROVIDES } }],
         "debit": [],
         "credit": [],

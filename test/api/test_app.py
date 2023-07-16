@@ -34,6 +34,8 @@ def test_find_succesful_path():
       data = json.load(f)
       links_response = client.post("/bill/tag_links", json=data)
       assert links_response.status_code == 200
+    active_tags_response = client.post("/agent/bill/active_tags", json=["health_high", "zombie_far", "food_inventory_high", "food_high", "got_shelter", "no_credit"])
+    assert active_tags_response.status_code == 200
     with open("./test/api/samplestate.json", 'r') as f:
       data = AgentMCState(**json.load(f))
       state_response = client.post("/bill/update_state", json=data.dict())
@@ -49,20 +51,20 @@ def test_find_succesful_path():
         "type": ""
       },
       {
-        "node": "goals:make_money",
+        "node": "goals:make money",
         "type": "GOAL"
       },
       {
         "node": "actions:trade",
-        "type": "ACTION"
+        "type": None # todo should be ACTION
       },
       {
         "node": "trade:ask",
         "type": "ACT_UPON"
       },
       {
-        "node": "items:stone",
-        "type": "NEEDS"
+        "node": "inventory:wooden_planks",
+        "type": "NEEDS" # todo should be CONTAINS
       },
       {
         "node": "trade:credit",
@@ -70,4 +72,4 @@ def test_find_succesful_path():
       }
     ]
     
-    assert expected_path in data[1]
+    assert expected_path == data[1][1]

@@ -15,6 +15,8 @@ class EdgeType(str, Enum):
     OBSERVED = "OBSERVE"
     ACT_UPON = "ACT_UPON"
     ACCRUE = "accrue"
+    CONTAINS = "CONTAINS"
+    DETECTS = "DETECTS"
 
 MAX_JOIN_DEPTH = 50
 

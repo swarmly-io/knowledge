@@ -12,7 +12,7 @@ class GoalValuation:
         # todo move to config
         self.group_absolute_rankings = {
             "health": 2,
-            "goals": 7,
+            "goal": 7,
             "hostility": 1,
             "food": 3,
             "shelter": 4,

@@ -43,7 +43,7 @@ class GraphService:
         self.agent.state.tags = active_tags
         return self.agent.state.tags
         
-    def run_state(self):
+    def run_state(self, run_agent_goals: bool = True):
         if not self.state or not self.agent.state.mcState:
             raise Exception("No state found")
         self.agent.make_graph_state()
@@ -58,6 +58,9 @@ class GraphService:
                 new_sources.append((x[0], x[1]))
         self.composer.join_graphs['sources'] = new_sources
         
+        if run_agent_goals:
+            results = self.agent.run_graph_and_get_targets(self.composer)
+            print(results)
         
     def get_graph(self):
         return self
@@ -98,7 +101,7 @@ class GraphService:
                 # todo calculate lenses for each group? goal? tag? etc.
                 path = self.find_path(f"agent:{self.agent.name}", node, [])
                 paths.append((node, path))
-            
+        
         return paths, (targets, goals, focus_tags)
         
     def make_workflow(self, source_node, target_node, lenses = []):

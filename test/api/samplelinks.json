@@ -4,7 +4,7 @@
     "health_critical, fight, hostile_entities",
     "zombie_close, fight, hostile_entities",
     "got_credit, trade, trade, credit",
-    "got_paid, trade, trade, credit",
+    "no_credit, trade, trade, credit",
     "food_low, collect, foods",
     "food_low, hunt, entities",
     "food_low, trade, foods",

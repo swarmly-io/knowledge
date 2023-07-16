@@ -30,7 +30,7 @@ class MinecraftStateRunner(StateRunner):
             joins = [{'index': ind,
                     'filter': lambda x,
                     y: x['name'] == y['name'],
-                    'type': EdgeType.PROVIDES }]
+                    'type': EdgeType.CONTAINS }]
             
             inventory_graph.add_node(f"{val}", props={**{ k: i, 'name': val }, 'joins': joins}) 
         
@@ -60,8 +60,8 @@ class MinecraftStateRunner(StateRunner):
                 joins = [{'index': 'entities',
                     'filter': lambda x,
                     y: x['name'] == y['name'],
-                    'type': EdgeType.PROVIDES }]
-                observations_graph.add_node(f"{o.name}", props={ **{ 'name': o.name, 'type': o.type }, 'joins': [], 'type': EdgeType.OBSERVED } )
+                    'type': EdgeType.DETECTS }]
+                observations_graph.add_node(f"{o.name}", props={ **{ 'name': o.name, 'type': o.type }, 'joins': joins } )
 
 
     # todo foods, tools, weapons etc.
