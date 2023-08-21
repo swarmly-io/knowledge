@@ -1,11 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import pytest
-from mini_graphs.minecraft.experiment_algs import FindSubGoals
 from services.graph_composer import GraphComposer
+from test.test_sub_goals import FindSubGoals
 
 from utils import dfs_paths, graph_from_paths
-from mini_graphs.minecraft.agent_config import LENSE_TYPES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
+from graphs.minecraft.agent_config import LENSE_TYPES, graph_dict, linking_instructions, one_to_many_join_graphs, lenses
 
 composer = GraphComposer(
     graph_dict,
@@ -16,7 +16,6 @@ composer = GraphComposer(
 composer.compose_graphs()
 composed_graph = composer.get_composed_graph()
 find = FindSubGoals(composer)
-
 
 def draw_action_tree(action):
     action_tree = find.create_actions_tree(action)

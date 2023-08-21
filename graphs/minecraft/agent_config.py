@@ -1,9 +1,13 @@
 from enum import Enum
 
 from services.graph_composer import EdgeType
-from mini_graphs.minecraft.mini_graph_dict import graph_dict
+import config
+if config.mini_graph:
+    from graphs.minecraft.mini_graph_dict import graph_dict
+else:
+    from graphs.minecraft.big_graphs import graph_dict
+
 import networkx as nx
-from services.models import Join, Joins, OneToManyJoins
 
 class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
@@ -116,8 +120,9 @@ def apply_joins(ajoin, graph, all_name=None):
         nx.set_node_attributes(graph, {a: d})
 
 
-apply_joins(ajoin, graph_dict['actions'])
-apply_joins(tjoin, graph_dict['trade'])
+#apply_joins(ajoin, graph_dict['actions'])
+#apply_joins(tjoin, graph_dict['trade'])
+
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
 apply_joins(fjoin, graph_dict['foods'], all_name='all')
 

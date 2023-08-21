@@ -1,4 +1,5 @@
 import uvicorn
+import config
 from api import app
 
 

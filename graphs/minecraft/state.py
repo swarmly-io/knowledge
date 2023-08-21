@@ -1,7 +1,12 @@
 from models.agent_state import AgentMCState
 from services.graph_composer import EdgeType
-from mini_graphs.minecraft.mini_indexes import indexes
 from services.state import StateRunner
+
+import config
+if config.mini_graph:
+    from graphs.minecraft.mini_indexes import indexes
+else:
+    from graphs.minecraft.big_graphs import graph_dict as indexes
 
 class MinecraftStateRunner(StateRunner):
     def __init__(self):

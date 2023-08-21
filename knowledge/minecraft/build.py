@@ -180,7 +180,7 @@ def create_minecraft_indexes(elastic_config):
     load_entities(esen)
     print("Completed loading entities")
 
-    esdmg = elastic_config.get_elastic_client("entitiesdmg")
+    esdmg = elastic_config.get_elastic_client("hostiles")
     load_hostile_entities_dmg(esdmg)
     print("Completed loading hostile entities dmg")
 

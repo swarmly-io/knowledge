@@ -1,16 +1,22 @@
 import timeit
 from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode
-from mini_graphs.minecraft.state import MinecraftStateRunner
 from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
 
-from mini_graphs.minecraft.mini_graph_dict import graph_dict
-from mini_graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 from services.graph_composer import EdgeType, GraphComposer
 from services.find_path import find_path_with_feasibility
 from models.agent_state import AgentMCState
 from services.models import TagLink
+
+import config
+from graphs.minecraft.state import MinecraftStateRunner
+if config.mini_graph:
+    from graphs.minecraft.mini_graph_dict import graph_dict
+else:
+    from graphs.minecraft.big_graphs import graph_dict
+
+from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 
 class GraphService:
     def __init__(self):

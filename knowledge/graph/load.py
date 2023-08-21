@@ -25,7 +25,13 @@ def get_graph_dict(esc: ElasticConfig):
         'items': build_graph(esc.get_elastic_client('items'), 'name'),
         'foods': build_graph(esc.get_elastic_client('foods'), 'name'),
         'entities': build_graph(esc.get_elastic_client('entities'), 'name'),
-        'entity_loot': build_graph(esc.get_elastic_client('entitylood'), 'id'),
+        'entity_loot': build_graph(esc.get_elastic_client('entityloot'), 'id'),
         'smelting': build_graph(esc.get_elastic_client('smelting'), 'id'),
-        'recipes': build_graph(esc.get_elastic_client('recipe'), 'id')
+        'recipes': build_graph(esc.get_elastic_client('recipe'), 'id'),
+        'hostiles': build_graph(esc.get_elastic_client('hostiles'), 'id'),
+        'actions': {},
+        'trade': {},
+        'inventory': {},
+        'observations': {},
     }
+
