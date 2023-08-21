@@ -1,6 +1,6 @@
 import timeit
 from typing import List
-from api.models import AgentDto
+from api.models import AgentDto, NextActionResponse, Path, PathNode
 from mini_graphs.minecraft.state import MinecraftStateRunner
 from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
@@ -89,7 +89,7 @@ class GraphService:
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges= len(g.edges()))
     
-    def run(self, name):
+    def run(self, name) -> NextActionResponse:
         if not self.composer:
             self.build_graph()
         print(f"Finding next path for {name}")
@@ -102,7 +102,13 @@ class GraphService:
                 path = self.find_path(f"agent:{self.agent.name}", node, [])
                 paths.append((node, path))
         
-        return paths, (targets, goals, focus_tags)
+        path_resp = []
+        for p in paths:
+            goal, (feasible, path) = p
+            nodes_resp = list(map(lambda x: [PathNode(node=p['node'], type=p['type'] or None) for p in x] , path))
+            path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+            
+        return NextActionResponse(paths=path_resp, active_goals=goals, focus_tags=focus_tags, targets=targets)
         
     def make_workflow(self, source_node, target_node, lenses = []):
         # find path
