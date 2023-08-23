@@ -11,5 +11,9 @@
     "food_high, collect, foods",
     "no_weapon, collect, weapons",
     "no_weapon, craft, weapons",
+    "no_tools, craft, items, wooden_pickaxe",
+    "no_tools, craft, items, iron_pickaxe",
+    "no_tools, craft, items, diamond_pickaxe",
+    "no_tools, craft, items, wooden_axe",
     "food_inventory_high, collect, foods"
 ]
