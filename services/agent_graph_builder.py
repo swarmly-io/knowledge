@@ -83,7 +83,7 @@ class Agent:
         })
         
     def add_tag_links(self, links: List[TagLink]):
-        self.tag_links = links
+        self.tag_links.extend(links)
         
     # need focus tags - focus tags are either active tags or missing tags enabling success or preventing failure
     # if high health, no need to worry, if low health - issue

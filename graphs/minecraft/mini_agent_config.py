@@ -126,7 +126,7 @@ def apply_joins(ajoin, graph, all_name=None):
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
 apply_joins(fjoin, graph_dict['foods'], all_name='all')
 
-one_to_many_join_graphs = {
+one_to_many_join_graphs = lambda graph_dict: {
     'sources': [
         ('actions',
          graph_dict['actions']),

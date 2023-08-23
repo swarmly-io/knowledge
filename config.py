@@ -3,10 +3,18 @@ from dotenv import load_dotenv
 from knowledge.elastic_client import ElasticConfig
 import argparse
 
-parser = argparse.ArgumentParser(prog='Knowledge app')
-parser.add_argument('-d', '--dev_mini_graph', default=False)
-parser.add_argument('-l', '--local', default=True)
-args = parser.parse_args()
+class Args:
+        dev_mini_graph = False
+        local = True
+args = Args()
+
+def parse_args():
+    parser = argparse.ArgumentParser(prog='Knowledge app')
+    parser.add_argument('-d', '--dev_mini_graph', default=False)
+    parser.add_argument('-l', '--local', default=True)
+    args = parser.parse_args()
+    return args
+
 
 mini_graph = True
 if not args.dev_mini_graph:

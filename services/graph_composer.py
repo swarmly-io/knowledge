@@ -20,7 +20,7 @@ class EdgeType(str, Enum):
 MAX_JOIN_DEPTH = 50
 
 class GraphComposer:
-    def __init__(self, graph_dict, linking_instructions, join_graphs, lenses):
+    def __init__(self, graph_dict, linking_instructions, join_graphs_fn, lenses):
         self.graph_dict = graph_dict
         self.linking_instructions = linking_instructions
         self.composed_graph = nx.DiGraph()
@@ -28,15 +28,20 @@ class GraphComposer:
             for n in graph_dict[g].nodes(data=True):
                 self.composed_graph.add_node(
                     g + ":" + n[0], **{**n[1], 'source': g})
-        self.join_graphs = join_graphs
+        self.join_graphs_fn = join_graphs_fn
+        self.join_graphs = None
         self.lenses = lenses
 
-    def compose_graphs(self):
-        for linking_instruction in self.linking_instructions:
-            self._link_graphs(linking_instruction)
+    def compose_graphs(self, only_joins: Optional[List] = None):
+        self.join_graphs = self.join_graphs_fn(self.graph_dict)
+        
+        if not only_joins:
+            for linking_instruction in self.linking_instructions:
+                self._link_graphs(linking_instruction)
 
         for source_name, f_graph in self.join_graphs['sources']:
-            self.one_to_many_joins(source_name, f_graph)
+            if not only_joins or (only_joins and source_name in only_joins): 
+                self.one_to_many_joins(source_name, f_graph)
 
     def one_to_many_joins(self, source_name, f_graph):
         nodes = [n for n in f_graph.nodes(data=True)]
@@ -46,7 +51,6 @@ class GraphComposer:
 
             joins = n[1]['props']['joins']
             for join in joins:
-                print(join)
                 self.create_join(join, source_name, n)
 
     def create_join(self, join, source_name, n, rec_count = 0):
@@ -79,7 +83,7 @@ class GraphComposer:
         index = join['index']
         filter_fn = join['filter']
         sub_joins = join.get('join')
-        graph = self.join_graphs['on'].get(index)
+        graph = self.graph_dict.get(index)
         return index, filter_fn, sub_joins, graph
 
     def _link_graphs(self, linking_instruction):
@@ -143,21 +147,25 @@ class GraphComposer:
                 print(f"couldn't remove goal edge {goal.name}")
         print("Removed all goal edges")
     
-    def link_goals_and_get_targets(self, goals: List[GoalStatement], focus_tags: List[Tag], tag_links: List[TagLink]):
-        tag_link_dict = { t.tag: t for t in tag_links }
+    def link_goals_and_get_targets(self, goals: List[GoalStatement], focus_tags: List[Tag], tag_links: List[TagLink]) -> list:
+        tag_link_dict = {}
+        for t in tag_links:
+            if not tag_link_dict.get(t.tag):
+                tag_link_dict[t.tag] = []
+            tag_link_dict[t.tag].append(t)
+            
         targets = []
         for tag in focus_tags:
             for goal in goals:
                 if goal.has_tag(tag):
-                    link = tag_link_dict.get(tag.name)
-                    if not link:
-                        missing = [t.name for t in focus_tags if tag_link_dict.get(t.name) is None]
-                        print("missing links", missing)
+                    links = tag_link_dict.get(tag.name, [])
+                    if len(links) == 0:
                         print(f"Error link wasn't found for: {tag.name}")
-                        continue
-                    
-                    self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
-                    targets.append((link.index, link.node))
+                    for link in links:
+                        self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
+                        targets.append((link.index, link.node))
+        
+        
         
         return targets
 

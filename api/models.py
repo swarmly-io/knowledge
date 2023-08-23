@@ -17,7 +17,7 @@ class PathNode(BaseModel):
     type: Optional[EdgeType]
     
 class Path(BaseModel):
-    path: List[List[PathNode]] = []
+    path: List[PathNode] = []
     feasible: bool
     goal: str
 

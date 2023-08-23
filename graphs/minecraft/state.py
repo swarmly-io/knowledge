@@ -20,7 +20,7 @@ else:
             id = v['id']
             vname = v['name']
             v = f'{name}:{vname}'
-            index[str(id)] = v
+            index[int(id)] = v
         return index
 
 class MinecraftStateRunner(StateRunner):

@@ -196,7 +196,7 @@ def create_minecraft_indexes(elastic_config):
     load_smelting_recipes(ess)
     print("Completed smelting")
 
-    es = elastic_config.get_elastic_client("recipe")
+    es = elastic_config.get_elastic_client("recipes")
     normalise_and_load_recipes(es, mcd)
     print("Completed recipe")
 

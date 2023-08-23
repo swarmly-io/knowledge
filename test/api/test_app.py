@@ -75,7 +75,7 @@ def test_find_succesful_path():
     assert expected_path == data[1][1]
     
 def test_run_agent_succesfully():
-    test_init()
+    test_init()    
     with open("./test/api/sampleagent.json", 'r') as f:
       data = AgentDto(**json.load(f))
       agent_response = client.post("/create_agent", json=data.dict())
@@ -96,4 +96,8 @@ def test_run_agent_succesfully():
     data = NextActionResponse(**response.json())
     
     assert "got_tools" in list(map(lambda x: x.name, data.focus_tags)) 
+    wooden_axe_path = [["agent:bill", None], ["goals:have defence", "GOAL"], ["actions:craft", None], ["recipes:701", "ACT_UPON"], ["items:wooden_pickaxe", "PROVIDES"]]
+    assert list(map(lambda x: (x.node, x.type),
+                    next(filter( lambda x: x.goal == 'items:wooden_pickaxe', data.paths)).path)) == wooden_axe_path
+    
     #todo path

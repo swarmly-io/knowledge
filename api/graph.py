@@ -1,3 +1,4 @@
+from copy import deepcopy
 import timeit
 from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode
@@ -13,12 +14,9 @@ import config
 from graphs.minecraft.state import MinecraftStateRunner
 if config.mini_graph:
     from graphs.minecraft.mini_graph_dict import graph_dict
-else:
-    from graphs.minecraft.big_graphs import graph_dict
-
-if config.mini_graph:
     from graphs.minecraft.mini_agent_config import lenses, linking_instructions, one_to_many_join_graphs
 else:
+    from graphs.minecraft.big_graphs import graph_dict
     from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 
 class GraphService:
@@ -27,11 +25,14 @@ class GraphService:
         self.state : AgentMCState = None
         self.goals: List[GoalStatement] = []
         self.agent: Agent = None
-        self.graph_dict = graph_dict
+        self.graph_dict = deepcopy(graph_dict)
         
     def create_agent(self, agent: AgentDto):
         state_runner = MinecraftStateRunner()
+        self.graph_dict['agent'].add_node(agent.name, props={ 'actions': [a.name for a in agent.actions] })
+                
         self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups, state_runner=state_runner)
+
         
     def add_tag_links(self, links: List[str]):
         tag_links = []
@@ -79,6 +80,10 @@ class GraphService:
     
     def find_path(self, source_node, target_node, lenses = []):
         # todo validate lenses
+        if not config.mini_graph:
+            t = timeit.timeit(lambda: self.composer.compose_graphs(['actions', 'goals', 'agent']), number=1)
+            print(t)
+        
         if not lenses:
             filtered_graph = self.composer.get_composed_graph()
         else:
@@ -114,8 +119,9 @@ class GraphService:
         path_resp = []
         for p in paths:
             goal, (feasible, path) = p
-            nodes_resp = list(map(lambda x: [PathNode(node=p['node'], type=p['type'] or None) for p in x] , path))
-            path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+            nodes_resps = map(lambda x: [PathNode(node=p['node'], type=p['type'] or None) for p in x], path)
+            for nodes_resp in list(nodes_resps):
+                path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
             
         return NextActionResponse(paths=path_resp, active_goals=goals, focus_tags=focus_tags, targets=targets)
         
