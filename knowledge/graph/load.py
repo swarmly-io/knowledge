@@ -9,29 +9,54 @@ def map_by_key(d, key):
     return by_name
 
 
-def build_graph(esc, index_key):
-    elements = map_by_key(esc.get_all(), index_key)
+def build_graph(elements):
     graph = nx.DiGraph()
 
     for item in elements.items():
         graph.add_node(str(item[0]), props=item[1])
 
-    return graph
+    return graph    
 
-
+# todo graph dict needs to be dynamic to handle integrations of services like trading
 def get_graph_dict(esc: ElasticConfig):
-    return {
-        'blocks': build_graph(esc.get_elastic_client('blocks'), 'name'),
-        'items': build_graph(esc.get_elastic_client('items'), 'name'),
-        'foods': build_graph(esc.get_elastic_client('foods'), 'name'),
-        'entities': build_graph(esc.get_elastic_client('entities'), 'name'),
-        'entity_loot': build_graph(esc.get_elastic_client('entityloot'), 'id'),
-        'smelting': build_graph(esc.get_elastic_client('smelting'), 'id'),
-        'recipes': build_graph(esc.get_elastic_client('recipe'), 'id'),
-        'hostiles': build_graph(esc.get_elastic_client('hostiles'), 'id'),
-        'actions': {},
-        'trade': {},
-        'inventory': {},
-        'observations': {},
+    elements = lambda name, index_key:  map_by_key(esc.get_elastic_client(name).get_all(), index_key)
+
+    indexes = {
+        # static minecraft related
+        'blocks': elements('blocks', 'name'),
+        'items': elements('items', 'name'),
+        'foods': elements('foods', 'name'),
+        'entities': elements('entities', 'name'),
+        'entityloot': elements('entityloot', 'id'),
+        'smelting': elements('smelting', 'id'),
+        'recipes': elements('recipe', 'id'),
+        'hostiles': elements('hostiles', 'id'),
+        # dynamic, agent specific
+        'agent': nx.DiGraph(),
+        'goals': nx.DiGraph(),
+        'actions': nx.DiGraph(),
+        'trade': nx.DiGraph(),
+        'inventory': nx.DiGraph(),
+        'observations': nx.DiGraph(),
     }
+    
+    graph_dict = {
+        # static minecraft related
+        'blocks': build_graph(indexes['blocks']),
+        'items': build_graph(indexes['items']),
+        'foods': build_graph(indexes['foods']),
+        'entities': build_graph(indexes['entities']),
+        'entityloot': build_graph(indexes['entityloot']),
+        'smelting': build_graph(indexes['smelting']),
+        'recipes': build_graph(indexes['recipes']),
+        'hostiles': build_graph(indexes['hostiles']),
+        # dynamic, agent specific
+        'agent': nx.DiGraph(),
+        'goals': nx.DiGraph(),
+        'actions': nx.DiGraph(),
+        'trade': nx.DiGraph(),
+        'inventory': nx.DiGraph(),
+        'observations': nx.DiGraph(),
+    }
+    return graph_dict, indexes
 

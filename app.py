@@ -1,5 +1,7 @@
 import uvicorn
 import config
+config.parse_args()
+
 from api import app
 
 

@@ -2,7 +2,10 @@ from enum import Enum
 
 from services.graph_composer import EdgeType
 import config
-from graphs.minecraft.big_graphs import graph_dict
+if config.mini_graph:
+    from graphs.minecraft.mini_graph_dict import graph_dict
+else:
+    from graphs.minecraft.big_graphs import graph_dict
 
 import networkx as nx
 
@@ -84,7 +87,7 @@ joins = {
         "money": []
     },
     'recipes': {
-        'all': [{'index': 'items', 'filter': lambda x, y: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES}]
+        'all': [{'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}]
          #   {'index': 'items', 'filter': lambda x, y: x['name'] in [z['name'] for z in y['needs']], 'type': EdgeType.NEEDS,
           #       'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
     },

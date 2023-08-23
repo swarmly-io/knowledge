@@ -5,20 +5,29 @@ from services.state import StateRunner
 import config
 if config.mini_graph:
     from graphs.minecraft.mini_indexes import indexes
-else:
-    from graphs.minecraft.big_graphs import graph_dict as indexes
-
-class MinecraftStateRunner(StateRunner):
-    def __init__(self):
-        self.items_lookup = { **self.get_index('items'), **self.get_index('foods') }
-        self.hostiles_lookup = indexes['hostiles']
-        
-    def get_index(self, name):
+    
+    def get_index(name):
         index = {}
         for k,v in indexes[name].items():
             v = f'{name}:{v}'
             index[k] = v
         return index
+else:
+    from graphs.minecraft.big_graphs import graph_dict, indexes
+    def get_index(name):
+        index = {}
+        for k,v in indexes[name].items():
+            id = v['id']
+            vname = v['name']
+            v = f'{name}:{vname}'
+            index[str(id)] = v
+        return index
+
+class MinecraftStateRunner(StateRunner):
+    def __init__(self):
+        self.items_lookup = { **get_index('items'), **get_index('foods') }
+        self.hostiles_lookup = indexes['hostiles']
+    
     
     def inventory_state_runner(self, state: AgentMCState, inventory_graph):
         inventory_graph.clear()

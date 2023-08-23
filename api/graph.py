@@ -16,7 +16,10 @@ if config.mini_graph:
 else:
     from graphs.minecraft.big_graphs import graph_dict
 
-from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
+if config.mini_graph:
+    from graphs.minecraft.mini_agent_config import lenses, linking_instructions, one_to_many_join_graphs
+else:
+    from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
 
 class GraphService:
     def __init__(self):

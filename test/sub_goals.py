@@ -1,5 +1,5 @@
 import networkx as nx
-from mini_graphs.minecraft.agent_config import LENSE_TYPES
+from graphs.minecraft.agent_config import LENSE_TYPES
 from services.graph_composer import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
 

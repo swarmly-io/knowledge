@@ -1,7 +1,6 @@
 from typing import List, Optional
 import networkx as nx
 from enum import Enum
-from pydantic import BaseModel
 from models.goals import GoalStatement, Tag
 
 from services.models import TagLink

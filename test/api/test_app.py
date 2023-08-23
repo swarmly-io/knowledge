@@ -5,7 +5,8 @@ import pytest
 from api.app import app
 from api.models import AgentDto, NextActionResponse
 from models.agent_state import AgentMCState
-client = TestClient(app, raise_server_exceptions=False)
+
+client = TestClient(app, raise_server_exceptions=True)
 
 def test_init():
     # Test successful user creation
@@ -74,7 +75,7 @@ def test_find_succesful_path():
     assert expected_path == data[1][1]
     
 def test_run_agent_succesfully():
-    test_init()    
+    test_init()
     with open("./test/api/sampleagent.json", 'r') as f:
       data = AgentDto(**json.load(f))
       agent_response = client.post("/create_agent", json=data.dict())
