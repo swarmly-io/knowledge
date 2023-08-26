@@ -39,23 +39,34 @@ class Agent:
         
         # get paths to each target
         resolved_targets = []
-        for index, node in set(targets):
-            resolved_target = self.resolve_target(composer, index, node)
+        for action, index, subindex, node in set(targets):
+            resolved_target = self.resolve_target(composer, action, index, subindex, node)
             resolved_targets.append(resolved_target)
         return (resolved_targets, goals, focus_tags)
             
-    def resolve_target(self, composer: GraphComposer, index: str, node: str) -> List[str]:
+    def resolve_target(self, composer: GraphComposer, action: str, index: str, subindex: Optional[str], node: str) -> List[str]:
         if node == '':
             node = None
         
         graph = composer.get_composed_graph()
         end_nodes = []
         for n in graph.nodes():
+            if subindex:
+                neighbours = [nei for nei in nx.neighbors(graph, n) if subindex in nei]
+                if not neighbours:
+                    continue
+                
             if f"{index}:" in n:
                 if node and n == f"{index}:{node}":
                     end_nodes.append(n)
+                    # if not graph[f'actions:{action}'][n]:
+                    #     # todo the type should be contextual, fight doesn't provide a zombie
+                    #     graph.add_edge(f'actions:{action}', n, type=EdgeType.PROVIDES)
                 elif not node:
                     end_nodes.append(n)
+                    # if not graph[f'actions:{action}'][n]:
+                    #     # todo the type should be contextual, fight doesn't provide a zombie
+                    #     graph.add_edge(f'actions:{action}', n, type=EdgeType.PROVIDES)
         return end_nodes
             
     def make_graph(self):
@@ -89,9 +100,13 @@ class Agent:
     # if high health, no need to worry, if low health - issue
     # need priority service to limit goals - but priority service also needs to make a focus graph
     def focus_graph_and_get_targets(self, composer: GraphComposer, goals: List[GoalStatement], focus_tags: List[Tag]) -> List[Tuple[str, str]]:
-        # clear goals
         composer.remove_goal_links(self.goals)
-        return composer.link_goals_and_get_targets(goals, focus_tags, self.tag_links)
+        enriched_links = []
+        composed_graph = composer.get_composed_graph()
+        for el in [t.enrich(composed_graph) for t in self.tag_links]:
+            enriched_links.extend(el)
+            
+        return composer.link_goals_and_get_targets(goals, focus_tags, enriched_links)
         
     def make_graph_state(self):        
         self.state_runner.state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)

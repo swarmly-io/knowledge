@@ -1,7 +1,6 @@
 [
-    "health_high, eat, foods, food",
-    "health_low, eat, foods, food",
-    "health_critical, fight, hostile_entities",
+    "health_low, eat, items:foods",
+    "health_critical, eat, items:foods",
     "zombie_close, fight, hostile_entities",
     "got_credit, trade, trade, credit",
     "no_credit, trade, trade, credit",

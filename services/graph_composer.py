@@ -75,7 +75,8 @@ class GraphComposer:
                             new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index, 'source_name': join.get('source_name') or source_name })
 
                 if sub_joins:
-                    print('here', rec_count)
+                    if rec_count > 2: 
+                        print('Rec count is:', rec_count)
                     self.create_join(sub_joins, index, nt, rec_count=rec_count+1)
 
 
@@ -115,27 +116,39 @@ class GraphComposer:
 
     def apply_lenses(self,
                      lense_names: List[str],
-                     graph: Optional[nx.DiGraph] = None):
+                     graph: Optional[nx.DiGraph] = None, 
+                     flag_infeasible = False):
         # create a sub graph based on the lense
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
-        remove_nodes = []
-        for lense_name in lense_names:
-            lense = self.lenses[lense_name]
-            for n in nodes:
-                if lense['source'](n):
-                    if lense['condition'](n):
-                        remove_nodes.append(n)
-
         T = nx.DiGraph()
-        T.add_nodes_from(nodes)
-        for n in remove_nodes:
-            T.remove_node(n[0])
+    
+        for n in nodes:
+            removed = False
+            for lense_name in lense_names:
+                lense = self.lenses[lense_name]
+                if not removed and lense['source'](n):
+                    if not lense['condition'](n, self.graph_dict):
+                        removed = True
+            if not removed:
+                T.add_node(n[0], **n[1], infeasible = True)
+            elif flag_infeasible:
+                # todo create new feasibility service
+                # if recipe, lookup needs vs inventory
+                # if item crafted by recipe (predecessor is recipe), lookup whether recipe feasible
+                # if entity, look if it's observed
+                # if hostile or huntable, calculate whether defeatable 
+                # if collectable - see if near by?
+                # if trade - see bidable, askable based on inventory and money
+                T.add_node(n[0], **n[1], infeasible = True)
 
-        filtered_edges = [
-            (u, v, s) for (
-                u, v, s) in G.edges(
-                data=True) if u in T.nodes() and v in T.nodes()]
+        if flag_infeasible:
+            filtered_edges = [(u, v, s) for (u, v, s) in G.edges(data=True)]
+        else:
+            filtered_edges = [
+                (u, v, s) for (
+                    u, v, s) in G.edges(
+                    data=True) if u in T.nodes() and v in T.nodes()]
         T.add_edges_from(filtered_edges)
         return T
     
@@ -163,9 +176,7 @@ class GraphComposer:
                         print(f"Error link wasn't found for: {tag.name}")
                     for link in links:
                         self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
-                        targets.append((link.index, link.node))
-        
-        
+                        targets.append((link.action, link.index, link.subindex, link.node))
         
         return targets
 

@@ -29,7 +29,7 @@ def get_graph_dict(esc: ElasticConfig):
         'entities': elements('entities', 'name'),
         'entityloot': elements('entityloot', 'id'),
         'smelting': elements('smelting', 'id'),
-        'recipes': elements('recipe', 'id'),
+        'recipes': elements('recipes', 'id'),
         'hostiles': elements('hostiles', 'id'),
         # dynamic, agent specific
         'agent': nx.DiGraph(),

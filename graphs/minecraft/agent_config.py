@@ -3,8 +3,8 @@ from enum import Enum
 from services.graph_composer import EdgeType
 import config
 from graphs.minecraft.big_graphs import graph_dict
-
 import networkx as nx
+import functools
 
 class LENSE_TYPES(str, Enum):
     ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
@@ -15,18 +15,38 @@ class LENSE_TYPES(str, Enum):
     ONLY_ASK = "only_ask"
 
 
-only_trades = lambda x: True if 'action' in x[0] and 'trade' not in x[0] else False
-only_bid = lambda x: True if x[0] == 'trade:ask' else False
-only_ask = lambda x: True if x[0] == 'trade:bid' else False
+only_trades = lambda x, graph_dict: True if 'action' in x[0] and 'trade' not in x[0] else False
+only_bid = lambda x, graph_dict: True if x[0] == 'trade:ask' else False
+only_ask = lambda x, graph_dict: True if x[0] == 'trade:bid' else False
+
+def deep_flatten(lst):
+    flat_list = []
+    stack = [lst]
+    
+    while stack:
+        current = stack.pop()
+        if isinstance(current, list):
+            stack.extend(reversed(current))
+        else:
+            flat_list.append(current)
+            
+    return flat_list
+def flatmap(f, xs):
+    return deep_flatten(list(map(f, xs)))
+flatten = lambda x: flatmap(lambda z:z, x)
+
+in_recipes = lambda x, graph_dict: x[1]['props']['name'] in flatten(list(map(lambda x: x['needs'], [n[1]['props']['items'] for n in graph_dict['recipes'].nodes(data=True)])))
 
 lenses = {
+    # todo, only feasible recipes
     LENSE_TYPES.ONLY_INVENTORY_MINING_ITEMS: {'source': lambda x: 'items:' in x[0],
-                                         'condition': lambda x:
-                                         'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
-    LENSE_TYPES.IN_OBSERVATION: {'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'],
-                            'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.observations_graph.nodes(data=True)]},
+                                         'condition': lambda x, graph_dict:
+                                         'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['inventory'].nodes(data=True)]},
+    LENSE_TYPES.IN_OBSERVATION: {'source': lambda x: (x[1].get('source') or '') in ['entities'],
+                            'condition': lambda x, graph_dict: x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['observations'].nodes(data=True)]},
     LENSE_TYPES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'],
-                          'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
+                          'condition': lambda x, graph_dict: 
+                              x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['inventory'].nodes(data=True)]},
     LENSE_TYPES.ONLY_TRADES: {'source': lambda x: x,
                                 'condition': only_trades },
     LENSE_TYPES.ONLY_BID: {'source': lambda x: x,
@@ -62,7 +82,7 @@ linking_instructions = [
         'type': EdgeType.GOAL
     },
 ]
-
+# todo memoize
 joins = {
     "actions": {
         "mine": [{'index': 'items', 'filter': lambda x, y: 'pickaxe' in x.get('name'), 'type': EdgeType.NEEDS, 'join':
@@ -70,7 +90,7 @@ joins = {
         "collect": [{'index': 'observations', 'filter': lambda x, y: x['type'] in ['item', 'block'], 'type': EdgeType.OBSERVED }],
         "fight": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Hostile mobs', 'type': EdgeType.OBSERVED}],
         "hunt": [{'index': 'entities', 'filter': lambda x, y: x['type'] == 'Passive mobs', 'type': EdgeType.OBSERVED}],
-        "eat": [{'index': 'foods', 'filter': lambda x, y: x['food_points'] > 0, 'type': EdgeType.NEEDS}],
+        "eat": [{'index': 'foods', 'filter': lambda x, y: x['food_points'] > 0, 'type': EdgeType.ACT_UPON }],
         "craft": [{'index': 'recipes', 'filter': lambda x, y: x, 'type': EdgeType.ACT_UPON}],
         "trade": [{'index': 'trade', 'filter': lambda x, y: 'bid' in x['name'] or 'ask' in x['name'], 'type': EdgeType.ACT_UPON}]
     },
@@ -84,12 +104,17 @@ joins = {
         "money": []
     },
     'recipes': {
-        'all': [{'index': 'items', 'filter': lambda x, y: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES}]
-         #   {'index': 'items', 'filter': lambda x, y: x['name'] in [z['name'] for z in y['needs']], 'type': EdgeType.NEEDS,
-          #       'join': {'index': 'items', 'filter': lambda x, y: x['name'] == y['provides']['name'], 'type': EdgeType.PROVIDES}}]
+        'all': [
+            #{'index': 'items', 'filter': lambda x, y: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES}]
+            # todo, this takes a long time! create a seperate index for item to recipes
+            #{ 'index': 'items', 'filter': lambda x, y: x['name'] in map(lambda e: e['name'], flatmap(lambda e: e['needs'], y['items'])), 'type': EdgeType.NEEDS },
+            { 'index': 'items', 'filter': lambda x, y: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES }
+        ]
     },
     'foods': {
-        'all': [{ 'index': 'foods', 'filter': lambda x,y: x['name'] != 'food' and y['name'] == 'food', 'type': EdgeType.PROVIDES }]
+        'all': [
+            { 'index': 'items', 'filter': lambda x, y: x['name'] == y['name'], 'type': EdgeType.PROVIDES }
+        ]
     }
 }
 #x= Joins(**mjoins)

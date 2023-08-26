@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 from pydantic import BaseModel
 
 from services.lambda_utils import parse_function
-
+import networkx as nx
 
 class JoinInner(BaseModel):
     index: str
@@ -45,13 +45,25 @@ class TagLink(BaseModel):
     tag: str
     action: str
     index: str
+    subindex: Optional[str]
     node: Optional[str]
     
     def from_csv_entry(entry: str):
         try:
             tag, action, index, node = (entry + ",,,,").replace(" ", "").split(",")[0:4]
-            return TagLink(tag=tag, action=action, index=index, node=node)
+            if ':' in index:
+                index, subindex = index.split(':')
+            else:
+                subindex = None
+            tag_link = TagLink(tag=tag, action=action, index=index, node=node, subindex=subindex)
+            return tag_link
         except Exception as e:
             print("Error in tag link", entry)
-            raise Exception(f"Error creating tag link: {entry}")          
+            raise Exception(f"Error creating tag link: {entry}")
+        
+    def enrich(self, graph: nx.DiGraph):
+        # try to find a link between action, index, and node,
+        # if there isn't a direct link, try to create a new tag link with
+        
+        return [self]    
     

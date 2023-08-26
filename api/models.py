@@ -15,6 +15,7 @@ class AgentDto(BaseModel):
 class PathNode(BaseModel):
     node: str
     type: Optional[EdgeType]
+    infeasible: Optional[bool]
     
 class Path(BaseModel):
     path: List[PathNode] = []

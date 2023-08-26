@@ -14,10 +14,10 @@ import config
 from graphs.minecraft.state import MinecraftStateRunner
 if config.mini_graph:
     from graphs.minecraft.mini_graph_dict import graph_dict
-    from graphs.minecraft.mini_agent_config import lenses, linking_instructions, one_to_many_join_graphs
+    from graphs.minecraft.mini_agent_config import lenses, linking_instructions, one_to_many_join_graphs, LENSE_TYPES
 else:
     from graphs.minecraft.big_graphs import graph_dict
-    from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs
+    from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs, LENSE_TYPES
 
 class GraphService:
     def __init__(self):
@@ -37,7 +37,8 @@ class GraphService:
     def add_tag_links(self, links: List[str]):
         tag_links = []
         for link in links:
-            tag_links.append(TagLink.from_csv_entry(link))
+            tag_link = TagLink.from_csv_entry(link)
+            tag_links.append(tag_link)
         self.agent.add_tag_links(tag_links)
     
     def set_composer(self, composer):
@@ -87,7 +88,7 @@ class GraphService:
         if not lenses:
             filtered_graph = self.composer.get_composed_graph()
         else:
-            filtered_graph = self.composer.apply_lenses(lenses)
+            filtered_graph = self.composer.apply_lenses(lenses, flag_infeasible=True)
         
         unfiltered_graph = self.composer.get_composed_graph()
         return find_path_with_feasibility(filtered_graph, unfiltered_graph, source_node, target_node)
@@ -113,13 +114,13 @@ class GraphService:
         for target in targets:
             for node in target:
                 # todo calculate lenses for each group? goal? tag? etc.
-                path = self.find_path(f"agent:{self.agent.name}", node, [])
+                path = self.find_path(f"agent:{self.agent.name}", node, [LENSE_TYPES.IN_INVENTORY, LENSE_TYPES.IN_OBSERVATION])
                 paths.append((node, path))
         
         path_resp = []
         for p in paths:
             goal, (feasible, path) = p
-            nodes_resps = map(lambda x: [PathNode(node=p['node'], type=p['type'] or None) for p in x], path)
+            nodes_resps = map(lambda x: [PathNode(node=p['node'], type=p['type'] or None, infeasible=p['infeasible']) for p in x], path)
             for nodes_resp in list(nodes_resps):
                 path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
             

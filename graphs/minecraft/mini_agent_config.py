@@ -24,12 +24,12 @@ only_ask = lambda x: True if x[0] == 'trade:bid' else False
 
 lenses = {
     LENSE_TYPES.ONLY_INVENTORY_MINING_ITEMS: {'source': lambda x: 'items:' in x[0],
-                                         'condition': lambda x:
-                                         'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
+                                         'condition': lambda x, graph_dict:
+                                         'pickaxe' not in x[1]['props']['name'] or x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['inventory'].nodes(data=True)]},
     LENSE_TYPES.IN_OBSERVATION: {'source': lambda x: (x[1].get('source') or '') in ['entities', 'items'],
-                            'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.observations_graph.nodes(data=True)]},
+                            'condition': lambda x, graph_dict: x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['observations'].nodes(data=True)]},
     LENSE_TYPES.IN_INVENTORY: {'source': lambda x: (x[1].get('source') or '') in ['blocks', 'items'],
-                          'condition': lambda x: x[1]['props']['name'] in [n[1]['props']['name'] for n in g.inventory_graph.nodes(data=True)]},
+                          'condition': lambda x, graph_dict: x[1]['props']['name'] in [n[1]['props']['name'] for n in graph_dict['inventory'].nodes(data=True)]},
     LENSE_TYPES.ONLY_TRADES: {'source': lambda x: x,
                                 'condition': only_trades },
     LENSE_TYPES.ONLY_BID: {'source': lambda x: x,

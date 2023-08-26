@@ -32,11 +32,14 @@ def is_valid_path(graph, path, target_edge_type):
 
 def path_edges(graph, path):
     edges = []
+    infeasible_edges = []
     if len(path) > 1:
         for u, v in zip(path[:-1], path[1:]):
             edge_type = graph.edges[u, v].get('type')
             edges.append(edge_type)
-        return edges
+            infeasible = graph.nodes[v].get('infeasible')
+            infeasible_edges.append(infeasible)
+        return edges, infeasible_edges
     return []
 
 def find_path_with_feasibility(
@@ -96,7 +99,7 @@ def find_path_with_feasibility(
 def make_typed_path(filtered_graph, feasible_paths):
     typed_paths = []
     for f in feasible_paths:
-        types = path_edges(filtered_graph, f)
-        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1] }, zip(f, [""] + types))))
+        types, infeasible = path_edges(filtered_graph, f)
+        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2] }, zip(f, [""] + types, [True] + infeasible))))
     return typed_paths
 

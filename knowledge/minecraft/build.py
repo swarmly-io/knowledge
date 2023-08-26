@@ -198,7 +198,7 @@ def create_minecraft_indexes(elastic_config):
 
     es = elastic_config.get_elastic_client("recipes")
     normalise_and_load_recipes(es, mcd)
-    print("Completed recipe")
+    print("Completed recipes")
 
     esb = elastic_config.get_elastic_client("blocks")
     normalise_and_load_blocks(esb, mcd)
