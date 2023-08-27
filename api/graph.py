@@ -2,7 +2,7 @@ from copy import deepcopy
 import timeit
 from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode
-from models.goals import GoalStatement
+from models.goals import GoalStatement, TagDto
 from services.agent_graph_builder import Agent
 from services.feasibility import NodeFeasibility
 
@@ -49,11 +49,13 @@ class GraphService:
         self.state = state
         self.agent.state.mcState = self.state
         
-    def add_active_tags(self, tags: List[str]):
+    def add_active_tags(self, tags: List[str]) -> List[TagDto]:
         tag_dict = { t.name: t for t in self.agent.all_tags }
         active_tags = [tag_dict.get(t) for t in tags]
         self.agent.state.tags = active_tags
-        return self.agent.state.tags
+        rankings = self.agent.goal_valuation.group_absolute_rankings
+        tags_resp = [TagDto(**t.dict(), group_rank=rankings.get(t.group)) for t in self.agent.state.tags]
+        return tags_resp
         
     def run_state(self, run_agent_goals: bool = True):
         if not self.state or not self.agent.state.mcState:

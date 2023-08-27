@@ -13,6 +13,9 @@ class Tag(BaseModel):
     group: str
     type: TagType
     value: Union[str, int, bool] = 0
+    
+class TagDto(Tag):
+    group_rank: int
 
 class GoalSuccess(BaseModel):
     tag: str

@@ -256,7 +256,7 @@
             "name": "completed_job",
             "group": "tasks",
             "type": "value",
-            "value": 0
+            "value": 1
         },
         {
             "name": "got_credit",
@@ -274,37 +274,37 @@
             "name": "no_jobs",
             "group": "activity",
             "type": "goal",
-            "value": 2
+            "value": 0
         },
         {
             "name": "stuck",
             "group": "tasks",
             "type": "goal",
-            "value": 2
+            "value": 0
         },
         {
             "name": "goal_succeeded",
             "group": "goals",
             "type": "goal",
-            "value": 0
+            "value": 1
         },
         {
             "name": "on_task",
             "group": "activity",
             "type": "goal",
-            "value": 1
+            "value": 0
         },
         {
             "name": "goal_failed",
             "group": "goals",
             "type": "goal",
-            "value": 1
+            "value": 0
         },
         {
             "name": "stuck",
             "group": "tasks",
             "type": "goal",
-            "value": 2
+            "value": 0
         },
         {
             "name": "no_task",
@@ -313,61 +313,66 @@
             "value": 0
         }
     ],
-    "groups": [
-        {
-            "name": "health",
-            "type": "ordered_rank",
-            "rank": 2
-        },
-        {
-            "name": "goals",
-            "type": "binary",
-            "rank": 7
-        },
-        {
-            "name": "hostility",
-            "type": "binary",
-            "rank": 1
-        },
-        {
-            "name": "food",
-            "type": "binary",
-            "rank": 3
-        },
-        {
-            "name": "shelter",
-            "type": "binary",
-            "rank": 4
-        },
-        {
-            "name": "defence",
-            "type": "binary",
-            "rank": 5
-        },
-        {
-            "name": "tools",
-            "type": "binary",
-            "rank": 8
-        },
-        {
-            "name": "activity",
-            "type": "binary",
-            "rank": 11
-        },
-        {
-            "name": "inventory",
-            "type": "binary",
-            "rank": 6
-        },
-        {
-            "name": "tasks",
-            "type": "function",
-            "rank": 10
-        },
-        {
-            "name": "money",
-            "type": "function",
-            "rank": 9
-        }
-    ]
+        "groups": [
+            {
+                "name": "health",
+                "type": "ordered_rank",
+                "rank": 2
+            },
+            {
+                "name": "goals",
+                "type": "binary",
+                "rank": 7
+            },
+            {
+                "name": "goal",
+                "type": "binary",
+                "rank": 7
+            },
+            {
+                "name": "hostility",
+                "type": "binary",
+                "rank": 1
+            },
+            {
+                "name": "food",
+                "type": "binary",
+                "rank": 3
+            },
+            {
+                "name": "shelter",
+                "type": "binary",
+                "rank": 4
+            },
+            {
+                "name": "defence",
+                "type": "binary",
+                "rank": 5
+            },
+            {
+                "name": "tools",
+                "type": "binary",
+                "rank": 8
+            },
+            {
+                "name": "activity",
+                "type": "binary",
+                "rank": 11
+            },
+            {
+                "name": "inventory",
+                "type": "binary",
+                "rank": 6
+            },
+            {
+                "name": "tasks",
+                "type": "function",
+                "rank": 10
+            },
+            {
+                "name": "money",
+                "type": "binary",
+                "rank": 9
+            }
+        ]
 }
