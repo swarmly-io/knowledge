@@ -1,5 +1,6 @@
+import networkx as nx
 
-
+# todo this is all minecraft specific, needs to be extracted
 class NodeFeasibility:
     
     def __init__(self, graph, state: 'AgentState'):
@@ -16,11 +17,43 @@ class NodeFeasibility:
                 for need in need_items:
                     id = need['id']
                     quantity = need['quantity']
-                    feasible = self.state.check_inventory(id, quantity)
+                    feasible = feasible and self.state.check_inventory(id, quantity)
                 if feasible:
                     return True
             return False
-        # if item crafted by recipe (predecessor is recipe), lookup whether recipe feasible
+        if index == 'items':
+            # held in inventory - a double check
+            in_inventory = self.state.check_inventory(data['props']['id'])
+            is_mineable = False  
+            blocks = list(filter(lambda x: 'blocks:' in x, self.graph.predecessors(node_name)))
+            if blocks:
+                for b in blocks:
+                    block = self.graph.nodes[b]
+                    tools = block['props']['requires']
+                    if not tools:
+                        is_mineable = True
+                        break
+                    for tool in tools:
+                        item = self.graph.nodes[f"items:{tool.get('name')}"]
+                        if not item:
+                            break
+                        got_tool = self.state.check_inventory(item['props'].get('id'))
+                        if got_tool:
+                            is_mineable = True
+                            break
+                        
+            recipes = list(filter(lambda x: 'recipes:' in x, self.graph.predecessors(node_name)))
+            is_craftable = False
+            for r in recipes:
+                recipe = self.graph.nodes[r]
+                creates_item = [r for r in recipe['props']['items'] if r['provides'].get('name') == name]
+                if creates_item:
+                    is_craftable = self.evaluate_node((r, self.graph.nodes[r]))
+                    if is_craftable:
+                        break
+                        
+            return in_inventory or is_mineable or is_craftable
+            
         # if entity, look if it's observed
         # if hostile or huntable, calculate whether defeatable 
         # if collectable - see if near by?

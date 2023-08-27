@@ -100,6 +100,6 @@ def make_typed_path(filtered_graph, feasible_paths):
     typed_paths = []
     for f in feasible_paths:
         types, infeasible = path_edges(filtered_graph, f)
-        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2] }, zip(f, [""] + types, [True] + infeasible))))
+        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2] }, zip(f, [""] + types, [False] + infeasible))))
     return typed_paths
 

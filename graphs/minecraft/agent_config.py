@@ -60,7 +60,7 @@ linking_instructions = [
     {
         'source': 'blocks',
         'target': 'items',
-        'link': lambda s, t: t['props']['name'] in s['props']['drops'],
+        'link': lambda s, t: t['props']['name'] in list(map(lambda z: z.get('name', ""), s['props']['drops'])),
         'type': EdgeType.PROVIDES
     },
     {

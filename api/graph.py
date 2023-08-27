@@ -116,7 +116,7 @@ class GraphService:
         for target in targets:
             for node in target:
                 # todo calculate lenses for each group? goal? tag? etc.
-                path = self.find_path(f"agent:{self.agent.name}", node, [LENSE_TYPES.IN_INVENTORY, LENSE_TYPES.IN_OBSERVATION])
+                path = self.find_path(f"agent:{self.agent.name}", node, [LENSE_TYPES.IN_OBSERVATION])
                 paths.append((node, path))
         
         path_resp = []
