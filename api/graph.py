@@ -6,7 +6,7 @@ from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
 from services.feasibility import NodeFeasibility
 
-from services.graph_composer import EdgeType, GraphComposer
+from services.graph_composer import GraphComposer
 from services.find_path import find_path_with_feasibility
 from models.agent_state import AgentMCState
 from services.models import TagLink
@@ -121,44 +121,12 @@ class GraphService:
         
         path_resp = []
         for p in paths:
-            goal, (feasible, path) = p
+            goal, (_, path) = p
             nodes_resps = map(lambda x: [PathNode(node=p['node'], type=p['type'] or None, infeasible=p['infeasible']) for p in x], path)
             for nodes_resp in list(nodes_resps):
-                path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+                path_resp.append(Path(path=nodes_resp, goal=goal, feasible=all([not n.infeasible for n in nodes_resp])))
             
         return NextActionResponse(paths=path_resp, active_goals=goals, focus_tags=focus_tags, targets=targets)
-        
-    def make_workflow(self, source_node, target_node, lenses = []):
-        # find path
-        feasible, path = self.find_path(source_node, target_node, lenses)
-        # for each need node find a path
-        if not feasible:
-            raise Exception(f"Can't make path")
-        
-        # trim unfeasible paths
-        # choose a single path - what goals are satisfied, goal priorities, time estimates of each needs and acts_upon node
-        # create a workflow document
-        
-        # create a workflow document
-        # action name
-        # goal name
-        # requirements: needs
-        # actionable nodes acrue, credit, observe
-        workflow = {
-            'actionable': []
-        } 
-        needs = []
-        for p in path:
-            if p['type'] == EdgeType.GOAL: 
-                workflow['goal'] = p['node']
-            elif p['type'] in [EdgeType.ACCRUE, EdgeType.ACT_UPON, EdgeType.OBSERVED]:
-                workflow['actionable'] = p['node']
-            elif p['type'] in [EdgeType.NEEDS]:
-                # todo no goal needed, go from any action node and find path to needs
-                needs.append(p['node'])
-            else:
-                print('Unknown node' + p)
-        print(workflow)
                 
              
         

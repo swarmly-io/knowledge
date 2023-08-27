@@ -28,6 +28,7 @@ class GroupType(str, Enum):
 class Group(BaseModel):
     name: str
     type: GroupType
+    rank: int
 
 class GoalStatement(BaseModel):
     name: str

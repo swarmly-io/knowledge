@@ -22,9 +22,9 @@ class TestGoals:
         ]
         
         self.groups: List[Group] = [
-            Group(name="health", type=GroupType.ORDERED_RANKED),
-            Group(name="hostility", type=GroupType.BINARY),
-            Group(name="goal", type=GroupType.BINARY)
+            Group(name="health", type=GroupType.ORDERED_RANKED, rank=2),
+            Group(name="hostility", type=GroupType.BINARY, rank=1),
+            Group(name="goal", type=GroupType.BINARY, rank=3)
         ]
         
         self.valuation = GoalValuation(self.tags, self.groups)

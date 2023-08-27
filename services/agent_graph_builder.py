@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from models.agent_state import AgentMCState
 from models.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
-from services.feasibility import NodeFeasibility
 from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.models import TagLink

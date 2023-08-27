@@ -16,7 +16,6 @@ def test_init():
     assert data["nodes"] > 0
     assert data["edges"] > 0
    
-   
 # todo - needs to update state to include inventory item before we can sell it 
 def test_find_succesful_path():
     test_init()

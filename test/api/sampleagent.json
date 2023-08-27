@@ -316,47 +316,58 @@
     "groups": [
         {
             "name": "health",
-            "type": "ordered_rank"
+            "type": "ordered_rank",
+            "rank": 2
         },
         {
             "name": "goals",
-            "type": "binary"
+            "type": "binary",
+            "rank": 7
         },
         {
             "name": "hostility",
-            "type": "binary"
+            "type": "binary",
+            "rank": 1
         },
         {
             "name": "food",
-            "type": "binary"
+            "type": "binary",
+            "rank": 3
         },
         {
             "name": "shelter",
-            "type": "binary"
+            "type": "binary",
+            "rank": 4
         },
         {
             "name": "defence",
-            "type": "binary"
+            "type": "binary",
+            "rank": 5
         },
         {
             "name": "tools",
-            "type": "binary"
+            "type": "binary",
+            "rank": 8
         },
         {
             "name": "activity",
-            "type": "binary"
+            "type": "binary",
+            "rank": 11
         },
         {
             "name": "inventory",
-            "type": "binary"
+            "type": "binary",
+            "rank": 6
         },
         {
             "name": "tasks",
-            "type": "function"
+            "type": "function",
+            "rank": 10
         },
         {
             "name": "money",
-            "type": "binary"
+            "type": "function",
+            "rank": 9
         }
     ]
 }

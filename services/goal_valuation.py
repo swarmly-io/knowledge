@@ -10,19 +10,7 @@ class GoalValuation:
         tag_groups = self.group_tags(tags)
         self.tag_score_fn = self.tag_scoring_functions(tag_groups, groups)
         # todo move to config
-        self.group_absolute_rankings = {
-            "health": 2,
-            "goal": 7,
-            "hostility": 1,
-            "food": 3,
-            "shelter": 4,
-            "defence": 5,
-            "tools": 8,
-            "activity": 11,
-            "inventory": 6,
-            "tasks": 10,
-            "money": 9
-        }
+        self.group_absolute_rankings = { r.name: r.rank for r in groups }
         
     # select highest score goals
     # returns intersection of selected goal and tags (success != active, failure == active)
