@@ -4,6 +4,7 @@ from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode
 from models.goals import GoalStatement
 from services.agent_graph_builder import Agent
+from services.feasibility import NodeFeasibility
 
 from services.graph_composer import EdgeType, GraphComposer
 from services.find_path import find_path_with_feasibility
@@ -58,6 +59,7 @@ class GraphService:
         if not self.state or not self.agent.state.mcState:
             raise Exception("No state found")
         self.agent.make_graph_state()
+        self.composer.update_node_feasibility(NodeFeasibility(self.composer.get_composed_graph(), self.agent.state))
         # note: hack
         new_sources = []
         for x in self.composer.join_graphs['sources']:

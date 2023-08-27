@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from models.agent_state import AgentMCState
 from models.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
+from services.feasibility import NodeFeasibility
 from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.models import TagLink
@@ -13,6 +14,9 @@ from services.state import StateRunner
 class AgentState(BaseModel):
     mcState: Optional[AgentMCState]
     tags: List[Tag]
+    
+    def check_inventory(self, id, quantity = 1):
+        return self.mcState.inventory.items.get(str(id), 0) >= quantity
 
 class Agent:
     def __init__(self, name: str, goals: List[GoalStatement], actions: List[Action], all_tags: List[Tag], graph_dict, groups: List[Group], state_runner: StateRunner):

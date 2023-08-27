@@ -46,7 +46,7 @@ class MinecraftStateRunner(StateRunner):
                     y: x['name'] == y['name'],
                     'type': EdgeType.CONTAINS }]
             
-            inventory_graph.add_node(f"{val}", props={**{ k: i, 'name': val }, 'joins': joins}) 
+            inventory_graph.add_node(f"{val}", props={**{ 'quantity': i, 'name': val }, 'joins': joins}) 
         
     def observation_state_runner(self, state: AgentMCState, observations_graph):
         # do to this should include items laying on the ground

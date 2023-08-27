@@ -4,6 +4,7 @@ from enum import Enum
 from models.goals import GoalStatement, Tag
 
 from services.models import TagLink
+from services.feasibility import NodeFeasibility
 
 class EdgeType(str, Enum):
     NEEDS = "NEEDS"
@@ -31,6 +32,7 @@ class GraphComposer:
         self.join_graphs_fn = join_graphs_fn
         self.join_graphs = None
         self.lenses = lenses
+        self.node_feasibility: Optional[NodeFeasibility] = None
 
     def compose_graphs(self, only_joins: Optional[List] = None):
         self.join_graphs = self.join_graphs_fn(self.graph_dict)
@@ -122,7 +124,6 @@ class GraphComposer:
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
         T = nx.DiGraph()
-    
         for n in nodes:
             removed = False
             for lense_name in lense_names:
@@ -131,16 +132,10 @@ class GraphComposer:
                     if not lense['condition'](n, self.graph_dict):
                         removed = True
             if not removed:
-                T.add_node(n[0], **n[1], infeasible = True)
+                T.add_node(n[0], **n[1], infeasible = not self.node_feasibility.evaluate_node(n))
             elif flag_infeasible:
-                # todo create new feasibility service
-                # if recipe, lookup needs vs inventory
-                # if item crafted by recipe (predecessor is recipe), lookup whether recipe feasible
-                # if entity, look if it's observed
-                # if hostile or huntable, calculate whether defeatable 
-                # if collectable - see if near by?
-                # if trade - see bidable, askable based on inventory and money
                 T.add_node(n[0], **n[1], infeasible = True)
+            # else node removed
 
         if flag_infeasible:
             filtered_edges = [(u, v, s) for (u, v, s) in G.edges(data=True)]
@@ -192,3 +187,6 @@ class GraphComposer:
         #     print('here', source, target)
         # else:
         self.composed_graph.add_edge(source, target, **attr)
+
+    def update_node_feasibility(self, node_feasibility: NodeFeasibility):
+        self.node_feasibility = node_feasibility
