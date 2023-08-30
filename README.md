@@ -4,7 +4,7 @@ The knowledge service holds all aspects of what an agent needs to navigate some 
 
 It also holds some simple functions to extract data to build indexes.
 
-# Data storage
+### Data storage
 Indexes are held in elastic search, which offers a simple api to persist facts but search them in the nice Kibana GUI. 
 
 ### Finding a path
