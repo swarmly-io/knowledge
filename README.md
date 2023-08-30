@@ -23,6 +23,7 @@ This allows for the selection of the most pressing goals to address, providing a
 * Read the tests, see test_app.py for a set of end to end examples.
 * Read about networkx, a network declaration and analysis library for python.
 * run elastic search 7.13.4 in docker
+* run ```python run_graph.py```
 * run ```pytest```
 * start the app using ```python app.py```, check out the postman collection with some pathing examples
 
