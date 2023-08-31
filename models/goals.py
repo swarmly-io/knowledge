@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List, Union
 from pydantic import BaseModel
 
+# todo extract into config
 class TagType(str, Enum):
     THREAT = "threat"
     SURVIVAL = "survival"

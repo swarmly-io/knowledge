@@ -20,7 +20,7 @@ else:
     from graphs.minecraft.big_graphs import graph_dict
     from graphs.minecraft.agent_config import lenses, linking_instructions, one_to_many_join_graphs, LENSE_TYPES
 
-class GraphService:
+class AgentService:
     def __init__(self):
         self.composer: GraphComposer = None
         self.state : AgentMCState = None
@@ -34,7 +34,6 @@ class GraphService:
                 
         self.agent = Agent(agent.name, agent.goals, agent.actions, agent.tag_list, self.graph_dict, agent.groups, state_runner=state_runner)
 
-        
     def add_tag_links(self, links: List[str]):
         tag_links = []
         for link in links:
@@ -77,7 +76,7 @@ class GraphService:
             results = self.agent.run_graph_and_get_targets(self.composer)
             print(results)
         
-    def get_graph(self):
+    def get_agent_service(self):
         return self
     
     def add_goals(self, goals: List[GoalStatement]):

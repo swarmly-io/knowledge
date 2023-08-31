@@ -1,11 +1,13 @@
 import logging
-from typing import List
+from typing import Dict, List
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
-from api.graph import GraphService
+from api.agent import AgentService
 from api.models import AgentDto
 from models.agent_state import AgentMCState
 from fastapi.middleware.cors import CORSMiddleware
+
+from models.goals import TagDto
 
 app = FastAPI()
 
@@ -25,85 +27,74 @@ app.add_middleware(
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger("my_logger")
 
-graph = GraphService()
+class Agents:
+    def __init__(self) -> None:
+        self.agents: Dict[str, AgentService] = {}
+        
+    def get_agents(self):
+        return self
+        
+    def get_agent(self, name: str) -> AgentService:
+        if name not in self.agents:
+            raise Exception("Agent not found")
+        return self.agents.get(name)
+    
+    def new(self, name) -> AgentService:
+        if name in self.agents:
+            raise Exception("Agent already exists")
+        self.agents[name] = AgentService()
+        return self.agents[name]
 
-@app.post("/create_agent")
-def add_goals(agent: AgentDto, graph: GraphService = Depends(graph.get_graph)):
-    graph.create_agent(agent)
-    return { 'message': f'agent created: {agent.name}' }
-     
-@app.post("/{agent}/tag_links")
-def add_tag_links(agent:str, links: List[str], graph: GraphService = Depends(graph.get_graph)):
-    graph.add_tag_links(links)
-    return { 'message': f'added links: {len(links)}' }
-
-@app.post("/agent/{name}/run")
-def run(name: str, graph: GraphService = Depends(graph.get_graph)):
-    result = graph.run(name)
-    return result
-
-@app.post("/agent/{name}/active_tags")
-def add_active_tags(name: str, tags: List[str], graph: GraphService = Depends(graph.get_graph)):
-    return graph.add_active_tags(tags)
-
-# init graph needs to take all info from agent_config
-@app.post("/init")
-def init_graph(graph: GraphService = Depends(graph.get_graph)):
-    return graph.build_graph()
-
-@app.get("/graph")
-def get_graph(graph: GraphService = Depends(graph.get_graph)):
-    g = graph.composer.get_composed_graph()
-    return dict(nodes=g.nodes(data=True), edges= [e for e in g.edges(data=True)])
- 
-# get a set of paths to a goal
-# params: preapply lenses, looking for needs/provides? Something else? 
-# define recursion depth/max time to search?
 class FindPathRequest(BaseModel):
     source_node: str
     target_node: str
     lenses: List[str] = []
     tags: List[str] = []
 
-@app.post("/find_path")
-def find_path_to_target(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
-    return graph.find_path(request.source_node, request.target_node, request.lenses)
+agents = Agents()
 
-@app.post("/work_flow")
-def make_work_flow(request: FindPathRequest, graph: GraphService = Depends(graph.get_graph)):
-    return graph.make_workflow(request.source_node, request.target_node, request.lenses)
-    
+# init graph needs to take all info from agent_config
+@app.post("/{name}/init")
+def init_graph(name:str, agents = Depends(agents.get_agents)):
+    agent = agents.new(name)
+    return agent.build_graph()
+
+@app.post("/{name}/create_agent")
+def add_goals(name: str, agent_dto: AgentDto, agent: Agents = Depends(agents.get_agent)):
+    agent.create_agent(agent_dto)
+    return { 'message': f'agent created: {agent_dto.name}' }
+     
+@app.post("/{name}/tag_links")
+def add_tag_links(name:str, links: List[str], agent: AgentService = Depends(agents.get_agent)):
+    agent.add_tag_links(links)
+    return { 'message': f'added links: {len(links)}' }
+
+@app.post("/agent/{name}/active_tags")
+def add_active_tags(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> List[TagDto]:
+    return agent.add_active_tags(tags)
+
 @app.post("/{name}/update_state")
-def update_state(name: str, state: AgentMCState, graph: GraphService = Depends(graph.get_graph)):
+def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
     # persist state
-    graph.set_state(state)
+    agent.set_state(state)
     # run state_to_graph - clears and updates individual graph
-    graph.run_state()
+    agent.run_state()
     # rerun graph composer
-    return graph.build_graph()
+    return agent.build_graph()
 
-# # adding a subgraph should recompute the graph
-# # needs links, filters and joins
-# @app.post("/add_sub_graph")
-# def add_sub_graph():
-#     return
+@app.post("/agent/{name}/run")
+def run(name: str, agent: AgentService = Depends(agents.get_agent)):
+    result = agent.run(name)
+    return result
 
-# @app.post("/remove_sub_graph")
-# def remove_sub_graph():
-#     return
+@app.get("/{name}/graph")
+def get_graph(name: str, agent: AgentService = Depends(agents.get_agent)):
+    g = agent.composer.get_composed_graph()
+    return dict(nodes=g.nodes(data=True), edges= [e for e in g.edges(data=True)])
 
-# # never get the whole graph
-# @app.post("/get_subgraph")
-# def get_sub_graph():
-#     return
-
-# @app.post("/add_lense")
-# def add_lense():
-#     return
-
-# @app.post("/remove_lense")
-# def remove_lense():
-#     return
+@app.post("/{name}/find_path")
+def find_path_to_target(name:str, request: FindPathRequest, agent: AgentService = Depends(agents.get_agent)):
+    return agent.find_path(request.source_node, request.target_node, request.lenses)
 
 @app.get("/health")
 def health():
