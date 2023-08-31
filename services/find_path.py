@@ -1,14 +1,30 @@
 import networkx as nx
 from services.graph_composer import EdgeType
 
+
 def find_all_paths(graph, start, end, target_edge_type):
     # Use recursion to find all paths
     paths = []
     visited = set()  # Track visited nodes within each path
-    find_paths_recursive(graph, start, end, target_edge_type, [start], visited, paths)
+    find_paths_recursive(
+        graph,
+        start,
+        end,
+        target_edge_type,
+        [start],
+        visited,
+        paths)
     return paths
 
-def find_paths_recursive(graph, current_node, end, target_edge_type, path, visited, paths):
+
+def find_paths_recursive(
+        graph,
+        current_node,
+        end,
+        target_edge_type,
+        path,
+        visited,
+        paths):
     if path[-1] == end and is_valid_path(graph, path, target_edge_type):
         paths.append(path)
         return
@@ -17,9 +33,18 @@ def find_paths_recursive(graph, current_node, end, target_edge_type, path, visit
 
     for neighbor in graph.successors(current_node):
         if neighbor not in visited:
-            find_paths_recursive(graph, neighbor, end, target_edge_type, path + [neighbor], visited.copy(), paths)
-    
-    visited.remove(current_node)  # Remove current node from visited set within the path
+            find_paths_recursive(
+                graph,
+                neighbor,
+                end,
+                target_edge_type,
+                path + [neighbor],
+                visited.copy(),
+                paths)
+
+    # Remove current node from visited set within the path
+    visited.remove(current_node)
+
 
 def is_valid_path(graph, path, target_edge_type):
     if len(path) > 1:
@@ -29,6 +54,7 @@ def is_valid_path(graph, path, target_edge_type):
                 return False
         return graph.edges[path[-2], path[-1]].get('type') == target_edge_type
     return False
+
 
 def path_edges(graph, path):
     edges = []
@@ -42,6 +68,7 @@ def path_edges(graph, path):
         return edges, infeasible_edges
     return []
 
+
 def find_path_with_feasibility(
         filtered_graph,
         unfiltered_graph,
@@ -54,8 +81,9 @@ def find_path_with_feasibility(
         feasible_paths = []
         for filtered_path in filtered_paths:
             last_edge = (filtered_path[-2], filtered_path[-1])
-            if filtered_graph[last_edge[0]][last_edge[1]]['type'] == search_type:
-                
+            if filtered_graph[last_edge[0]
+                              ][last_edge[1]]['type'] == search_type:
+
                 feasible_paths.append(filtered_path)
         if feasible_paths:
             typed_paths = make_typed_path(filtered_graph, feasible_paths)
@@ -82,7 +110,7 @@ def find_path_with_feasibility(
                     index = path.index(p)
                     new_path = new_path[:index + 1]
                     break
-                    
+
             if len(new_path) > 0:
                 paths_with_needs.append(new_path)
 
@@ -96,10 +124,15 @@ def find_path_with_feasibility(
 
     return False, []
 
+
 def make_typed_path(filtered_graph, feasible_paths):
     typed_paths = []
     for f in feasible_paths:
         types, infeasible = path_edges(filtered_graph, f)
-        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2] }, zip(f, [""] + types, [False] + infeasible))))
+        typed_paths.append(
+            list(
+                map(
+                    lambda x: {
+                        'node': x[0], 'type': x[1], 'infeasible': x[2]}, zip(
+                        f, [""] + types, [False] + infeasible))))
     return typed_paths
-

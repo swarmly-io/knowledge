@@ -9,5 +9,5 @@ graph_dict = {'blocks': blocks_graph,
               'observations': observations_graph,
               'goals': goals_graph,
               'trade': trade_graph,
-              'recipes': recipes_graph, 
-              'entities': entities_graph }
+              'recipes': recipes_graph,
+              'entities': entities_graph}

@@ -3,10 +3,14 @@ from dotenv import load_dotenv
 from knowledge.elastic_client import ElasticConfig
 import argparse
 
+
 class Args:
-        dev_mini_graph = False
-        local = True
+    dev_mini_graph = False
+    local = True
+
+
 args = Args()
+
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='Knowledge app')
@@ -20,7 +24,8 @@ mini_graph = True
 if not args.dev_mini_graph:
     mini_graph = False
 
-current_env = 'remote' if not args.local and os.path.exists('.env') else 'local'
+current_env = 'remote' if not args.local and os.path.exists(
+    '.env') else 'local'
 
 if current_env == 'local':
     dotenv_path = '.env.local'

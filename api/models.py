@@ -5,22 +5,26 @@ from pydantic import BaseModel
 from models.goals import Action, GoalStatement, Group, Tag
 from services.graph_composer import EdgeType
 
+
 class AgentDto(BaseModel):
     name: str
     goals: List[GoalStatement]
     actions: List[Action]
     tag_list: List[Tag]
     groups: List[Group]
-    
+
+
 class PathNode(BaseModel):
     node: str
     type: Optional[EdgeType]
     infeasible: Optional[bool]
-    
+
+
 class Path(BaseModel):
     path: List[PathNode] = []
     feasible: bool
     goal: str
+
 
 class NextActionResponse(BaseModel):
     paths: List[Path]
