@@ -96,6 +96,29 @@ def get_graph(name: str, agent: AgentService = Depends(agents.get_agent)):
 def find_path_to_target(name:str, request: FindPathRequest, agent: AgentService = Depends(agents.get_agent)):
     return agent.find_path(request.source_node, request.target_node, request.lenses)
 
+class QaRequest(BaseModel):
+    action_node: str
+    act_upon_node: str
+    end_node: str
+
+# craft, recipe:721, item:diamond_pickaxe
+# needs: ["items:stick", "items:diamond"]
+# item locations
+# crafting table location
+
+# fight, entity:zombie, ?
+# weapon
+# zombie location
+
+# collect items  
+
+@app.post("/{name}/qa")
+def answer_question(name: str, agent: AgentService = Depends(agents.get_agent)):
+    # node: Recipe 701 -> needs 1 sticks, needs 3 sticks
+                     # -> location of a crafting table
+    
+    pass
+
 @app.get("/health")
 def health():
     return { 'health': 'OK' }

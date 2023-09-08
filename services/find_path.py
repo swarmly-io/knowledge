@@ -33,14 +33,25 @@ def is_valid_path(graph, path, target_edge_type):
 def path_edges(graph, path):
     edges = []
     infeasible_edges = []
+    props = []
     if len(path) > 1:
         for u, v in zip(path[:-1], path[1:]):
             edge_type = graph.edges[u, v].get('type')
             edges.append(edge_type)
             infeasible = graph.nodes[v].get('infeasible')
             infeasible_edges.append(infeasible)
-        return edges, infeasible_edges
+            prop = { **graph.nodes[v].get('props', {}), 'joins': None }
+            
+            props.append(prop)
+        return edges, infeasible_edges, props
     return []
+
+def make_typed_path(filtered_graph, feasible_paths):
+    typed_paths = []
+    for f in feasible_paths:
+        types, infeasible, props = path_edges(filtered_graph, f)
+        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2], 'data': x[3] }, zip(f, [""] + types, [False] + infeasible, [{}] + props))))
+    return typed_paths
 
 def find_path_with_feasibility(
         filtered_graph,
@@ -95,11 +106,4 @@ def find_path_with_feasibility(
         print("No paths found")
 
     return False, []
-
-def make_typed_path(filtered_graph, feasible_paths):
-    typed_paths = []
-    for f in feasible_paths:
-        types, infeasible = path_edges(filtered_graph, f)
-        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2] }, zip(f, [""] + types, [False] + infeasible))))
-    return typed_paths
 

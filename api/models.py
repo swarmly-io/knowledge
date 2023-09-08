@@ -1,5 +1,5 @@
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 from models.goals import Action, GoalStatement, Group, Tag
@@ -16,6 +16,7 @@ class PathNode(BaseModel):
     node: str
     type: Optional[EdgeType]
     infeasible: Optional[bool]
+    data: Optional[Dict]
     
 class Path(BaseModel):
     path: List[PathNode] = []

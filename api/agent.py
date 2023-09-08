@@ -23,7 +23,7 @@ else:
 class AgentService:
     def __init__(self):
         self.composer: GraphComposer = None
-        self.state : AgentMCState = None
+        self.state: AgentMCState = None
         self.goals: List[GoalStatement] = []
         self.agent: Agent = None
         self.graph_dict = deepcopy(graph_dict)
@@ -121,12 +121,21 @@ class AgentService:
                 paths.append((node, path))
         
         path_resp = []
+        not_feasible_paths = []
         for p in paths:
             goal, (_, path) = p
-            nodes_resps = map(lambda x: [PathNode(node=p['node'], type=p['type'] or None, infeasible=p['infeasible']) for p in x], path)
-            for nodes_resp in list(nodes_resps):
-                path_resp.append(Path(path=nodes_resp, goal=goal, feasible=all([not n.infeasible for n in nodes_resp])))
+            nodes_resps = list(map(lambda x: [PathNode(node=p['node'], type=p['type'] or None, infeasible=p['infeasible'], data=p['data']) for p in x], path))
+            for nodes_resp in nodes_resps:
+                feasible = all([not n.infeasible for n in nodes_resp])
+                if feasible:
+                    path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+                else:
+                    not_feasible_paths.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
             
+        # todo for each non feasible path resolve each feasible node and find a path to each non feasible node
+        # only return the shortest non-feasible resolved path
+        path_resp.extend(not_feasible_paths)
+        
         return NextActionResponse(paths=path_resp, active_goals=goals, focus_tags=focus_tags, targets=targets)
                 
              
