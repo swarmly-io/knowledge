@@ -31,64 +31,64 @@ items = {
 }
 
 foods = {
-    260:'apple',
-    297:'bread',
-    319:'raw_porkchop',
-    320:'cooked_porkchop',
-    363:'raw_beef',
-    364:'cooked_beef',
-    365:'raw_chicken',
-    366:'cooked_chicken',
-    349:'raw_fish',
-    350:'cooked_fish',
-    349:'raw_salmon',
-    350:'cooked_salmon',
-    367:'rotten_flesh',
-    375:'spider_eye',
-    365:'mutton',
-    424:'rabbit',
-    412:'cooked_rabbit',
-    423:'rabbit_stew',
-    391:'carrot',
-    392:'potato',
-    393:'baked_potato',
-    394:'poisonous_potato',
-    360:'melon_slice',
-    322:'golden_apple',
-    466:'enchanted_golden_apple',
-    357:'cookie',
-    375:'pumpkin_pie',
-    319:'beetroot',
-    413:'beetroot_soup',
-    376:'cooked_mutton',
-    411:'cooked_cod',
-    412:'cooked_salmon',
-    425:'sweet_berries',
-    376:'honey_bottle',
-    677:'glow_berries'
+    260: 'apple',
+    297: 'bread',
+    319: 'raw_porkchop',
+    320: 'cooked_porkchop',
+    363: 'raw_beef',
+    364: 'cooked_beef',
+    365: 'raw_chicken',
+    366: 'cooked_chicken',
+    349: 'raw_fish',
+    350: 'cooked_fish',
+    349: 'raw_salmon',
+    350: 'cooked_salmon',
+    367: 'rotten_flesh',
+    375: 'spider_eye',
+    365: 'mutton',
+    424: 'rabbit',
+    412: 'cooked_rabbit',
+    423: 'rabbit_stew',
+    391: 'carrot',
+    392: 'potato',
+    393: 'baked_potato',
+    394: 'poisonous_potato',
+    360: 'melon_slice',
+    322: 'golden_apple',
+    466: 'enchanted_golden_apple',
+    357: 'cookie',
+    375: 'pumpkin_pie',
+    319: 'beetroot',
+    413: 'beetroot_soup',
+    376: 'cooked_mutton',
+    411: 'cooked_cod',
+    412: 'cooked_salmon',
+    425: 'sweet_berries',
+    376: 'honey_bottle',
+    677: 'glow_berries'
 }
 
 weapons = {
-    268:'wooden_sword',
-    272:'stone_sword',
-    267:'iron_sword',
-    276:'diamond_sword',
-    283:'gold_sword',
-    271:'wooden_axe',
-    275:'stone_axe',
-    258:'iron_axe',
-    279:'diamond_axe',
-    286:'gold_axe',
-    258:'bow',
-    261:'bow_arrow',
-    346:'fishing_rod',
-    359:'shears',
-    398:'carrot_on_a_stick',
-    443:'warped_fungus_on_a_stick',
-    421:'crossbow',
-    425:'trident',
-    901:'netherite_sword',
-    906:'netherite_axe'
+    268: 'wooden_sword',
+    272: 'stone_sword',
+    267: 'iron_sword',
+    276: 'diamond_sword',
+    283: 'gold_sword',
+    271: 'wooden_axe',
+    275: 'stone_axe',
+    258: 'iron_axe',
+    279: 'diamond_axe',
+    286: 'gold_axe',
+    258: 'bow',
+    261: 'bow_arrow',
+    346: 'fishing_rod',
+    359: 'shears',
+    398: 'carrot_on_a_stick',
+    443: 'warped_fungus_on_a_stick',
+    421: 'crossbow',
+    425: 'trident',
+    901: 'netherite_sword',
+    906: 'netherite_axe'
 }
 
 
@@ -98,10 +98,12 @@ class EntityStats(BaseModel):
     speed: float
     aggressiveness: str
 
+
 class EntityStats(BaseModel):
     damage: int
     health: int
     speed: float
+
 
 hostile_entity_stats = {
     "blaze": EntityStats(damage=6, health=20, speed=0),

@@ -6,6 +6,7 @@ from models.goals import GoalStatement, Tag
 from services.models import TagLink
 from services.feasibility import NodeFeasibility
 
+
 class EdgeType(str, Enum):
     NEEDS = "NEEDS"
     PROVIDES = "PROVIDES"
@@ -18,10 +19,17 @@ class EdgeType(str, Enum):
     CONTAINS = "CONTAINS"
     DETECTS = "DETECTS"
 
+
 MAX_JOIN_DEPTH = 50
 
+
 class GraphComposer:
-    def __init__(self, graph_dict, linking_instructions, join_graphs_fn, lenses):
+    def __init__(
+            self,
+            graph_dict,
+            linking_instructions,
+            join_graphs_fn,
+            lenses):
         self.graph_dict = graph_dict
         self.linking_instructions = linking_instructions
         self.composed_graph = nx.DiGraph()
@@ -36,13 +44,13 @@ class GraphComposer:
 
     def compose_graphs(self, only_joins: Optional[List] = None):
         self.join_graphs = self.join_graphs_fn(self.graph_dict)
-        
+
         if not only_joins:
             for linking_instruction in self.linking_instructions:
                 self._link_graphs(linking_instruction)
 
         for source_name, f_graph in self.join_graphs['sources']:
-            if not only_joins or (only_joins and source_name in only_joins): 
+            if not only_joins or (only_joins and source_name in only_joins):
                 self.one_to_many_joins(source_name, f_graph)
 
     def one_to_many_joins(self, source_name, f_graph):
@@ -55,27 +63,34 @@ class GraphComposer:
             for join in joins:
                 self.create_join(join, source_name, n, n)
 
-    def create_join(self, join, source_name, n, origin, rec_count = 0):
+    def create_join(self, join, source_name, n, origin, rec_count=0):
         if rec_count > MAX_JOIN_DEPTH:
-            raise Exception("Max join depth has been reacted, please simplify your joins")
-            
+            raise Exception(
+                "Max join depth has been reacted, please simplify your joins")
+
         index, filter_fn, sub_joins, graph = self.get_join_info(join)
         e_type = join['type']
-        if graph == None:
-            raise Exception(f"A graph is missing to perform join {index} {sub_joins}")
+        if graph is None:
+            raise Exception(
+                f"A graph is missing to perform join {index} {sub_joins}")
         elif not graph:
             print(f"Empty join graph {index}")
             return
         else:
             if origin == n:
                 filtered_nodes = [
-                        node for node in graph.nodes(
-                            data=True) if filter_fn(node[1]['props'], n[1]['props'])]
+                    node for node in graph.nodes(
+                        data=True) if filter_fn(
+                        node[1]['props'],
+                        n[1]['props'])]
             else:
                 filtered_nodes = [
-                            node for node in graph.nodes(
-                                data=True) if filter_fn(node[1]['props'], n[1]['props'], origin[1]['props'])]
-            
+                    node for node in graph.nodes(
+                        data=True) if filter_fn(
+                        node[1]['props'],
+                        n[1]['props'],
+                        origin[1]['props'])]
+
             last = None
             for nt in filtered_nodes:
                 stack = join.get('stack', False)
@@ -85,18 +100,22 @@ class GraphComposer:
                     else:
                         new_source = source_name + ":" + n[0]
                     last = source_name + ":" + n[0]
-                else:                
+                else:
                     new_source = source_name + ":" + n[0]
-                    
+
                 new_target = index + ":" + nt[0]
-                self.add_edge(
-                            new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index, 'source_name': join.get('source_name') or source_name })
+                self.add_edge(new_source,
+                              new_target,
+                              **{'type': e_type,
+                                  'esource': new_source,
+                                  'etarget': index,
+                                  'source_name': join.get('source_name') or source_name})
 
                 if sub_joins:
-                    if rec_count > 2: 
+                    if rec_count > 2:
                         print('Rec count is:', rec_count)
-                    self.create_join(sub_joins, index, nt, n, rec_count=rec_count+1)
-
+                    self.create_join(
+                        sub_joins, index, nt, n, rec_count=rec_count + 1)
 
     def get_join_info(self, join):
         index = join['index']
@@ -129,13 +148,16 @@ class GraphComposer:
                 self.composed_graph.add_node(new_source, **source_data)
                 self.composed_graph.add_node(new_target, **target_data)
 
-                self.add_edge(
-                    new_source, new_target, **{'type': e_type, 'esource': source, 'etarget': target })
+                self.add_edge(new_source,
+                              new_target,
+                              **{'type': e_type,
+                                  'esource': source,
+                                  'etarget': target})
 
     def apply_lenses(self,
                      lense_names: List[str],
-                     graph: Optional[nx.DiGraph] = None, 
-                     flag_infeasible = False):
+                     graph: Optional[nx.DiGraph] = None,
+                     flag_infeasible=False):
         # create a sub graph based on the lense
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
@@ -147,10 +169,13 @@ class GraphComposer:
                 if not removed and lense['source'](n):
                     if not lense['condition'](n, self.graph_dict):
                         removed = True
-            
-            # further filtering            
+
+            # further filtering
             if flag_infeasible:
-                T.add_node(n[0], **n[1], infeasible = not self.node_feasibility.evaluate_node(n))
+                T.add_node(
+                    n[0],
+                    **n[1],
+                    infeasible=not self.node_feasibility.evaluate_node(n))
 
         if flag_infeasible:
             filtered_edges = [(u, v, s) for (u, v, s) in G.edges(data=True)]
@@ -161,22 +186,27 @@ class GraphComposer:
                     data=True) if u in T.nodes() and v in T.nodes()]
         T.add_edges_from(filtered_edges)
         return T
-    
+
     def remove_goal_links(self, goals: List[GoalStatement]):
         for goal in goals:
             try:
-                self.composed_graph.remove_edges_from(list(self.composed_graph.edges(f"goals:{goal.name}")))
-            except:
+                self.composed_graph.remove_edges_from(
+                    list(self.composed_graph.edges(f"goals:{goal.name}")))
+            except BaseException:
                 print(f"couldn't remove goal edge {goal.name}")
         print("Removed all goal edges")
-    
-    def link_goals_and_get_targets(self, goals: List[GoalStatement], focus_tags: List[Tag], tag_links: List[TagLink]) -> list:
+
+    def link_goals_and_get_targets(
+            self,
+            goals: List[GoalStatement],
+            focus_tags: List[Tag],
+            tag_links: List[TagLink]) -> list:
         tag_link_dict = {}
         for t in tag_links:
             if not tag_link_dict.get(t.tag):
                 tag_link_dict[t.tag] = []
             tag_link_dict[t.tag].append(t)
-            
+
         targets = []
         for tag in focus_tags:
             for goal in goals:
@@ -185,16 +215,17 @@ class GraphComposer:
                     if len(links) == 0:
                         print(f"Error link wasn't found for: {tag.name}")
                     for link in links:
-                        self.add_edge(f"goals:{goal.name}", f"actions:{link.action}")
-                        targets.append((link.action, link.index, link.subindex, link.node))
-        
+                        self.add_edge(
+                            f"goals:{goal.name}",
+                            f"actions:{link.action}")
+                        targets.append(
+                            (link.action, link.index, link.subindex, link.node))
+
         return targets
 
     def get_composed_graph(self):
         return self.composed_graph
-            
-        
-    
+
     def add_edge(self, source, target, **attr):
         # if self.composed_graph.has_edge(source, target):
         #     old_edge = self.composed_graph[source][target]
