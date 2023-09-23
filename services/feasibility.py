@@ -9,7 +9,7 @@ class NodeFeasibility:
         
     def evaluate_node(self, node):
         node_name, data = node
-        index, name = node_name.split(':')        
+        index, name = node_name.split(':')      
         if index == 'recipes':
             needs = [i['needs'] for i in data['props']['items']]
             feasible = True
@@ -51,8 +51,25 @@ class NodeFeasibility:
                     is_craftable = self.evaluate_node((r, self.graph.nodes[r]))
                     if is_craftable:
                         break
-                        
             return in_inventory or is_mineable or is_craftable
+        if index == 'blocks':
+            is_breakable = False
+            tools = data['props']['requires']
+            diggable = data['props']['diggable']
+            if not diggable:
+                return False
+            if not tools:
+                is_breakable = True
+            else:
+                for tool in tools:
+                    item = self.graph.nodes[f"items:{tool.get('name')}"]
+                    if not item:
+                        break
+                    got_tool = self.state.check_inventory(item['props'].get('id'))
+                if got_tool:
+                    is_breakable = True
+            return is_breakable
+            
             
         # if entity, look if it's observed
         # if hostile or huntable, calculate whether defeatable 

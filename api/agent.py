@@ -86,15 +86,20 @@ class AgentService:
         # todo validate lenses
         if not config.mini_graph:
             t = timeit.timeit(lambda: self.composer.compose_graphs(['actions', 'goals', 'agent']), number=1)
-            print(t)
+            print("Rebuild graph: ", t)
         
         if not lenses:
             filtered_graph = self.composer.get_composed_graph()
         else:
             filtered_graph = self.composer.apply_lenses(lenses, flag_infeasible=True)
         
-        unfiltered_graph = self.composer.get_composed_graph()
-        return find_path_with_feasibility(filtered_graph, unfiltered_graph, source_node, target_node)
+        unfiltered_graph = self.agent.get_fully_connected_graph(self.composer, lenses)
+        
+        start = timeit.default_timer()
+        result = find_path_with_feasibility(filtered_graph, unfiltered_graph, source_node, target_node)
+        t = timeit.default_timer() - start
+        print("find_path: ", t)
+        return result
     
     def build_graph(self):
         if not self.composer:
@@ -123,7 +128,7 @@ class AgentService:
         path_resp = []
         not_feasible_paths = []
         for p in paths:
-            goal, (_, path) = p
+            goal, (_, path), sub_paths = p
             nodes_resps = list(map(lambda x: [PathNode(node=p['node'], type=p['type'] or None, infeasible=p['infeasible'], data=p['data']) for p in x], path))
             for nodes_resp in nodes_resps:
                 feasible = all([not n.infeasible for n in nodes_resp])

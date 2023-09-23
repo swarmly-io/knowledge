@@ -32,6 +32,7 @@ def normalise_and_load_recipes(es, mcd):
                 items[ins] = mcd.find_item_or_block(ins)
                 items[ins]['quantity'] = quantity
 
+            needs_list = []
             for i in items:
                 it = items[i]
                 item = RecipeItem(
@@ -41,6 +42,7 @@ def normalise_and_load_recipes(es, mcd):
                     stack_size=it['stackSize'],
                     quantity=it['quantity'])
                 item_list.append(item)
+                needs_list.append(it['name'])
 
             oit = mcd.find_item_or_block(ir['result']['id'])
             count = ir['result']['count']
@@ -52,6 +54,7 @@ def normalise_and_load_recipes(es, mcd):
                 quantity=count)
             recipe_item = Recipe(needs=item_list, provides=output_item)
             recipe_list.items.append(recipe_item)
+            recipe_list.needs_list += needs_list
         norm_recipes.append(recipe_list)
 
         es.bulk_load(norm_recipes)

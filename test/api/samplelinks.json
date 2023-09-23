@@ -14,5 +14,6 @@
     "no_tools, craft, items, iron_pickaxe",
     "no_tools, craft, items, diamond_pickaxe",
     "no_tools, craft, items, wooden_axe",
-    "food_inventory_high, collect, foods"
+    "food_inventory_high, collect, foods",
+    "on_task, mine, blocks"
 ]

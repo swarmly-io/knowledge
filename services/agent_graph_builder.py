@@ -6,6 +6,7 @@ from models.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
 from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
+from services.graph_scenarios import GraphScenarios
 from services.models import TagLink
 
 from services.state import StateRunner
@@ -113,5 +114,11 @@ class Agent:
         
     def make_graph_state(self):        
         self.state_runner.state_to_graph(self.graph_dict['inventory'], self.graph_dict['observations'], self.state.mcState)
+        
+    def get_fully_connected_graph(self, composer: GraphComposer, lenses = []):
+        tags_dict = { t.name: t for t in self.all_tags }
+
+        scenarios = GraphScenarios(composer, tags_dict)
+        return scenarios.get_graph(self.goals, self.tag_links, lenses)
         
         

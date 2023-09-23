@@ -228,3 +228,20 @@ def filtered_bfs(
                 visited[neighbor] = new_path
 
     return valid_path_graph
+
+def deep_flatten(lst):
+    flat_list = []
+    stack = [lst]
+    
+    while stack:
+        current = stack.pop()
+        if isinstance(current, list):
+            stack.extend(reversed(current))
+        else:
+            flat_list.append(current)
+            
+    return flat_list
+
+def flatmap(f, xs):
+    return deep_flatten(list(map(f, xs)))
+flatten = lambda x: flatmap(lambda z:z, x)

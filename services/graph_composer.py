@@ -53,9 +53,9 @@ class GraphComposer:
 
             joins = n[1]['props']['joins']
             for join in joins:
-                self.create_join(join, source_name, n)
+                self.create_join(join, source_name, n, n)
 
-    def create_join(self, join, source_name, n, rec_count = 0):
+    def create_join(self, join, source_name, n, origin, rec_count = 0):
         if rec_count > MAX_JOIN_DEPTH:
             raise Exception("Max join depth has been reacted, please simplify your joins")
             
@@ -66,12 +66,28 @@ class GraphComposer:
         elif not graph:
             print(f"Empty join graph {index}")
             return
-        else: 
-            filtered_nodes = [
+        else:
+            if origin == n:
+                filtered_nodes = [
                         node for node in graph.nodes(
                             data=True) if filter_fn(node[1]['props'], n[1]['props'])]
+            else:
+                filtered_nodes = [
+                            node for node in graph.nodes(
+                                data=True) if filter_fn(node[1]['props'], n[1]['props'], origin[1]['props'])]
+            
+            last = None
             for nt in filtered_nodes:
-                new_source = source_name + ":" + n[0]
+                stack = join.get('stack', False)
+                if stack:
+                    if last:
+                        new_source = last
+                    else:
+                        new_source = source_name + ":" + n[0]
+                    last = source_name + ":" + n[0]
+                else:                
+                    new_source = source_name + ":" + n[0]
+                    
                 new_target = index + ":" + nt[0]
                 self.add_edge(
                             new_source, new_target, **{'type': e_type, 'esource': new_source, 'etarget': index, 'source_name': join.get('source_name') or source_name })
@@ -79,7 +95,7 @@ class GraphComposer:
                 if sub_joins:
                     if rec_count > 2: 
                         print('Rec count is:', rec_count)
-                    self.create_join(sub_joins, index, nt, rec_count=rec_count+1)
+                    self.create_join(sub_joins, index, nt, n, rec_count=rec_count+1)
 
 
     def get_join_info(self, join):
@@ -131,11 +147,10 @@ class GraphComposer:
                 if not removed and lense['source'](n):
                     if not lense['condition'](n, self.graph_dict):
                         removed = True
-            if not removed:
+            
+            # further filtering            
+            if flag_infeasible:
                 T.add_node(n[0], **n[1], infeasible = not self.node_feasibility.evaluate_node(n))
-            elif flag_infeasible:
-                T.add_node(n[0], **n[1], infeasible = True)
-            # else node removed
 
         if flag_infeasible:
             filtered_edges = [(u, v, s) for (u, v, s) in G.edges(data=True)]
@@ -177,6 +192,8 @@ class GraphComposer:
 
     def get_composed_graph(self):
         return self.composed_graph
+            
+        
     
     def add_edge(self, source, target, **attr):
         # if self.composed_graph.has_edge(source, target):

@@ -28,6 +28,7 @@ class Recipe(BaseModel):
 class RecipeList(BaseModel):
     id: int
     items: List[Recipe] = []
+    needs_list: List[str] = []
 
 
 class Block(BaseModel):

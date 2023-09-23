@@ -94,6 +94,23 @@
             ]
         },
         {
+            "name": "perform tasks",
+            "type": "goal",
+            "success": [
+                {
+                    "tag": "on_task"
+                }
+            ],
+            "failure": [
+                {
+                    "tag": "stuck"
+                },
+                {
+                    "tag": "no_task"
+                }
+            ]
+        },
+        {
             "name": "make money",
             "type": "goal",
             "success": [

@@ -1,12 +1,41 @@
+from collections import deque
 import networkx as nx
 from services.graph_composer import EdgeType
 
-def find_all_paths(graph, start, end, target_edge_type):
-    # Use recursion to find all paths
-    paths = []
-    visited = set()  # Track visited nodes within each path
-    find_paths_recursive(graph, start, end, target_edge_type, [start], visited, paths)
-    return paths
+
+
+def find_all_paths(graph, current_node, end, target_edge_type):
+    """
+    Returns all shortest paths from current_node to end in the graph without traversing edges
+    having the specified target_edge_type more than once.
+    """
+    if current_node == end:
+        return [[current_node]]
+
+    visited = {current_node}
+    queue = deque([([current_node], False)])  # Initialize with current_node as the start of the path
+    shortest_paths = []
+
+    while queue:
+        path, target_type_visited = queue.popleft()
+        last_node = path[-1]
+
+        for neighbor, edge_attr in graph[last_node].items():
+            if edge_attr.get('type') == target_edge_type:
+                if target_type_visited:  # If we've already encountered this edge type in the path, skip it
+                    continue
+                else:
+                    new_target_type_visited = True  # Set the flag since we're now traversing this edge type
+            else:
+                new_target_type_visited = target_type_visited  # Preserve the current state of the flag
+
+            if neighbor == end:
+                shortest_paths.append(path + [neighbor])
+            elif neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((path + [neighbor], new_target_type_visited))
+
+    return shortest_paths
 
 def find_paths_recursive(graph, current_node, end, target_edge_type, path, visited, paths):
     if path[-1] == end and is_valid_path(graph, path, target_edge_type):
@@ -46,64 +75,111 @@ def path_edges(graph, path):
         return edges, infeasible_edges, props
     return []
 
-def make_typed_path(filtered_graph, feasible_paths):
+def make_typed_path(filtered_graph, feasible_paths, sub_path_fn = lambda x,y: x, acc_sub_paths = {}):
     typed_paths = []
+    path_infeasible = False
     for f in feasible_paths:
         types, infeasible, props = path_edges(filtered_graph, f)
-        typed_paths.append(list(map(lambda x: { 'node': x[0], 'type': x[1], 'infeasible': x[2], 'data': x[3] }, zip(f, [""] + types, [False] + infeasible, [{}] + props))))
-    return typed_paths
+        path_infeasible = True if infeasible or path_infeasible else False
+        path = list(zip(f, [""] + types, [False] + infeasible, [{}] + props))
+        typed_path = []
+        for x in path:
+            if x==path[-1]:
+                sub_path_fn(x[0], x[2], acc_sub_paths)
+            node = { 'node': x[0], 'type': x[1], 'infeasible': x[2], 'data': x[3] }
+            typed_path.append(node)
+        typed_paths.append(typed_path)
+    
+    return path_infeasible, typed_paths, acc_sub_paths
+
+def make_sub_path_traverser(
+        filtered_graph,
+        unfiltered_graph,
+        start_node,
+        search_type, 
+        visited = set(), level = 0):
+        if not visited:
+            graph = filtered_graph
+        else: 
+            graph = unfiltered_graph
+        
+        def sub_path_traverser(node, infeasible, acc_sub_paths):
+            level_one = not visited
+            if not infeasible and level_one:
+                return
+            
+            edges = [e[1] for e in graph.edges(data=True) if e[0] == node and e[2]['type'] == EdgeType.NEEDS]
+            sub_paths = []
+            for n in edges:
+                if n not in visited:
+                    visited.add(n)
+                    result_infeasible, result, _ = find_path_with_feasibility(filtered_graph, unfiltered_graph, start_node, n, search_type, visited, acc_sub_paths, level + 1)
+                    if result:
+                        sub_paths.append((node, level, infeasible and result_infeasible, result))
+            if sub_paths:
+                if level_one:
+                    acc_sub_paths[node] = (acc_sub_paths.get('tmp', []) + sub_paths)
+                    acc_sub_paths[node] = sorted(acc_sub_paths[node], key=lambda x: (x[1], x[2]))
+                    
+                    del acc_sub_paths['tmp']
+                    acc_sub_paths = acc_sub_paths[node]
+                else:
+                    acc_sub_paths['tmp'] = acc_sub_paths.get('tmp', []) + sub_paths
+        
+        return sub_path_traverser
 
 def find_path_with_feasibility(
         filtered_graph,
         unfiltered_graph,
         start_node,
         target_node,
-        search_type=EdgeType.PROVIDES):
+        search_type=EdgeType.PROVIDES, 
+        visited = set(), acc_sub_paths = {}, level = 0):
     try:
+        if not visited:
+            graph = filtered_graph
+        else: 
+            graph = unfiltered_graph
         filtered_paths = find_all_paths(
-            filtered_graph, start_node, target_node, search_type)
-        feasible_paths = []
+            graph, start_node, target_node, search_type)
+        traversable_paths = []
         for filtered_path in filtered_paths:
             last_edge = (filtered_path[-2], filtered_path[-1])
-            if filtered_graph[last_edge[0]][last_edge[1]]['type'] == search_type:
-                
-                feasible_paths.append(filtered_path)
-        if feasible_paths:
-            typed_paths = make_typed_path(filtered_graph, feasible_paths)
-            return True, typed_paths
+            if graph[last_edge[0]][last_edge[1]]['type'] == search_type:
+                traversable_paths.append(filtered_path)
+        if traversable_paths:
+            sub_path_traverser = make_sub_path_traverser(filtered_graph, unfiltered_graph, start_node, search_type, visited, level)   
+            path_infeasible, typed_paths, acc_sub_paths = make_typed_path(graph, traversable_paths, sub_path_traverser)          
+            return path_infeasible, typed_paths, acc_sub_paths
     except (nx.NetworkXNoPath, StopIteration):
         pass
-
-    try:
-        unfiltered_paths = find_all_paths(
-            unfiltered_graph, start_node, target_node, search_type)
-        paths_with_needs = []
-        for path in unfiltered_paths:
-            new_path = []
-            for p in path:
-                if p == start_node or p == target_node:
-                    continue
-                try:
-                    sub_path = nx.shortest_path(filtered_graph, start_node, p)
-                except BaseException:
-                    sub_path = None
-
-                if not sub_path:
-                    new_path = path
-                    index = path.index(p)
-                    new_path = new_path[:index + 1]
-                    break
-                    
-            if len(new_path) > 0:
-                paths_with_needs.append(new_path)
-
-        if paths_with_needs:
-            typed_paths = make_typed_path(unfiltered_graph, paths_with_needs)
-
-            return False, typed_paths
-
     except Exception:
         print("No paths found")
 
-    return False, []
+    return False, [], acc_sub_paths
 
+def find_backward_paths(graph, node, state_dict):
+    satisfied_paths = []
+
+    def dfs(curr_node, visited, current_path):
+        if curr_node in visited:
+            return
+
+        visited.add(curr_node)
+        current_path.append(curr_node)
+
+        # If the node satisfies the condition, add it to the paths and stop further traversal
+        if state_dict.get(curr_node, False):
+            satisfied_paths.append(current_path.copy())
+            return
+        
+        # If the node has no predecessors, add it to the paths
+        predecessors = list(graph.predecessors(curr_node))
+        if not predecessors:
+            satisfied_paths.append(current_path.copy())
+        
+        for neighbor in predecessors:
+            dfs(neighbor, visited.copy(), current_path.copy())
+
+    dfs(node, set(), [])
+    return satisfied_paths
