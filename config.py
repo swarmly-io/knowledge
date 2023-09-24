@@ -3,10 +3,14 @@ from dotenv import load_dotenv
 from knowledge.elastic_client import ElasticConfig
 import argparse
 
+
 class Args:
-        dev_mini_graph = False
-        local = True
+    dev_mini_graph = False
+    local = True
+
+
 args = Args()
+
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='Knowledge app')

@@ -15,11 +15,14 @@ def build_graph(elements):
     for item in elements.items():
         graph.add_node(str(item[0]), props=item[1])
 
-    return graph    
+    return graph
 
 # todo graph dict needs to be dynamic to handle integrations of services like trading
+
+
 def get_graph_dict(esc: ElasticConfig):
-    elements = lambda name, index_key:  map_by_key(esc.get_elastic_client(name).get_all(), index_key)
+    def elements(name, index_key): return map_by_key(
+        esc.get_elastic_client(name).get_all(), index_key)
 
     indexes = {
         # static minecraft related
@@ -39,7 +42,7 @@ def get_graph_dict(esc: ElasticConfig):
         'inventory': nx.DiGraph(),
         'observations': nx.DiGraph(),
     }
-    
+
     graph_dict = {
         # static minecraft related
         'blocks': build_graph(indexes['blocks']),
@@ -59,4 +62,3 @@ def get_graph_dict(esc: ElasticConfig):
         'observations': nx.DiGraph(),
     }
     return graph_dict, indexes
-
