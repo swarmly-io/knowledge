@@ -16,7 +16,8 @@ class LENSE_TYPES(str, Enum):
 
 
 def only_trades(
-    x, graph_dict): return True if 'action' in x[0] and 'trade' not in x[0] else False
+    x,
+    graph_dict): return True if 'action' in x[0] and 'trade' not in x[0] else False
 
 
 def only_bid(x, graph_dict): return True if x[0] == 'trade:ask' else False
@@ -96,8 +97,8 @@ joins = {
         'all': [
             # {'index': 'items', 'filter': lambda x, y, o: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES}]
             # todo, this takes a long time! create a seperate index for item to recipes
-            #{ 'index': 'items', 'filter': lambda x, y, o: x['name'] in map(lambda e: e['name'], flatmap(lambda e: e['needs'], y['items'])), 'type': EdgeType.NEEDS },
-            #{ 'index': 'items', 'filter': lambda x, y, o: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES },
+            # { 'index': 'items', 'filter': lambda x, y, o: x['name'] in map(lambda e: e['name'], flatmap(lambda e: e['needs'], y['items'])), 'type': EdgeType.NEEDS },
+            # { 'index': 'items', 'filter': lambda x, y, o: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES },
             # { 'index': 'items', 'filter': lambda x, y:  x['name'] in y['needs_list'], 'type': EdgeType.NEEDS, 'stack': True,
             #  'join': {'index': 'items', 'filter': lambda x, y, o: x['name'] in [z['provides']['name'] for z in o['items']], 'type': EdgeType.PROVIDES }},
             {'index': 'items', 'filter': lambda x, y: x['name'] in [z['provides']['name'] for z in y['items']], 'type': EdgeType.PROVIDES,
@@ -111,7 +112,7 @@ joins = {
         ]
     }
 }
-#x= Joins(**mjoins)
+# x= Joins(**mjoins)
 # x.make_strings()
 # print(x)
 
@@ -137,8 +138,8 @@ def apply_joins(ajoin, graph, all_name=None):
         nx.set_node_attributes(graph, {a: d})
 
 
-#apply_joins(ajoin, graph_dict['actions'])
-#apply_joins(tjoin, graph_dict['trade'])
+# apply_joins(ajoin, graph_dict['actions'])
+# apply_joins(tjoin, graph_dict['trade'])
 
 apply_joins(rjoin, graph_dict['recipes'], all_name='all')
 apply_joins(fjoin, graph_dict['foods'], all_name='all')

@@ -46,7 +46,8 @@ def test_finds_missing_node_for_incomplete_graph():
         start_node,
         target_node)
     assert results[0] == False
-    assert list(map(lambda x: x['node'], results[1][1])) == ['A', 'B', 'E', 'F', 'H']
+    assert list(map(lambda x: x['node'], results[1][1])) == [
+        'A', 'B', 'E', 'F', 'H']
 
 
 def test_finds_path_when_graph_complete():
@@ -56,5 +57,6 @@ def test_finds_path_when_graph_complete():
         unfiltered_graph,
         start_node,
         target_node)
-    assert results[0] == True
-    assert list(map(lambda x: x['node'], results[1][0])) == ['A', 'B', 'D', 'G', 'H', 'I', 'J', 'K']
+    assert results[0]
+    assert list(map(lambda x: x['node'], results[1][0])) == [
+        'A', 'B', 'D', 'G', 'H', 'I', 'J', 'K']
