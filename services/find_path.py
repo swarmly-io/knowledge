@@ -97,23 +97,20 @@ def make_sub_path_traverser(
         unfiltered_graph,
         start_node,
         search_type, 
-        visited = set(), level = 0):
-        if not visited:
-            graph = filtered_graph
-        else: 
-            graph = unfiltered_graph
+        sub_path_visited = set(), level = 0):
+        graph = filtered_graph if not sub_path_visited else unfiltered_graph
         
         def sub_path_traverser(node, infeasible, acc_sub_paths):
-            level_one = not visited
+            level_one = not sub_path_visited
             if not infeasible and level_one:
                 return
             
             edges = [e[1] for e in graph.edges(data=True) if e[0] == node and e[2]['type'] == EdgeType.NEEDS]
             sub_paths = []
             for n in edges:
-                if n not in visited:
-                    visited.add(n)
-                    result_infeasible, result, _ = find_path_with_feasibility(filtered_graph, unfiltered_graph, start_node, n, search_type, visited, acc_sub_paths, level + 1)
+                if n not in sub_path_visited:
+                    sub_path_visited.add(n)
+                    result_infeasible, result, _ = find_path_with_feasibility(filtered_graph, unfiltered_graph, start_node, n, search_type, sub_path_visited, acc_sub_paths, level + 1)
                     if result:
                         sub_paths.append((node, level, infeasible and result_infeasible, result))
             if sub_paths:
@@ -134,12 +131,11 @@ def find_path_with_feasibility(
         start_node,
         target_node,
         search_type=EdgeType.PROVIDES, 
-        visited = set(), acc_sub_paths = {}, level = 0):
+        sub_path_visited = set(), acc_sub_paths = {}, level = 0):
     try:
-        if not visited:
-            graph = filtered_graph
-        else: 
-            graph = unfiltered_graph
+        # we want a fully connected graph when trying to find solutions 
+        graph = filtered_graph if not sub_path_visited else unfiltered_graph
+
         filtered_paths = find_all_paths(
             graph, start_node, target_node, search_type)
         traversable_paths = []
@@ -148,7 +144,7 @@ def find_path_with_feasibility(
             if graph[last_edge[0]][last_edge[1]]['type'] == search_type:
                 traversable_paths.append(filtered_path)
         if traversable_paths:
-            sub_path_traverser = make_sub_path_traverser(filtered_graph, unfiltered_graph, start_node, search_type, visited, level)   
+            sub_path_traverser = make_sub_path_traverser(filtered_graph, unfiltered_graph, start_node, search_type, sub_path_visited, level)   
             path_infeasible, typed_paths, acc_sub_paths = make_typed_path(graph, traversable_paths, sub_path_traverser)          
             return path_infeasible, typed_paths, acc_sub_paths
     except (nx.NetworkXNoPath, StopIteration):
