@@ -123,14 +123,16 @@ def make_sub_path_traverser(
         for n in edges:
             if n not in sub_path_visited:
                 sub_path_visited.add(n)
+
                 result_infeasible, result, _ = find_path_with_feasibility(
                     filtered_graph, unfiltered_graph, start_node, n, search_type, sub_path_visited, acc_sub_paths, level + 1)
                 if result:
-                    sub_paths.append((node, level, infeasible and result_infeasible, result))
+                    sub_paths.append((node, n, level, infeasible and result_infeasible, result))
+
         if sub_paths:
             if level_one:
                 acc_sub_paths[node] = (acc_sub_paths.get('tmp', []) + sub_paths)
-                acc_sub_paths[node] = sorted(acc_sub_paths[node], key=lambda x: (x[1], x[2]))
+                acc_sub_paths[node] = sorted(acc_sub_paths[node], key=lambda x: (x[2], x[3]))
 
                 del acc_sub_paths['tmp']
                 acc_sub_paths = acc_sub_paths[node]
