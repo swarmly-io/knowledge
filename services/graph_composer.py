@@ -4,7 +4,7 @@ from enum import Enum
 from models.goals import GoalStatement, Tag
 
 from services.models import TagLink
-from services.feasibility import NodeFeasibility
+from services.feasibility import Feasibility, NodeFeasibility
 
 
 class EdgeType(str, Enum):
@@ -137,7 +137,8 @@ class GraphComposer:
     def apply_lenses(self,
                      lense_names: List[str],
                      graph: Optional[nx.DiGraph] = None,
-                     flag_infeasible=False):
+                     flag_feasibility=False # instead of filtering
+                     ):
         # create a sub graph based on the lense
         G: nx.DiGraph = graph or self.composed_graph
         nodes = G.nodes(data=True)
@@ -151,10 +152,13 @@ class GraphComposer:
                         removed = True
 
             # further filtering
-            if flag_infeasible:
-                T.add_node(n[0], **n[1], infeasible=not self.node_feasibility.evaluate_node(n))
+            if flag_feasibility:
+                if removed:
+                    T.add_node(n[0], **n[1], feasibility=Feasibility.INFEASIBLE)
+                else:
+                    T.add_node(n[0], **n[1], feasibility=self.node_feasibility.evaluate_node(n))
 
-        if flag_infeasible:
+        if flag_feasibility:
             filtered_edges = [(u, v, s) for (u, v, s) in G.edges(data=True)]
         else:
             filtered_edges = [

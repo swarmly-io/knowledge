@@ -170,7 +170,7 @@ def test_run_agent_succesfully_multi_runs():
         ("actions:craft", None, False),
         ("recipes:701", "ACT_UPON", False),
         ("items:wooden_pickaxe", "PROVIDES", False)]
-    assert list(map(lambda x: (x.node, x.type, x.infeasible),
+    assert list(map(lambda x: (x.node, x.type, x.feasibility),
                     next(filter(lambda x: x.goal == 'items:wooden_pickaxe', data.paths)).path)) == wooden_axe_path
 
     active_tags_response = client.post(

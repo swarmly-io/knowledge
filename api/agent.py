@@ -1,7 +1,7 @@
 from copy import deepcopy
 import timeit
 from typing import List
-from api.models import AgentDto, NextActionResponse, Path, PathNode
+from api.models import AgentDto, NextActionResponse, Path, PathNode, SubPath
 from models.goals import GoalStatement, TagDto
 from services.agent_graph_builder import Agent
 from services.feasibility import NodeFeasibility
@@ -105,7 +105,7 @@ class AgentService:
         if not lenses:
             filtered_graph = self.composer.get_composed_graph()
         else:
-            filtered_graph = self.composer.apply_lenses(lenses, flag_infeasible=True)
+            filtered_graph = self.composer.apply_lenses(lenses, flag_feasibility=True)
 
         unfiltered_graph = self.agent.get_fully_connected_graph(self.composer, lenses)
 
@@ -138,33 +138,47 @@ class AgentService:
 
         targets, goals, focus_tags = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
+        
         for target in targets:
+            feasible_path_count = 0
             for node in target:
-                # todo calculate lenses for each group? goal? tag? etc.
+                if feasible_path_count >= 3:
+                    break
+                    
                 path = self.find_path(
                     f"agent:{self.agent.name}", node, [
                         LENSE_TYPES.IN_OBSERVATION])
                 paths.append((node, path))
+                if path.base_path_infeasible == False:
+                    feasible_path_count+=1
+
+        def make_path(p):
+            if isinstance(p, list):
+                return [make_path(x) for x in p]
+            return PathNode(node=p['node'],
+                            type=p['type'] or None,
+                            feasibility=p['feasibility'],
+                            data=p['data'])
 
         path_resp = []
         not_feasible_paths = []
         for p in paths:
-            goal, (_, path), sub_paths = p
-            nodes_resps = list(
-                map(
-                    lambda x: [
-                        PathNode(
-                            node=p['node'],
-                            type=p['type'] or None,
-                            infeasible=p['infeasible'],
-                            data=p['data']) for p in x],
-                    path))
+            goal = p[0]
+            _, path, sub_paths = p[1].get_tuple()
+            nodes_resps = [
+                        [make_path(p) for p in x]
+                    for x in path]
+            if sub_paths:
+                mapped_sub_paths = [SubPath(parent_node=sp[0], target_node=sp[1], level=sp[2], feasibility=sp[3], paths=[make_path(p) for p in sp[4]]) for sp in sub_paths]
+            else:
+                mapped_sub_paths = []
+                
             for nodes_resp in nodes_resps:
-                feasible = all([not n.infeasible for n in nodes_resp])
+                feasible = all([not n.feasibility for n in nodes_resp])
                 if feasible:
                     path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
                 else:
-                    not_feasible_paths.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+                    not_feasible_paths.append(Path(path=nodes_resp, goal=goal, feasible=feasible, sub_paths=mapped_sub_paths))
 
         # todo for each non feasible path resolve each feasible node and find a path to each non feasible node
         # only return the shortest non-feasible resolved path
@@ -172,3 +186,4 @@ class AgentService:
 
         return NextActionResponse(paths=path_resp, active_goals=goals,
                                   focus_tags=focus_tags, targets=targets)
+

@@ -20,4 +20,4 @@ class GraphScenarios:
         if not lenses:
             return self.composer.get_composed_graph()
         else:
-            return self.composer.apply_lenses(lenses, flag_infeasible=True)
+            return self.composer.apply_lenses(lenses, flag_feasibility=True)
