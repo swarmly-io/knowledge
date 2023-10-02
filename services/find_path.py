@@ -202,9 +202,10 @@ def find_path_with_feasibility(
             last_edge = (filtered_path[-2], filtered_path[-1])
             if graph[last_edge[0]][last_edge[1]]['type'] == search_type:
                 traversable_paths.append(filtered_path)
-        if traversable_paths:
-            sub_path_traverser = make_sub_path_traverser(
+        sub_path_traverser = make_sub_path_traverser(
                 filtered_graph, unfiltered_graph, start_node, search_type, traversal_state, level)
+        
+        if traversable_paths:
             path_infeasible, typed_paths, acc_sub_paths = make_typed_path(
                 graph, traversable_paths, sub_path_traverser)
             return PathResult(path_infeasible, typed_paths, acc_sub_paths.get(target_node))
@@ -212,7 +213,7 @@ def find_path_with_feasibility(
         print(e)
         print("No paths found")
 
-    return PathResult(True, [], acc_sub_paths)
+    return PathResult(True, [[]], acc_sub_paths)
 
 
 def find_backward_paths(graph, node, state_dict):

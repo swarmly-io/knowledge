@@ -5,6 +5,7 @@ import pytest
 from api.app import app
 from api.models import AgentDto, NextActionResponse
 from models.agent_state import AgentMCState
+from services.feasibility import Feasibility
 
 client = TestClient(app, raise_server_exceptions=True)
 
@@ -165,11 +166,12 @@ def test_run_agent_succesfully_multi_runs():
 
     assert "got_tools" in list(map(lambda x: x.name, data.focus_tags))
     wooden_axe_path = [
-        (f"agent:{name}", None, False),
-        ("goals:have defence", "GOAL", False),
-        ("actions:craft", None, False),
-        ("recipes:701", "ACT_UPON", False),
-        ("items:wooden_pickaxe", "PROVIDES", False)]
+        (f"agent:{name}", None, Feasibility.FEASIBLE),
+        ("goals:have defence", "GOAL", Feasibility.FEASIBLE),
+        ("actions:craft", None, Feasibility.FEASIBLE),
+        ("recipes:701", "ACT_UPON", Feasibility.FEASIBLE),
+        ("items:wooden_pickaxe", "PROVIDES", Feasibility.FEASIBLE)]
+    
     assert list(map(lambda x: (x.node, x.type, x.feasibility),
                     next(filter(lambda x: x.goal == 'items:wooden_pickaxe', data.paths)).path)) == wooden_axe_path
 

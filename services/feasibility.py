@@ -68,7 +68,10 @@ class NodeFeasibility:
                     is_craftable = self.evaluate_node((r, self.graph.nodes[r])) in [Feasibility.FEASIBLE, Feasibility.ATTAINED]
                     if is_craftable:
                         break
-            feasible = in_inventory or is_mineable or is_craftable
+                    
+            is_droppable = not recipes and not blocks
+            
+            feasible = in_inventory or is_mineable or is_craftable or is_droppable
             return Feasibility.FEASIBLE if feasible else Feasibility.INFEASIBLE
         if index == 'blocks':
             is_breakable = False

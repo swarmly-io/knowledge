@@ -1,4 +1,5 @@
 import networkx as nx
+from services.feasibility import Feasibility
 from services.find_path import find_path_with_feasibility
 from services.graph_composer import EdgeType
 
@@ -11,7 +12,7 @@ def add_needs_edges(filtered_graph, needs_edges):
 # Example usage
 # Create the filtered and unfiltered graphs
 filtered_graph = nx.DiGraph()
-filtered_graph.add_edges_from([('A', 'B', {'type': EdgeType.NEEDS}),
+filtered_graph.add_edges_from([('A', 'B', {'type': EdgeType.NEEDS }),
                                ('A', 'C', {'type': EdgeType.NEEDS}),
                                ('B', 'D', {'type': EdgeType.NEEDS}),
                                ('B', 'E', {'type': EdgeType.NEEDS}),
@@ -38,16 +39,17 @@ unfiltered_graph.add_edges_from([('A', 'B', {'type': EdgeType.NEEDS}),
 start_node = 'A'
 target_node = 'K'
 
+nx.set_node_attributes(filtered_graph, Feasibility.FEASIBLE, 'feasibility')
+nx.set_node_attributes(unfiltered_graph, Feasibility.FEASIBLE, 'feasibility')
 
-def test_finds_missing_node_for_incomplete_graph():
+def test_no_path_when_no_connection():
     results = find_path_with_feasibility(
         filtered_graph,
         unfiltered_graph,
         start_node,
         target_node)
-    assert results[0] == False
-    assert list(map(lambda x: x['node'], results[1][1])) == ['A', 'B', 'E', 'F', 'H']
-
+    assert results.base_path_infeasible == True
+    assert list(map(lambda x: x['node'], results.base_path[0])) == []
 
 def test_finds_path_when_graph_complete():
     # try again
@@ -56,5 +58,5 @@ def test_finds_path_when_graph_complete():
         unfiltered_graph,
         start_node,
         target_node)
-    assert results[0] == True
-    assert list(map(lambda x: x['node'], results[1][0])) == ['A', 'B', 'D', 'G', 'H', 'I', 'J', 'K']
+    assert results.base_path_infeasible == False
+    assert list(map(lambda x: x['node'], results.base_path[0])) == ['A', 'C', 'F', 'H', 'I', 'J', 'K']

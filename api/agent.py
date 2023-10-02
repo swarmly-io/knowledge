@@ -95,7 +95,7 @@ class AgentService:
     def add_goals(self, goals: List[GoalStatement]):
         self.goals = self.goals + goals
 
-    def find_path(self, source_node, target_node, lenses=[]):
+    def find_path(self, source_node, lenses=[]):
         # todo validate lenses
         if not config.mini_graph:
             t = timeit.timeit(lambda: self.composer.compose_graphs(
@@ -108,13 +108,16 @@ class AgentService:
             filtered_graph = self.composer.apply_lenses(lenses, flag_feasibility=True)
 
         unfiltered_graph = self.agent.get_fully_connected_graph(self.composer, lenses)
-
-        start = timeit.default_timer()
-        result = find_path_with_feasibility(
-            filtered_graph, unfiltered_graph, source_node, target_node)
-        t = timeit.default_timer() - start
-        print("find_path: ", t)
-        return result
+        
+        def run_path_finding(target_node):
+            start = timeit.default_timer()
+            result = find_path_with_feasibility(
+                filtered_graph, unfiltered_graph, source_node, target_node)
+            t = timeit.default_timer() - start
+            print("find_path: ", t)
+            return result
+        
+        return run_path_finding
 
     def build_graph(self):
         if not self.composer:
@@ -131,7 +134,7 @@ class AgentService:
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges=len(g.edges()))
 
-    def run(self, name) -> NextActionResponse:
+    def run(self, name, max_paths = 3) -> NextActionResponse:
         if not self.composer:
             self.build_graph()
         print(f"Finding next path for {name}")
@@ -140,17 +143,14 @@ class AgentService:
         paths = []
         
         for target in targets:
-            feasible_path_count = 0
-            for node in target:
-                if feasible_path_count >= 3:
-                    break
-                    
-                path = self.find_path(
-                    f"agent:{self.agent.name}", node, [
+            find_path = self.find_path(
+                    f"agent:{self.agent.name}", [
                         LENSE_TYPES.IN_OBSERVATION])
+            for node in target:
+                path = find_path(node)
                 paths.append((node, path))
-                if path.base_path_infeasible == False:
-                    feasible_path_count+=1
+                if len(paths) >= max_paths:
+                    break
 
         def make_path(p):
             if isinstance(p, list):
