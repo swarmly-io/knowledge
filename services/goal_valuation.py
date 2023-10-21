@@ -87,12 +87,11 @@ class GoalValuation:
 
         return failure_tags, failure_score, success_tags, success_score
 
+    
     def calculate_needs_multiplier(self, active_tags: List[Tag]):
-        # group is the denominator, lowest group is the numerator
         lowest_score = min([self.group_absolute_rankings.get(a.group) for a in active_tags])
-        print([self.group_absolute_rankings.get(a.group) for a in active_tags])
-        return {g: lowest_score / self.group_absolute_rankings[g]
-                for g in self.group_absolute_rankings}
+        return { g: lowest_score / self.group_absolute_rankings[g]
+                for g in self.group_absolute_rankings }
 
     # todo use Tag type in calculation
     def score(self, tag: Tag, need_multiplier_dict: Dict[str, any]):

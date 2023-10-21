@@ -211,3 +211,41 @@ def test_run_agent_succesfully_multi_runs():
     assert all(map(lambda x: x.name in ['completed_job',
                'got_credit', 'no_credit'], data.focus_tags))
     assert data.active_goals[0].name == 'make money'
+
+def test_app_returns_priority_for_set_of_tags():
+    name = test_init()
+    with open("./test/api/sampleagent.json", 'r') as f:
+        data = AgentDto(**json.load(f))
+        data.name = name
+        agent_response = client.post(f"/{name}/create_agent", json=data.dict())
+        assert agent_response.status_code == 200
+    with open("./test/api/samplelinks.json", 'r') as f:
+        data = json.load(f)
+        links_response = client.post(f"/{name}/tag_links", json=data)
+        assert links_response.status_code == 200
+    active_tags_response = client.post(
+        f"/agent/{name}/active_tags",
+        json=[
+            "health_high",
+            "zombie_close",
+            "food_inventory_high",
+            "food_high",
+            "got_shelter",
+            "no_credit"])
+    assert active_tags_response.status_code == 200
+    
+    priority = client.post(
+        f"/agent/{name}/priority",
+        json=["health_high"])
+    assert priority.json() == 2
+    
+    priority = client.post(
+        f"/agent/{name}/priority",
+        json=["zombie_close", "health_high"])
+    assert priority.json() == 1
+    
+    priority = client.post(
+        f"/agent/{name}/priority",
+        json=["no_tools"])
+    assert priority.json() == 999
+    

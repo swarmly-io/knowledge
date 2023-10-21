@@ -201,7 +201,7 @@
             "name": "zombie_close",
             "group": "hostility",
             "type": "threat",
-            "value": 1
+            "value": 0
         },
         {
             "name": "food_low",

@@ -128,13 +128,21 @@ class QaRequest(BaseModel):
 # collect items
 
 
-@app.post("/{name}/qa")
-def answer_question(name: str, agent: AgentService = Depends(agents.get_agent)):
-    # node: Recipe 701 -> needs 1 sticks, needs 3 sticks
-    # -> location of a crafting table
-
-    pass
-
+@app.post("/agent/{name}/priority")
+def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> int:
+    current_tags = [tag for tag in agent.agent.state.tags if tag.name in tags] or []
+    needs_multiplier_dict = agent.agent.goal_valuation.calculate_needs_multiplier(agent.agent.state.tags)
+    score = lambda t: agent.agent.goal_valuation.score(t, needs_multiplier_dict)
+    highest_score_tag = None
+    
+    for tag in current_tags:
+        if not highest_score_tag or score(tag) > score(highest_score_tag):
+            highest_score_tag = tag
+    if highest_score_tag:
+        for group in agent.agent.groups:
+            if group.name == highest_score_tag.group:
+                return group.rank
+    return 999
 
 @app.get("/health")
 def health():
