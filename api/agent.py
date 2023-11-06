@@ -1,15 +1,17 @@
 from copy import deepcopy
 import timeit
+import networkx as nx
 from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode, SubPath
 from models.goals import GoalStatement, TagDto
 from services.agent_graph_builder import Agent
-from services.feasibility import NodeFeasibility
+from services.feasibility import Feasibility, NodeFeasibility
 
 from services.graph_composer import GraphComposer
 from services.find_path import find_path_with_feasibility
 from models.agent_state import AgentMCState
 from services.models import TagLink
+from domain_models.workflows.workflows import WorkflowTarget
 
 import config
 from graphs.minecraft.state import MinecraftStateRunner
@@ -28,6 +30,9 @@ class AgentService:
         self.goals: List[GoalStatement] = []
         self.agent: Agent = None
         self.graph_dict = deepcopy(graph_dict)
+        
+        self.filtered_graph = None
+        self.unfiltered_graph = None
 
     def create_agent(self, agent: AgentDto):
         state_runner = MinecraftStateRunner()
@@ -94,20 +99,32 @@ class AgentService:
 
     def add_goals(self, goals: List[GoalStatement]):
         self.goals = self.goals + goals
-
-    def find_path(self, source_node, lenses=[]):
-        # todo validate lenses
-        if not config.mini_graph:
-            t = timeit.timeit(lambda: self.composer.compose_graphs(
-                ['actions', 'goals', 'agent']), number=1)
-            print("Rebuild graph: ", t)
-
-        if not lenses:
-            filtered_graph = self.composer.get_composed_graph()
+        
+    def get_feasibility(self, target: WorkflowTarget, lenses=[]):
+        if not self.filtered_graph or not self.unfiltered_graph:
+            filtered_graph, unfiltered_graph = self.get_graphs(lenses)
         else:
-            filtered_graph = self.composer.apply_lenses(lenses, flag_feasibility=True)
+            filtered_graph = self.filtered_graph
+            unfiltered_graph = self.unfiltered_graph
+            
+        is_feasible = filtered_graph.nodes[target.node].get('feasibility', Feasibility.INFEASIBLE) in [Feasibility.FEASIBLE, Feasibility.ATTAINED]
+        if not is_feasible:
+            return False
+        
+        try:
+            has_path = len(nx.shortest_path(unfiltered_graph, f"agent:{self.agent.name}", target.node)) > 0
+        except Exception as e:
+            print(e)
+            has_path = False
+        return has_path
+            
 
-        unfiltered_graph = self.agent.get_fully_connected_graph(self.composer, lenses)
+    def find_path(self, source_node, lenses=[], save_graph=False):
+        filtered_graph, unfiltered_graph = self.get_graphs(lenses)
+        
+        if save_graph:
+            self.filtered_graph = filtered_graph
+            self.unfiltered_graph = unfiltered_graph
         
         def run_path_finding(target_node):
             start = timeit.default_timer()
@@ -118,6 +135,21 @@ class AgentService:
             return result
         
         return run_path_finding
+
+    def get_graphs(self, lenses):
+        # todo validate lenses
+        if not config.mini_graph:
+            t = timeit.timeit(lambda: self.composer.compose_graphs(
+                ['actions', 'goals', 'agent']), number=1)
+            print("Rebuild graph: ", t)
+        
+        if not lenses:
+            filtered_graph = self.composer.get_composed_graph()
+        else:
+            filtered_graph = self.composer.apply_lenses(lenses, flag_feasibility=True)
+
+        unfiltered_graph = self.agent.get_fully_connected_graph(self.composer, lenses)
+        return filtered_graph,unfiltered_graph
 
     def build_graph(self):
         if not self.composer:

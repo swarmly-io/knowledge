@@ -23,6 +23,36 @@ def test_init():
     return name
 
 
+def setup_agent():
+    name = test_init()
+    with open("./test/api/sampleagent.json", 'r') as f:
+        data = AgentDto(**json.load(f))
+        data.name = name
+        agent_response = client.post(f"/{name}/create_agent", json=data.dict())
+        assert agent_response.status_code == 200
+    with open("./test/api/samplelinks.json", 'r') as f:
+        data = json.load(f)
+        links_response = client.post(f"/{name}/tag_links", json=data)
+        assert links_response.status_code == 200
+    active_tags_response = client.post(
+        f"/agent/{name}/active_tags",
+        json=[
+            "health_high",
+            "zombie_close",
+            "food_inventory_high",
+            "food_high",
+            "got_shelter",
+            "no_credit"])
+    assert active_tags_response.status_code == 200
+    
+    with open("./test/api/samplestate.json", 'r') as f:
+        data = AgentMCState(**json.load(f))
+        state_response = client.post(f"/{name}/update_state", json=data.dict())
+        assert state_response.status_code == 200
+    
+    return name
+
+
 @pytest.mark.skip("Trade currently only defined in mini graph")
 # todo - needs to update state to include inventory item before we can sell it
 def test_find_succesful_path():
@@ -213,26 +243,7 @@ def test_run_agent_succesfully_multi_runs():
     assert data.active_goals[0].name == 'make money'
 
 def test_app_returns_priority_for_set_of_tags():
-    name = test_init()
-    with open("./test/api/sampleagent.json", 'r') as f:
-        data = AgentDto(**json.load(f))
-        data.name = name
-        agent_response = client.post(f"/{name}/create_agent", json=data.dict())
-        assert agent_response.status_code == 200
-    with open("./test/api/samplelinks.json", 'r') as f:
-        data = json.load(f)
-        links_response = client.post(f"/{name}/tag_links", json=data)
-        assert links_response.status_code == 200
-    active_tags_response = client.post(
-        f"/agent/{name}/active_tags",
-        json=[
-            "health_high",
-            "zombie_close",
-            "food_inventory_high",
-            "food_high",
-            "got_shelter",
-            "no_credit"])
-    assert active_tags_response.status_code == 200
+    name = setup_agent()
     
     priority = client.post(
         f"/agent/{name}/priority",
@@ -248,4 +259,31 @@ def test_app_returns_priority_for_set_of_tags():
         f"/agent/{name}/priority",
         json=["no_tools"])
     assert priority.json() == 999
+
+def test_app_returns_feasibility():
+    name = setup_agent()
     
+    feasibility = client.post(
+        f"/agent/{name}/feasibility",
+        json={
+            "node": "items:wooden_axe",
+            "action": "craft",
+            "target": {
+                "item": 706,
+                "quantity": 1
+            }
+        })
+    assert feasibility.json() == True
+    
+    feasibility = client.post(
+        f"/agent/{name}/feasibility",
+        json={
+            "node": "items:iron_pickaxe",
+            "action": "craft",
+            "target": {
+                "item": 706,
+                "quantity": 1
+            }
+        })
+    assert feasibility.json() == False
+

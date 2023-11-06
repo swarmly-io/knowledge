@@ -4,10 +4,12 @@ from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 from api.agent import AgentService
 from api.models import AgentDto
+from graphs.minecraft.agent_config import LENSE_TYPES
 from models.agent_state import AgentMCState
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.goals import TagDto
+from domain_models.workflows.workflows import WorkflowTarget
 
 app = FastAPI()
 
@@ -143,6 +145,10 @@ def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(a
             if group.name == highest_score_tag.group:
                 return group.rank
     return 999
+
+@app.post("/agent/{name}/feasibility")
+def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)):
+    return agent.get_feasibility(target, [LENSE_TYPES.IN_OBSERVATION])
 
 @app.get("/health")
 def health():
