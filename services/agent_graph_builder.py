@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional, Tuple
 from pydantic import BaseModel
 
@@ -8,19 +9,11 @@ from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.graph_scenarios import GraphScenarios
 from services.models import TagLink
-
+from domain_models.agent.agent import AgentDecisionState, AgentState
 from services.state import StateRunner
 
 
-class AgentState(BaseModel):
-    mcState: Optional[AgentMCState]
-    tags: List[Tag]
-
-    def check_inventory(self, id, quantity=1):
-        return self.mcState.inventory.items.get(str(id), 0) >= quantity
-
-
-class Agent:
+class Agent(AgentDecisionState):
     def __init__(self, name: str, goals: List[GoalStatement], actions: List[Action],
                  all_tags: List[Tag], graph_dict, groups: List[Group], state_runner: StateRunner):
         self.name = name
@@ -38,10 +31,13 @@ class Agent:
     def run_graph_and_get_targets(self, composer: GraphComposer):
         goals, focus_tags, scores = self.goal_valuation.select(
             self.goals, self.state.tags, goal_count=1)
-        print(f"Prioritising {goals[0].name} with {len(focus_tags)} tags")
-        print("Scores", scores)
+        logging.info(f"Prioritising {goals[0].name} with {len(focus_tags)} tags")
+        logging.info(f"Scores {scores}")
+        
+        max_score = max([scores.get(s).get('failure') + scores.get(s).get('success') for s in scores])
+        
         targets = self.focus_graph_and_get_targets(composer, goals, focus_tags)
-        print("Targets", targets)
+        logging.info(f"Targets {targets}")
         self.make_graph()
         self.make_graph_state()
 
@@ -50,7 +46,7 @@ class Agent:
         for action, index, subindex, node in set(targets):
             resolved_target = self.resolve_target(composer, action, index, subindex, node)
             resolved_targets.append(resolved_target)
-        return (resolved_targets, goals, focus_tags)
+        return resolved_targets, goals, focus_tags, max_score
 
     def resolve_target(self, composer: GraphComposer, action: str, index: str,
                        subindex: Optional[str], node: str) -> List[str]:
