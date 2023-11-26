@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Union
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 from api.agent import AgentService
@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from models.goals import TagDto
 from domain_models.workflows.workflows import WorkflowTarget
+from domain_models.decisions_points.events import ScheduledTrigger, AggregateTrigger
 
 app = FastAPI()
 
@@ -100,6 +101,11 @@ def run(name: str, agent: AgentService = Depends(agents.get_agent)):
     result = agent.run(name)
     return result
 
+@app.post("/agent/{name}/decision")
+def run(name: str, trigger: Union[ScheduledTrigger, AggregateTrigger], agent: AgentService = Depends(agents.get_agent)):
+    result = agent.run(name, trigger)
+    return result
+
 
 @app.get("/{name}/graph")
 def get_graph(name: str, agent: AgentService = Depends(agents.get_agent)):
@@ -129,8 +135,12 @@ class QaRequest(BaseModel):
 
 # collect items
 
-
 @app.post("/agent/{name}/priority")
+def get_tag_priority(name: str, tags: List[str]) -> int:
+    print(tags)
+    return 1
+
+@app.post("/agent/{name}/priority1")
 def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> int:
     current_tags = [tag for tag in agent.agent.state.tags if tag.name in tags] or []
     needs_multiplier_dict = agent.agent.goal_valuation.calculate_needs_multiplier(agent.agent.state.tags)
@@ -147,6 +157,10 @@ def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(a
     return 999
 
 @app.post("/agent/{name}/feasibility")
+def get_node_feasibility(name: str, target: WorkflowTarget):
+    return True
+
+@app.post("/agent/{name}/feasibility1")
 def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)):
     return agent.get_feasibility(target, [LENSE_TYPES.IN_OBSERVATION])
 

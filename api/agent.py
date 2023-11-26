@@ -15,6 +15,8 @@ from domain_models.workflows.workflows import WorkflowTarget
 
 import config
 from graphs.minecraft.state import MinecraftStateRunner
+from utils import deep_flatten
+
 if config.mini_graph:
     from graphs.minecraft.mini_graph_dict import graph_dict
     from graphs.minecraft.mini_agent_config import lenses, linking_instructions, one_to_many_join_graphs, LENSE_TYPES
@@ -171,7 +173,7 @@ class AgentService:
             self.build_graph()
         print(f"Finding next path for {name}")
 
-        targets, goals, focus_tags = self.agent.run_graph_and_get_targets(self.composer)
+        targets, goals, focus_tags, score = self.agent.run_graph_and_get_targets(self.composer)
         paths = []
         
         for target in targets:
@@ -206,16 +208,16 @@ class AgentService:
                 mapped_sub_paths = []
                 
             for nodes_resp in nodes_resps:
-                feasible = all([not n.feasibility for n in nodes_resp])
+                feasible = all([n.feasibility not in [Feasibility.INFEASIBLE] for n in nodes_resp])
                 if feasible:
-                    path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible))
+                    path_resp.append(Path(path=nodes_resp, goal=goal, feasible=feasible, sub_paths=[]))
                 else:
                     not_feasible_paths.append(Path(path=nodes_resp, goal=goal, feasible=feasible, sub_paths=mapped_sub_paths))
 
         # todo for each non feasible path resolve each feasible node and find a path to each non feasible node
         # only return the shortest non-feasible resolved path
         path_resp.extend(not_feasible_paths)
-
+        
         return NextActionResponse(paths=path_resp, active_goals=goals,
-                                  focus_tags=focus_tags, targets=targets)
+                                  focus_tags=focus_tags, targets=deep_flatten(targets), score=score)
 

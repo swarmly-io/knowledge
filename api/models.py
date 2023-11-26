@@ -39,3 +39,4 @@ class NextActionResponse(BaseModel):
     active_goals: List[GoalStatement]
     focus_tags: List[Tag]
     targets: List
+    score: float = 999

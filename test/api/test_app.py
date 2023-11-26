@@ -193,7 +193,7 @@ def test_run_agent_succesfully_multi_runs():
     response = client.post(f"/agent/{name}/run")
     assert response.status_code == 200
     data = NextActionResponse(**response.json())
-
+    assert data.score > 0 and data.score < 999
     assert "got_tools" in list(map(lambda x: x.name, data.focus_tags))
     wooden_axe_path = [
         (f"agent:{name}", None, Feasibility.FEASIBLE),
