@@ -47,7 +47,7 @@ def setup_agent():
     
     with open("./test/api/samplestate.json", 'r') as f:
         data = AgentMCState(**json.load(f))
-        state_response = client.post(f"/{name}/update_state", json=data.dict())
+        state_response = client.post(f"/agent/{name}/state", json=data.dict())
         assert state_response.status_code == 200
     
     return name
@@ -84,7 +84,7 @@ def test_find_succesful_path():
     assert active_tags_response.status_code == 200
     with open("./test/api/samplestate.json", 'r') as f:
         data = AgentMCState(**json.load(f))
-        state_response = client.post(f"/{name}/update_state", json=data.dict())
+        state_response = client.post(f"/agent/{name}/state", json=data.dict())
         assert state_response.status_code == 200
 
     response = client.post(f"/{name}/find_path", json=body)
@@ -145,7 +145,7 @@ def test_run_agent_succesfully():
     assert active_tags_response.status_code == 200
     with open("./test/api/samplestate.json", 'r') as f:
         data = AgentMCState(**json.load(f))
-        state_response = client.post(f"/{name}/update_state", json=data.dict())
+        state_response = client.post(f"/agent/{name}/state", json=data.dict())
         assert state_response.status_code == 200
 
     response = client.post(f"/agent/{name}/run")
@@ -187,7 +187,7 @@ def test_run_agent_succesfully_multi_runs():
     assert active_tags_response.status_code == 200
     with open("./test/api/samplestate.json", 'r') as f:
         data = AgentMCState(**json.load(f))
-        state_response = client.post(f"/{name}/update_state", json=data.dict())
+        state_response = client.post(f"/agent/{name}/state", json=data.dict())
         assert state_response.status_code == 200
 
     response = client.post(f"/agent/{name}/run")

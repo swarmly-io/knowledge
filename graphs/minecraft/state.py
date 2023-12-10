@@ -1,4 +1,4 @@
-from models.agent_state import AgentMCState
+from domain_models.minecraft.state import AgentMCState
 from services.graph_composer import EdgeType
 from services.state import StateRunner
 

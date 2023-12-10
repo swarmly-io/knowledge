@@ -1,8 +1,6 @@
 import logging
 from typing import List, Optional, Tuple
-from pydantic import BaseModel
 
-from models.agent_state import AgentMCState
 from models.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
 from services.goal_valuation import GoalValuation
@@ -13,7 +11,7 @@ from domain_models.agent.agent import AgentDecisionState, AgentState
 from services.state import StateRunner
 
 
-class Agent(AgentDecisionState):
+class Agent:
     def __init__(self, name: str, goals: List[GoalStatement], actions: List[Action],
                  all_tags: List[Tag], graph_dict, groups: List[Group], state_runner: StateRunner):
         self.name = name
@@ -27,6 +25,9 @@ class Agent(AgentDecisionState):
         self.tag_links: List[TagLink] = []
         self.goal_valuation: GoalValuation = GoalValuation(self.all_tags, self.groups)
         self.state_runner = state_runner
+        
+    def get_state(self) -> AgentDecisionState:
+        return AgentDecisionState(**self)
 
     def run_graph_and_get_targets(self, composer: GraphComposer):
         goals, focus_tags, scores = self.goal_valuation.select(

@@ -9,9 +9,9 @@ from services.feasibility import Feasibility, NodeFeasibility
 
 from services.graph_composer import GraphComposer
 from services.find_path import find_path_with_feasibility
-from models.agent_state import AgentMCState
 from services.models import TagLink
 from domain_models.workflows.workflows import WorkflowTarget
+from domain_models.minecraft.state import AgentMCState
 
 import config
 from graphs.minecraft.state import MinecraftStateRunner

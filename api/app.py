@@ -1,16 +1,16 @@
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 from api.agent import AgentService
 from api.models import AgentDto
 from graphs.minecraft.agent_config import LENSE_TYPES
-from models.agent_state import AgentMCState
 from fastapi.middleware.cors import CORSMiddleware
 
 from models.goals import TagDto
 from domain_models.workflows.workflows import WorkflowTarget
 from domain_models.decisions_points.events import ScheduledTrigger, AggregateTrigger
+from domain_models.minecraft.state import AgentMCState
 
 app = FastAPI()
 
@@ -59,9 +59,6 @@ class FindPathRequest(BaseModel):
 
 agents = Agents()
 
-# init graph needs to take all info from agent_config
-
-
 @app.post("/{name}/init")
 def init_graph(name: str, agents=Depends(agents.get_agents)):
     agent = agents.new(name)
@@ -84,16 +81,6 @@ def add_tag_links(name: str, links: List[str], agent: AgentService = Depends(age
 def add_active_tags(name: str, tags: List[str], agent: AgentService = Depends(
         agents.get_agent)) -> List[TagDto]:
     return agent.add_active_tags(tags)
-
-
-@app.post("/{name}/update_state")
-def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
-    # persist state
-    agent.set_state(state)
-    # run state_to_graph - clears and updates individual graph
-    agent.run_state()
-    # rerun graph composer
-    return agent.build_graph()
 
 
 @app.post("/agent/{name}/run")
@@ -124,17 +111,6 @@ class QaRequest(BaseModel):
     act_upon_node: str
     end_node: str
 
-# craft, recipe:721, item:diamond_pickaxe
-# needs: ["items:stick", "items:diamond"]
-# item locations
-# crafting table location
-
-# fight, entity:zombie, ?
-# weapon
-# zombie location
-
-# collect items
-
 @app.post("/agent/{name}/priority")
 def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> int:
     current_tags = [tag for tag in agent.agent.state.tags if tag.name in tags] or []
@@ -152,8 +128,21 @@ def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(a
     return 999
 
 @app.post("/agent/{name}/feasibility")
-def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)):
+def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)) -> bool:
     return agent.get_feasibility(target, [LENSE_TYPES.IN_OBSERVATION])
+
+@app.get("/agent/{name}/state")
+def get_state(name: str, agent: AgentService = Depends(agents.get_agent)) -> Optional[AgentMCState]:
+    return agent.agent.state.mcState
+
+@app.post("/agent/{name}/state")
+def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
+    # persist state
+    agent.set_state(state)
+    # run state_to_graph - clears and updates individual graph
+    agent.run_state()
+    # rerun graph composer
+    return agent.build_graph()
 
 @app.get("/health")
 def health():
