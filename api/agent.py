@@ -168,7 +168,8 @@ class AgentService:
         g = self.composer.get_composed_graph()
         return dict(nodes=len(g.nodes()), edges=len(g.edges()))
 
-    def run(self, name, max_paths = 3) -> NextActionResponse:
+    def run(self, name, max_paths = 3, trigger = None) -> NextActionResponse:
+        # todo do something with trigger
         if not self.composer:
             self.build_graph()
         print(f"Finding next path for {name}")

@@ -30,6 +30,11 @@ class Agent:
         return AgentDecisionState(**self)
 
     def run_graph_and_get_targets(self, composer: GraphComposer):
+        if not self.goals:
+            raise Exception("No goals to select from")
+        if not self.state.tags:
+            raise Exception("No tags to select from")
+        
         goals, focus_tags, scores = self.goal_valuation.select(
             self.goals, self.state.tags, goal_count=1)
         logging.info(f"Prioritising {goals[0].name} with {len(focus_tags)} tags")

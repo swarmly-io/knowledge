@@ -89,6 +89,9 @@ class GoalValuation:
 
     
     def calculate_needs_multiplier(self, active_tags: List[Tag]):
+        if not active_tags:
+            raise Exception("No active tags provided")
+        
         lowest_score = min([self.group_absolute_rankings.get(a.group) for a in active_tags])
         return { g: lowest_score / self.group_absolute_rankings[g]
                 for g in self.group_absolute_rankings }

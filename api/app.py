@@ -90,7 +90,15 @@ def run(name: str, agent: AgentService = Depends(agents.get_agent)):
 
 @app.post("/agent/{name}/decision")
 def run(name: str, trigger: Union[ScheduledTrigger, AggregateTrigger], agent: AgentService = Depends(agents.get_agent)):
-    result = agent.run(name, trigger)
+    if not agent.agent.state.tags:
+        raise Exception("No tags found")
+    
+    if not agent.composer.node_feasibility:
+        agent.run_state() # should be non blocking
+        # rerun graph composer
+        agent.build_graph()
+    
+    result = agent.run(name, trigger=trigger)
     return result
 
 
@@ -140,9 +148,10 @@ def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(a
     # persist state
     agent.set_state(state)
     # run state_to_graph - clears and updates individual graph
-    agent.run_state()
-    # rerun graph composer
-    return agent.build_graph()
+    if agent.agent.state.tags:
+        agent.run_state() # should be non blocking
+        # rerun graph composer
+        return agent.build_graph()
 
 @app.get("/health")
 def health():
