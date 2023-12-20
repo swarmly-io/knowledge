@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 from pydantic import BaseModel
 
-from models.goals import Action, GoalStatement, Group, Tag
+from domain_models.decisions.goals import Action, GoalStatement, Group, Tag
 from services.feasibility import Feasibility
-from services.graph_composer import EdgeType
+from domain_models.decisions.graph import EdgeType
 
 
 class AgentDto(BaseModel):

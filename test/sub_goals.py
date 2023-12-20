@@ -1,8 +1,12 @@
+from enum import Enum
 import networkx as nx
-from graphs.minecraft.agent_config import LENSE_TYPES
-from services.graph_composer import EdgeType
+from domain_models.decisions.graph import EdgeType
 from utils import bfs_subgraph, filtered_bfs, get_edges_in_order, graph_diff, paths_to_tree
 
+class LENSE_TYPES(str, Enum):
+    ONLY_INVENTORY_MINING_ITEMS = "only_inventory_mining_items"
+    IN_OBSERVATION = "in_observation"
+    IN_INVENTORY = "in_inventory"
 
 class FindSubGoals:
     def __init__(self, composer):

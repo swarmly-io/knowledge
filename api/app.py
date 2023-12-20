@@ -7,7 +7,7 @@ from api.models import AgentDto
 from graphs.minecraft.agent_config import LENSE_TYPES
 from fastapi.middleware.cors import CORSMiddleware
 
-from models.goals import TagDto
+from domain_models.decisions.goals import TagDto
 from domain_models.workflows.workflows import WorkflowTarget
 from domain_models.decisions_points.events import ScheduledTrigger, AggregateTrigger
 from domain_models.minecraft.state import AgentMCState

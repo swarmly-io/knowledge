@@ -1,3 +1,5 @@
+Notice: Refactoring in progress - big changes on the way!
+
 # knowledge
 
 The knowledge service holds all aspects of what an agent needs to navigate some environment. This includes facts in the form of indexes, functions which combine indexes to form graphs and algorithms to traverse the graph based on constraints and priorities.

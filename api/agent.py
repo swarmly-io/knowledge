@@ -3,13 +3,13 @@ import timeit
 import networkx as nx
 from typing import List
 from api.models import AgentDto, NextActionResponse, Path, PathNode, SubPath
-from models.goals import GoalStatement, TagDto
+from domain_models.decisions.goals import TagDto, GoalStatement
 from services.agent_graph_builder import Agent
 from services.feasibility import Feasibility, NodeFeasibility
 
 from services.graph_composer import GraphComposer
 from services.find_path import find_path_with_feasibility
-from services.models import TagLink
+from domain_models.decisions.links import TagLink
 from domain_models.workflows.workflows import WorkflowTarget
 from domain_models.minecraft.state import AgentMCState
 

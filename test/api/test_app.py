@@ -4,7 +4,7 @@ import pytest
 
 from api.app import app
 from api.models import AgentDto, NextActionResponse
-from models.agent_state import AgentMCState
+from domain_models.agent.agent import AgentMCState
 from services.feasibility import Feasibility
 
 client = TestClient(app, raise_server_exceptions=True)

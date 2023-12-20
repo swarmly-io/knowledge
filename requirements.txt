@@ -10,4 +10,6 @@ pytest==7.2.0
 python-dotenv==1.0.0
 PyYAML==6.0.1
 uvicorn==0.23.2
-domain_models @ git+https://github.com/swarmly-io/domain-models.git@v0.1.0.27
+domain_models @ git+https://github.com/swarmly-io/domain-models.git@v0.1.0.47
+minecraft_graphs @ git+https://github.com/swarmly-io/minecraft-graphs.git@v0.0.0.6
+traversal @ git+https://github.com/swarmly-io/traversal.git@v0.0.0.1

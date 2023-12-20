@@ -1,12 +1,12 @@
 import logging
 from typing import List, Optional, Tuple
 
-from models.goals import Action, GoalStatement, Group, Tag
+from domain_models.decisions.goals import Action, GoalStatement, Group, Tag
 import networkx as nx
 from services.goal_valuation import GoalValuation
 from services.graph_composer import GraphComposer
 from services.graph_scenarios import GraphScenarios
-from services.models import TagLink
+from domain_models.decisions.links import TagLink
 from domain_models.agent.agent import AgentDecisionState, AgentState
 from services.state import StateRunner
 
