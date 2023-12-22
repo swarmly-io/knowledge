@@ -11,5 +11,5 @@ python-dotenv==1.0.0
 PyYAML==6.0.1
 uvicorn==0.23.2
 domain_models @ git+https://github.com/swarmly-io/domain-models.git@v0.1.2.8
-minecraft_graph @ git+https://github.com/swarmly-io/minecraft-graph.git@v0.0.0.11
+minecraft_graph @ git+https://github.com/swarmly-io/minecraft-graph.git@v0.0.0.12
 traversal @ git+https://github.com/swarmly-io/traversal.git@v0.0.0.3

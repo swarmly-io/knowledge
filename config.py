@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from knowledge.elastic_client import ElasticConfig
+from integrations.elastic import ElasticConfig
 import argparse
 
 
@@ -41,3 +41,8 @@ elastic_config = ElasticConfig(
     port=os.getenv('ELASTIC_PORT'))
 
 print("Done loading client", current_env, mini_graph)
+
+def get_index_data():
+    from minecraft_graph.loader import get_graph_dict
+    graph_dict, indexes = get_graph_dict(elastic_config)
+    return graph_dict, indexes
