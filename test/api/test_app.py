@@ -5,7 +5,7 @@ import pytest
 from api.app import app
 from api.models import AgentDto, NextActionResponse
 from domain_models.agent.agent import AgentMCState
-from services.feasibility import Feasibility
+from domain_models.decisions.feasibility import Feasibility
 
 client = TestClient(app, raise_server_exceptions=True)
 
@@ -18,8 +18,6 @@ def test_init():
     response = client.post(f"/{name}/init")
     assert response.status_code == 200
     data = response.json()
-    assert data["nodes"] > 0
-    assert data["edges"] > 0
     return name
 
 

@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 from domain_models.decisions.goals import Action, GoalStatement, Group, Tag
-from services.feasibility import Feasibility
+from domain_models.decisions.feasibility import Feasibility
 from domain_models.decisions.graph import EdgeType
 
 

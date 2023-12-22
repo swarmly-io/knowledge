@@ -4,7 +4,6 @@ from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 from api.agent import AgentService
 from api.models import AgentDto
-from graphs.minecraft.agent_config import LENSE_TYPES
 from fastapi.middleware.cors import CORSMiddleware
 
 from domain_models.decisions.goals import TagDto
@@ -60,9 +59,9 @@ class FindPathRequest(BaseModel):
 agents = Agents()
 
 @app.post("/{name}/init")
-def init_graph(name: str, agents=Depends(agents.get_agents)):
+async def init_graph(name: str, agents=Depends(agents.get_agents)):
     agent = agents.new(name)
-    return agent.build_graph()
+    return {'message': f'agent created: {name}'}
 
 
 @app.post("/{name}/create_agent")
@@ -85,7 +84,7 @@ def add_active_tags(name: str, tags: List[str], agent: AgentService = Depends(
 
 @app.post("/agent/{name}/run")
 def run(name: str, agent: AgentService = Depends(agents.get_agent)):
-    result = agent.run(name)
+    result = agent.agent.run()
     return result
 
 @app.post("/agent/{name}/decision")
@@ -93,12 +92,7 @@ def run(name: str, trigger: Union[ScheduledTrigger, AggregateTrigger], agent: Ag
     if not agent.agent.state.tags:
         raise Exception("No tags found")
     
-    if not agent.composer.node_feasibility:
-        agent.run_state() # should be non blocking
-        # rerun graph composer
-        agent.build_graph()
-    
-    result = agent.run(name, trigger=trigger)
+    result = agent.agent.run(trigger=trigger)
     return result
 
 
@@ -121,37 +115,24 @@ class QaRequest(BaseModel):
 
 @app.post("/agent/{name}/priority")
 def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> int:
-    current_tags = [tag for tag in agent.agent.state.tags if tag.name in tags] or []
-    needs_multiplier_dict = agent.agent.goal_valuation.calculate_needs_multiplier(agent.agent.state.tags)
-    score = lambda t: agent.agent.goal_valuation.score(t, needs_multiplier_dict)
-    highest_score_tag = None
-    
-    for tag in current_tags:
-        if not highest_score_tag or score(tag) > score(highest_score_tag):
-            highest_score_tag = tag
-    if highest_score_tag:
-        for group in agent.agent.groups:
-            if group.name == highest_score_tag.group:
-                return group.rank
-    return 999
+    return agent.agent.get_priority(tags)
 
 @app.post("/agent/{name}/feasibility")
 def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)) -> bool:
-    return agent.get_feasibility(target, [LENSE_TYPES.IN_OBSERVATION])
+    # todo consolodate lenses and added type back in
+    return agent.agent.get_feasibility(target, [])
 
 @app.get("/agent/{name}/state")
 def get_state(name: str, agent: AgentService = Depends(agents.get_agent)) -> Optional[AgentMCState]:
     return agent.agent.state.mcState
 
 @app.post("/agent/{name}/state")
-def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
+async def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
     # persist state
-    agent.set_state(state)
+    agent.set_mc_state(state)
     # run state_to_graph - clears and updates individual graph
     if agent.agent.state.tags:
-        agent.run_state() # should be non blocking
-        # rerun graph composer
-        return agent.build_graph()
+        await agent.agent.run_state(state) # should be non blocking
 
 @app.get("/health")
 def health():
