@@ -10,6 +10,7 @@ from domain_models.decisions.goals import TagDto
 from domain_models.workflows.workflows import WorkflowTarget
 from domain_models.decisions_points.events import ScheduledTrigger, AggregateTrigger
 from domain_models.minecraft.state import AgentMCState
+from domain_models.decisions.feasibility import Feasibility
 
 app = FastAPI()
 
@@ -118,9 +119,9 @@ def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(a
     return agent.agent.get_priority(tags)
 
 @app.post("/agent/{name}/feasibility")
-def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)) -> bool:
+def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)) -> Feasibility:
     # todo consolodate lenses and added type back in
-    return agent.agent.get_feasibility(target, [])
+    return agent.agent.get_feasibility(target)
 
 @app.get("/agent/{name}/state")
 def get_state(name: str, agent: AgentService = Depends(agents.get_agent)) -> Optional[AgentMCState]:
