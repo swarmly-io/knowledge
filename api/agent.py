@@ -34,16 +34,15 @@ class AgentService:
         
         def update_tags_by_group(new_tags):
             active_tags = self.agent.state.tags
-            existing_groups = {tag.group for tag in active_tags}
-            
-            updated_tags = []
-            
+            existing_groups = {tag.group: tag for tag in active_tags}
+                        
             for tag in new_tags:
-                if tag.group not in existing_groups:
-                    updated_tags.append(tag)
-                    existing_groups.add(tag.group)
+                if tag.group in existing_groups:
+                    active_tags.remove(existing_groups[tag.group])
+                
+                active_tags.append(tag)
             
-            return active_tags + updated_tags
+            return active_tags
         
         new_tags = [tag_dict.get(t) for t in tags if tag_dict.get(t)]
         self.agent.state.tags = update_tags_by_group(new_tags)
