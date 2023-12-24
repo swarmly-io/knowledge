@@ -11,9 +11,6 @@ class AgentService:
     def __init__(self):
         self.goals: List[GoalStatement] = []
         self.agent: Agent = None
-        
-        self.filtered_graph = None
-        self.unfiltered_graph = None
 
     def create_agent(self, agent: AgentDto):
         self.agent = Agent(
@@ -34,8 +31,22 @@ class AgentService:
 
     def add_active_tags(self, tags: List[str]) -> List[TagDto]:
         tag_dict = {t.name: t for t in self.agent.all_tags}
-        active_tags = [tag_dict.get(t) for t in tags]
-        self.agent.state.tags = active_tags
+        
+        def update_tags_by_group(new_tags):
+            active_tags = self.agent.state.tags
+            existing_groups = {tag.group for tag in active_tags}
+            
+            updated_tags = []
+            
+            for tag in new_tags:
+                if tag.group not in existing_groups:
+                    updated_tags.append(tag)
+                    existing_groups.add(tag.group)
+            
+            return active_tags + updated_tags
+        
+        new_tags = [tag_dict.get(t) for t in tags if tag_dict.get(t)]
+        self.agent.state.tags = update_tags_by_group(new_tags)
         rankings = self.agent.goal_valuation.group_absolute_rankings
         tags_resp = [TagDto(**t.dict(), group_rank=rankings.get(t.group))
                      for t in self.agent.state.tags]

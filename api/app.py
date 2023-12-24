@@ -61,7 +61,7 @@ agents = Agents()
 
 @app.post("/{name}/init")
 async def init_graph(name: str, agents=Depends(agents.get_agents)):
-    agent = agents.new(name)
+    _ = agents.new(name)
     return {'message': f'agent created: {name}'}
 
 

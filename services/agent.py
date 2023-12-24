@@ -175,6 +175,10 @@ class Agent:
     # needs a connected graph before running
     def get_feasibility(self, target: WorkflowTarget) -> Feasibility:
         _, feasible_graph, fully_connected_graph = self.get_graph()
+        if not target.node:
+            logging.error("No target node found")
+            return Feasibility.INFEASIBLE
+        
         return get_feasibility(feasible_graph, fully_connected_graph, self.name, target.node, lenses=[])
     
     def get_priority(self, tags: List[str]):
