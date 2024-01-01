@@ -42,6 +42,7 @@ elastic_config = ElasticConfig(
 
 print("Done loading client", current_env, mini_graph)
 
+
 def get_index_data():
     from minecraft_graph.loader import get_graph_dict
     graph_dict, indexes = get_graph_dict(elastic_config)

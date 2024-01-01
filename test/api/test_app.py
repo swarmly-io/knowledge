@@ -42,12 +42,12 @@ def setup_agent():
             "got_shelter",
             "no_credit"])
     assert active_tags_response.status_code == 200
-    
+
     with open("./test/api/samplestate.json", 'r') as f:
         data = AgentMCState(**json.load(f))
         state_response = client.post(f"/agent/{name}/state", json=data.dict())
         assert state_response.status_code == 200
-    
+
     return name
 
 
@@ -195,11 +195,11 @@ def test_run_agent_succesfully_multi_runs():
     assert "got_tools" in list(map(lambda x: x.name, data.focus_tags))
     wooden_axe_path = [
         (f"agent:{name}", None, Feasibility.FEASIBLE),
-        ("goals:have defence", "GOAL", None), # todo, fix this
+        ("goals:have defence", "GOAL", None),  # todo, fix this
         ("actions:craft", "ACTION", Feasibility.FEASIBLE),
         ("recipes:701", "ACT_UPON", Feasibility.FEASIBLE),
         ("items:wooden_pickaxe", "PROVIDES", Feasibility.FEASIBLE)]
-    
+
     assert list(map(lambda x: (x.node, x.type, x.feasibility),
                     next(filter(lambda x: x.goal == 'items:wooden_pickaxe', data.paths)).path)) == wooden_axe_path
 
@@ -240,27 +240,29 @@ def test_run_agent_succesfully_multi_runs():
                'got_credit', 'no_credit'], data.focus_tags))
     assert data.active_goals[0].name == 'make money'
 
+
 def test_app_returns_priority_for_set_of_tags():
     name = setup_agent()
-    
+
     priority = client.post(
         f"/agent/{name}/priority",
         json=["health_high"])
     assert priority.json() == 2
-    
+
     priority = client.post(
         f"/agent/{name}/priority",
         json=["zombie_close", "health_high"])
     assert priority.json() == 1
-    
+
     priority = client.post(
         f"/agent/{name}/priority",
         json=["no_tools"])
     assert priority.json() == 999
 
+
 def test_app_returns_feasibility():
     name = setup_agent()
-    
+
     feasibility = client.post(
         f"/agent/{name}/feasibility",
         json={
@@ -272,7 +274,7 @@ def test_app_returns_feasibility():
             }
         })
     assert feasibility.json() == Feasibility.FEASIBLE
-    
+
     feasibility = client.post(
         f"/agent/{name}/feasibility",
         json={
@@ -284,4 +286,3 @@ def test_app_returns_feasibility():
             }
         })
     assert feasibility.json() == Feasibility.INFEASIBLE
-

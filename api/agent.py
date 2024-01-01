@@ -7,6 +7,7 @@ from minecraft_graph.feasibility import NodeFeasibility
 from domain_models.decisions.links import TagLink
 from domain_models.minecraft.state import AgentMCState
 
+
 class AgentService:
     def __init__(self):
         self.goals: List[GoalStatement] = []
@@ -31,19 +32,19 @@ class AgentService:
 
     def add_active_tags(self, tags: List[str]) -> List[TagDto]:
         tag_dict = {t.name: t for t in self.agent.all_tags}
-        
+
         def update_tags_by_group(new_tags):
             active_tags = self.agent.state.tags
             existing_groups = {tag.group: tag for tag in active_tags}
-                        
+
             for tag in new_tags:
                 if tag.group in existing_groups:
                     active_tags.remove(existing_groups[tag.group])
-                
+
                 active_tags.append(tag)
-            
+
             return active_tags
-        
+
         new_tags = [tag_dict.get(t) for t in tags if tag_dict.get(t)]
         self.agent.state.tags = update_tags_by_group(new_tags)
         rankings = self.agent.goal_valuation.group_absolute_rankings

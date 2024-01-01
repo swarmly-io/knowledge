@@ -21,6 +21,7 @@ class PathNode(BaseModel):
     feasibility: Optional[Feasibility]
     data: Optional[Dict]
 
+
 class SubPath(BaseModel):
     parent_node: str
     target_node: str
@@ -28,11 +29,13 @@ class SubPath(BaseModel):
     feasibility: Feasibility
     paths: list = []
 
+
 class Path(BaseModel):
     path: List[PathNode] = []
     feasible: bool
     goal: str
     sub_paths: List[SubPath]
+
 
 class NextActionResponse(BaseModel):
     paths: List[Path]
