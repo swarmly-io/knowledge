@@ -59,6 +59,7 @@ class FindPathRequest(BaseModel):
 
 agents = Agents()
 
+
 @app.post("/{name}/init")
 async def init_graph(name: str, agents=Depends(agents.get_agents)):
     _ = agents.new(name)
@@ -88,11 +89,13 @@ def run(name: str, agent: AgentService = Depends(agents.get_agent)):
     result = agent.agent.run()
     return result
 
+
 @app.post("/agent/{name}/decision")
-def run(name: str, trigger: Union[ScheduledTrigger, AggregateTrigger], agent: AgentService = Depends(agents.get_agent)):
+def run(name: str, trigger: Union[ScheduledTrigger, AggregateTrigger],
+        agent: AgentService = Depends(agents.get_agent)):
     if not agent.agent.state.tags:
         raise Exception("No tags found")
-    
+
     result = agent.agent.run(trigger=trigger)
     return result
 
@@ -114,18 +117,24 @@ class QaRequest(BaseModel):
     act_upon_node: str
     end_node: str
 
+
 @app.post("/agent/{name}/priority")
-def get_tag_priority(name: str, tags: List[str], agent: AgentService = Depends(agents.get_agent)) -> int:
+def get_tag_priority(name: str, tags: List[str],
+                     agent: AgentService = Depends(agents.get_agent)) -> int:
     return agent.agent.get_priority(tags)
 
+
 @app.post("/agent/{name}/feasibility")
-def get_node_feasibility(name: str, target: WorkflowTarget, agent: AgentService = Depends(agents.get_agent)) -> Feasibility:
+def get_node_feasibility(name: str, target: WorkflowTarget,
+                         agent: AgentService = Depends(agents.get_agent)) -> Feasibility:
     # todo consolodate lenses and added type back in
     return agent.agent.get_feasibility(target)
+
 
 @app.get("/agent/{name}/state")
 def get_state(name: str, agent: AgentService = Depends(agents.get_agent)) -> Optional[AgentMCState]:
     return agent.agent.state.mcState
+
 
 @app.post("/agent/{name}/state")
 async def update_state(name: str, state: AgentMCState, agent: AgentService = Depends(agents.get_agent)):
@@ -133,7 +142,8 @@ async def update_state(name: str, state: AgentMCState, agent: AgentService = Dep
     agent.set_mc_state(state)
     # run state_to_graph - clears and updates individual graph
     if agent.agent.state.tags:
-        await agent.agent.run_state(state) # should be non blocking
+        await agent.agent.run_state(state)  # should be non blocking
+
 
 @app.get("/health")
 def health():
